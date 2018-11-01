@@ -65,10 +65,12 @@ const_opt_dist_df <- melt(const_opt_dist_df, id.vars = c("const", "s"))
 
 hist(const_opt_dist_df$value[const_opt_dist_df$variable == "third" ])
 
-ggplot(const_opt_dist_df, aes(x = s, y = value)) +
+aus_freq <- ggplot(const_opt_dist_df, aes(x = s, y = value)) +
 	geom_line(aes(colour = variable, group = interaction(const, variable)), alpha = 0.3) +
 	labs(x = "Information (s)", 
 		y = "Proportion of voters in AES casting ballot type",
 		colour = "Sincere pref. as first on ballot") +
 	theme_bw() +
 	theme(legend.position = "bottom")
+gg_path <- here("output/figures/australia_sv_freq.pdf")
+ggsave(gg_path)
