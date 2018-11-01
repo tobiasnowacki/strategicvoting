@@ -1,3 +1,5 @@
+## OLD VERSION -- JUST FOR REFERENCE
+
 ##################################################
 ## Project: Strategic Voting in AV
 ## Script purpose: Functions for Calculating
