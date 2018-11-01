@@ -1,0 +1,94 @@
+"","const","grn","include"
+"1","Albury",0.1,TRUE
+"2","Auburn",0.504,FALSE
+"3","Ballina",0,TRUE
+"4","Balmain",0,TRUE
+"5","Bankstown",0.4546,FALSE
+"6","Barwon",0.9996,FALSE
+"7","Bathurst",0.0016,TRUE
+"8","Baulkham Hills",0.0254,TRUE
+"9","Bega",0.0016,TRUE
+"10","Blacktown",0.4018,FALSE
+"11","Blue Mountains",0,TRUE
+"12","Cabramatta",0.3032,TRUE
+"13","Camden",0.2302,TRUE
+"14","Campbelltown",0.1918,TRUE
+"15","Canterbury",0.558,FALSE
+"16","Castle Hill",0.0614,TRUE
+"17","Cessnock",0.0276,TRUE
+"18","Charlestown",0.0422,TRUE
+"19","Clarence",0.0656,TRUE
+"20","Coffs Harbour",2e-04,TRUE
+"21","Coogee",0.006,TRUE
+"22","Cootamundra",0.372,TRUE
+"23","Cronulla",0.0528,TRUE
+"24","Davidson",0,TRUE
+"25","Drummoyne",4e-04,TRUE
+"26","Dubbo",0.6358,FALSE
+"27","East Hills",0.2026,TRUE
+"28","Epping",0.0082,TRUE
+"29","Fairfield",0.9712,FALSE
+"30","Gosford",0.0914,TRUE
+"31","Goulburn",0.2264,TRUE
+"32","Granville",0.9888,FALSE
+"33","Hawkesbury",0.4026,FALSE
+"34","Heathcote",0.0282,TRUE
+"35","Heffron",2e-04,TRUE
+"36","Holsworthy",0.4728,FALSE
+"37","Hornsby",6e-04,TRUE
+"38","Keira",0,TRUE
+"39","Kiama",0.001,TRUE
+"40","Kogarah",0.7324,FALSE
+"41","Ku-ring-gai",0,TRUE
+"42","Lake Macquarie",1,FALSE
+"43","Lakemba",0.947,FALSE
+"44","Lane Cove",2e-04,TRUE
+"45","Lismore",0,TRUE
+"46","Liverpool",0.9346,FALSE
+"47","Londonderry",0.5348,FALSE
+"48","Macquarie Fields",0.5034,FALSE
+"49","Maitland",1,FALSE
+"50","Manly",0.0146,TRUE
+"51","Maroubra",0.003,TRUE
+"52","Miranda",0.0978,TRUE
+"53","Monaro",0.0048,TRUE
+"54","Mount Druitt",0.5618,FALSE
+"55","Mulgoa",0.5828,FALSE
+"56","Murray",1,FALSE
+"57","Myall Lakes",0.9932,FALSE
+"58","Newcastle",0,TRUE
+"59","Newtown",0,TRUE
+"60","North Shore",0.2318,TRUE
+"61","Northern Tablelands",0.614,FALSE
+"62","Oatley",0.0276,TRUE
+"63","Orange",0.0214,TRUE
+"64","Oxley",2e-04,TRUE
+"65","Parramatta",0.0224,TRUE
+"66","Penrith",0.2414,TRUE
+"67","Pittwater",4e-04,TRUE
+"68","Port Macquarie",0.0076,TRUE
+"69","Port Stephens",0.0644,TRUE
+"70","Prospect",0.468,FALSE
+"71","Riverstone",0.454,FALSE
+"72","Rockdale",0.0574,TRUE
+"73","Ryde",0.0028,TRUE
+"74","Seven Hills",0.1026,TRUE
+"75","Shellharbour",0.0936,TRUE
+"76","South Coast",2e-04,TRUE
+"77","Strathfield",0.0078,TRUE
+"78","Summer Hill",2e-04,TRUE
+"79","Swansea",0.991,FALSE
+"80","Sydney",1,FALSE
+"81","Tamworth",1,FALSE
+"82","Terrigal",2e-04,TRUE
+"83","The Entrance",0.0024,TRUE
+"84","Tweed",2e-04,TRUE
+"85","Upper Hunter",1,FALSE
+"86","Vaucluse",0.0016,TRUE
+"87","Wagga Wagga",0.969,FALSE
+"88","Wakehurst",0.0038,TRUE
+"89","Wallsend",0.0026,TRUE
+"90","Willoughby",0,TRUE
+"91","Wollondilly",0.0688,TRUE
+"92","Wollongong",0.9976,FALSE
+"93","Wyong",0.021,TRUE
