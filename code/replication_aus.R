@@ -11,11 +11,16 @@ library(here)
 
 av_piv_path <- here("code/utils/av_pivotal_probs_analytical_general_v2.r")
 source(av_piv_path)
+plur_piv_path <- here("code/utils/plurality_pivotal_probabilities_analytical.r")
+source(plur_piv_path)
+
 functions <- here("code/utils/functions.r")
 source(functions)
 
 library(ggplot2)
 library(reshape2)
+library(dplyr)
+
 
 # Import AES and Ballot data
 # Note that these are normalised utilities. To obtain like-dislike scores I will need to re-run the original script.
@@ -54,19 +59,26 @@ for(i in 1:nrow(const_bp_no_trunc)){
 	print(i)
 	prop <- return_sv_prop(const_bp_no_trunc[i, 2:10], aes_utils[, 1:3], s_list)
 	prop[, 1:3] <- as.data.frame(t(apply(prop[, 1:3], 1, function(x) x / sum(x))))
+	prop[]
 	prop$const <- const_bp_no_trunc[i, 1]
 	const_opt_dist[[i]] <- prop
 }
 
 const_opt_dist_df <- do.call(rbind, const_opt_dist)
-const_opt_dist_df <- melt(const_opt_dist_df, id.vars = c("const", "s"))
+const_opt_dist_df <- melt(const_opt_dist_df[, c("second", "third", "plurality_second", "const", "s")], 
+							id.vars = c("const", "s"))
+
+# Get means.
+const_opt_dist_df_agg <- as.data.frame(const_opt_dist_df %>% 
+							group_by(variable, s) %>% 
+							summarize(mean(value)))
+names(const_opt_dist_df_agg)[3] <- "value"
 
 # Plot.
-
-hist(const_opt_dist_df$value[const_opt_dist_df$variable == "third" ])
-
 aus_freq <- ggplot(const_opt_dist_df, aes(x = s, y = value)) +
 	geom_line(aes(colour = variable, group = interaction(const, variable)), alpha = 0.3) +
+	geom_line(data = const_opt_dist_df_agg, aes(colour = variable, group = variable, x = s, y = value),
+		size = 3) + 
 	labs(x = "Information (s)", 
 		y = "Proportion of voters in AES casting ballot type",
 		colour = "Sincere pref. as first on ballot") +
