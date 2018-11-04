@@ -107,6 +107,44 @@ return_sv_prop <- function(v_vec, util_df, s_breaks){
 
 }
 
+# Function: take ballot profile, DF of utilities, and returns vector of tactical incentives at different
+return_sv_tau <- function(v_vec, util_df, s_breaks){
+	v_vec <- as.numeric(v_vec)
+	sin_vec <- apply(util_df, 1, sin_vote_scalar)
+	
+	# RCV part
+	p_list <- lapply(s_breaks, function(x) av.pivotal.event.probs.general(v_vec, rep(x, 4)))
+	eu_list <- lapply(p_list, function(x) opt_vote(util_df, x, type = "rcv"))
+	tau_list <- lapply(eu_list, function(x) calculate_tau(x, sin_vec))
+
+	# Plurality part
+	# Do the same for plurality
+	sin_vec_plur <- sin_vote_plur_transform(sin_vec)
+	v_vec_three <- c(v_vec[1] + v_vec[2], v_vec[3] + v_vec[4], v_vec[5] + v_vec[6])
+	p_list_plur <- lapply(s_breaks, function(x) plurality.pivotal.probabilities(v_vec_three, x))
+	eu_list_plur <- lapply(p_list_plur, function(x) opt_vote(util_df, x, type = "plur"))
+	tau_list_plur <- lapply(eu_list_plur, function(x) calculate_tau(x, sin_vec_plur))
+
+	# Merge into one big data-frame
+	n <- length(s_breaks)
+	# return(tau_list[[1]][1:3])
+	tau_vec_rcv <- unlist(tau_list)
+	# return(tau_vec_rcv)
+	tau_vec_plur <- unlist(tau_list_plur)
+	out_df <- as.data.frame(cbind(rep(sin_vec, n), tau_vec_rcv, tau_vec_plur, rep(s_breaks, each = nrow(util_df))))
+	return(out_df)
+
+}
+
+# Transforms optimal vote scalar from RCV to plurality (aggregates into three parties)
+sin_vote_plur_transform <- function(x){
+	x[x %in% c(1, 2)] <- 1
+	x[x %in% c(3, 4)] <- 2
+	x[x %in% c(5, 6)] <- 3
+	return(x)
+}
+
+
 # Function: Take EU df and calculate optimal vote
 
 opt_vote_scalar <- function(eu_df){
@@ -147,6 +185,18 @@ sin_vote_scalar <- function(util){
 	}
 	}
 	return(out)
+}
+
+calculate_tau <- function(eu_df, sin_vec){
+	df <- cbind(eu_df, sin_vec)
+	df_ncol <- ncol(df)
+	tau <- apply(df, 1, function(x){
+		sin <- x[df_ncol]
+		eus <- x[-df_ncol]
+		tau <- max(eus[-sin]) - max(eus[sin])
+		return(tau)
+	})
+	return(tau)
 }
 
 sum_opt_votes <- function(sin_vec, opt_vec, type = "rcv"){
