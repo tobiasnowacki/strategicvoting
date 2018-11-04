@@ -124,8 +124,7 @@ ggsave(gg_path2)
 # sv(aes_utils[, 1:3], rule = "AV", v.vec = as.numeric(v_vec)[1:6], s = 85)
 # tau_df <- return_sv_tau(v_vec, aes_utils[, 1:3], 85) 
 
-#First, let's do this for a level of 80.
-
+#First, let's do this for a level of 80. 
 const_taus <- list()
 const_taus_qq <- list()
 for(i in 1:nrow(const_bp_no_trunc)){
@@ -136,9 +135,9 @@ for(i in 1:nrow(const_bp_no_trunc)){
 }
 const_taus_qq_df <- do.call(rbind, const_taus_qq)
 const_taus_qq_df$const <- rep(const_bp_no_trunc$district, each = nrow(aes_utils))
-
 big_qq <- as.data.frame(qqplot(x = const_taus_qq_df$x, y = const_taus_qq_df$y, plot.it = FALSE))
 
+# Make the actual plot
 qq_plot <- ggplot(const_taus_qq_df) +
 	geom_line(aes(x = x, y = y, group = const), alpha = 0.1) +
 	geom_line(data = big_qq, aes(x = x, y = y), colour = "red", lwd = 3) + 
@@ -148,3 +147,6 @@ qq_plot <- ggplot(const_taus_qq_df) +
 	theme_bw() + 
 	labs(x = "SI in Plurality", y = "SI in RCV")
 ggsave(here("../output/figures/australia_sv_qq.pdf"), qq_plot)
+
+
+# Ok, next I should loop this over s_breaks.
