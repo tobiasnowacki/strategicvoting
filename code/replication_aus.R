@@ -119,34 +119,34 @@ ggsave(gg_path2)
 
 ## QQ_PLOT
 
-# OK, so the two functions *do* yield the same tau output!
-# names(aes_utils) <- c("A", "B", "C") # Necessary for Andy's code to work.
-# sv(aes_utils[, 1:3], rule = "AV", v.vec = as.numeric(v_vec)[1:6], s = 85)
-# tau_df <- return_sv_tau(v_vec, aes_utils[, 1:3], 85) 
-
-#First, let's do this for a level of 80. 
-const_taus <- list()
-const_taus_qq <- list()
-for(i in 1:nrow(const_bp_no_trunc)){
-		print(i)
-		v_vec <- const_bp_no_trunc[i, 2:10]
-		const_taus[[i]] <- return_sv_tau(as.numeric(v_vec), aes_utils[, 1:3], 80)
-		const_taus_qq[[i]] <- as.data.frame(qqplot(x = unlist(const_taus[[i]]$tau_vec_plur[const_taus[[i]]$V4 == 80]), y = unlist(const_taus[[i]]$tau_vec_rcv[const_taus[[i]]$V4 == 80]), plot.it = FALSE))
+qq_function <- function(const_bp_no_trunc, utils, s){
+	const_taus <- list()
+	const_taus_qq <- list()
+	for(i in 1:nrow(const_bp_no_trunc)){
+			# print(const_bp_no_trunc[i, ])
+			v_vec <- const_bp_no_trunc[i, 2:10]
+			const_taus[[i]] <- return_sv_tau(as.numeric(v_vec), utils, s)
+			const_taus_qq[[i]] <- as.data.frame(qqplot(x = unlist(const_taus[[i]]$tau_vec_plur[const_taus[[i]]$V4 == s]), 
+				y = unlist(const_taus[[i]]$tau_vec_rcv[const_taus[[i]]$V4 == s]), plot.it = FALSE))
+	}
+	const_taus_qq_df <- do.call(rbind, const_taus_qq)
+	const_taus_qq_df$const <- rep(const_bp_no_trunc$district, each = nrow(aes_utils))
+	return(const_taus_qq_df)
 }
-const_taus_qq_df <- do.call(rbind, const_taus_qq)
-const_taus_qq_df$const <- rep(const_bp_no_trunc$district, each = nrow(aes_utils))
-big_qq <- as.data.frame(qqplot(x = const_taus_qq_df$x, y = const_taus_qq_df$y, plot.it = FALSE))
 
-# Make the actual plot
-qq_plot <- ggplot(const_taus_qq_df) +
+qq_list <- lapply(s_list, function(x) qq_function(const_bp_no_trunc, aes_utils[, 1:3], x))
+
+qq_df <- do.call(rbind, qq_list)
+qq_df$s <- unlist(rep(as.vector(s_list), each = nrow(aes_utils) * nrow(const_bp_no_trunc)))
+
+big_qq_list <- lapply(qq_list, function(z) as.data.frame(qqplot(x = z$x, y = z$y, plot.it = FALSE)))
+big_qq_df <- do.call(rbind, big_qq_list)
+big_qq_df$s <- rep(unlist(s_list), each = nrow(aes_utils) * nrow(const_bp_no_trunc))
+
+qq_plot_faceted <- ggplot(qq_df) +
 	geom_line(aes(x = x, y = y, group = const), alpha = 0.1) +
-	geom_line(data = big_qq, aes(x = x, y = y), colour = "red", lwd = 3) + 
-	geom_abline(intercept = 0, slope = 1, linetype = "dotted", colour = "blue") + 
-	scale_x_continuous(limits = c(-2, 2), expand = c(0, 0)) +
-	scale_y_continuous(limits = c(-2, 2), expand = c(0, 0)) +  
-	theme_bw() + 
-	labs(x = "SI in Plurality", y = "SI in RCV")
-ggsave(here("../output/figures/australia_sv_qq.pdf"), qq_plot)
-
-
-# Ok, next I should loop this over s_breaks.
+	geom_line(data = big_qq_df, aes(x = x, y = y), colour = "red", lwd = 2) + 
+	geom_abline(intercept = 0, slope = 1, linetype = "dotted", colour = "blue") +
+	theme_bw()  + 
+	facet_wrap(vars(s))
+ggsave(here("output/figures/australia_sv_qq.pdf"))
