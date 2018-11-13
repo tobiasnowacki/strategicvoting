@@ -58,7 +58,7 @@ const_bp_no_trunc[, 8:10] <- 0
 const_bp_no_trunc[, 2:10] <- t(apply(const_bp_no_trunc[, 2:10], 1, function(x) x / sum(x)))
 
 
-# Return data.frame with levels of strat voting by s and constituency.
+# LEVELS OF STRATEGIC VOTING.
 
 # Set levels of s at which to evaluate.
 s_list <- as.list(seq(from = 10, to = 130, by = 10))
@@ -97,7 +97,7 @@ gg_path <- here("output/figures/australia_sv_freq.pdf")
 ggsave(gg_path)
 
 # Next, let's have a distribution of cases according to whether they are more amenable to SV in RCV or Plurality.
-head(const_opt_dist_df_wide)
+# head(const_opt_dist_df_wide)
 
 ## Table: by constituency
 const_opt_dist_df_wide$inc_rcv <- const_opt_dist_df_wide[, 2] + const_opt_dist_df_wide[, 3]
@@ -117,36 +117,92 @@ gg_path2 <- here("output/figures/australia_sv_prop.pdf")
 ggsave(gg_path2)
 
 
-## QQ_PLOT
+## QQ-PLOT
 
-qq_function <- function(const_bp_no_trunc, utils, s){
-	const_taus <- list()
-	const_taus_qq <- list()
-	for(i in 1:nrow(const_bp_no_trunc)){
-			# print(const_bp_no_trunc[i, ])
-			v_vec <- const_bp_no_trunc[i, 2:10]
-			const_taus[[i]] <- return_sv_tau(as.numeric(v_vec), utils, s)
-			const_taus_qq[[i]] <- as.data.frame(qqplot(x = unlist(const_taus[[i]]$tau_vec_plur[const_taus[[i]]$V4 == s]), 
-				y = unlist(const_taus[[i]]$tau_vec_rcv[const_taus[[i]]$V4 == s]), plot.it = FALSE))
-	}
-	const_taus_qq_df <- do.call(rbind, const_taus_qq)
-	const_taus_qq_df$const <- rep(const_bp_no_trunc$district, each = nrow(aes_utils))
-	return(const_taus_qq_df)
-}
-
+# Create dataframe of qq-plot coordinates, by constituency and by s
 qq_list <- lapply(s_list, function(x) qq_function(const_bp_no_trunc, aes_utils[, 1:3], x))
-
 qq_df <- do.call(rbind, qq_list)
 qq_df$s <- unlist(rep(as.vector(s_list), each = nrow(aes_utils) * nrow(const_bp_no_trunc)))
 
+# Also get coordinates for qq-plot aggregated over constituencies, by s
 big_qq_list <- lapply(qq_list, function(z) as.data.frame(qqplot(x = z$x, y = z$y, plot.it = FALSE)))
 big_qq_df <- do.call(rbind, big_qq_list)
 big_qq_df$s <- rep(unlist(s_list), each = nrow(aes_utils) * nrow(const_bp_no_trunc))
 
+# Plot.
 qq_plot_faceted <- ggplot(qq_df) +
 	geom_line(aes(x = x, y = y, group = const), alpha = 0.1) +
 	geom_line(data = big_qq_df, aes(x = x, y = y), colour = "red", lwd = 2) + 
 	geom_abline(intercept = 0, slope = 1, linetype = "dotted", colour = "blue") +
 	theme_bw()  + 
 	facet_wrap(vars(s))
-ggsave(here("output/figures/australia_sv_qq.pdf"))
+ggsave(here("../output/figures/australia_sv_qq.pdf"), qq_plot_faceted)
+
+## OCCURRENCE OF VOTING PARADOXES
+
+# todo: write functions (wasted vote; non-monotonicity)
+
+
+## STRATEGIC INTERDEPENDENCE
+## TO-DO: Fix plurality; compare quantities to "level-1 strat voting"
+## Second part of interdependence replication?
+
+
+# Pack all of this into a function at the end.
+lambda <- 0.5
+
+# Get the optimal votes for one constituency.
+v_vec <- const_bp_no_trunc[1, 2:10]
+mega_df <- return_sv_tau(v_vec, aes_utils[, 1:3], s_list)
+by_s_df <- split(mega_df, mega_df$s)
+
+# For each s, get 6x6 (and 3x3) mat
+vote_matrix <- function(df, type = "rcv"){
+	if(type == "rcv"){
+		df$opt_rcv <- factor(df$opt_rcv, 1:6)
+		tab <- tapply(df$opt_rcv, df$sin_rcv, table)
+		tab <- do.call(rbind, tab)
+		return(tab)
+	}
+	if(type == "plur"){
+		df$opt_plur <- factor(df$opt_plur, 1:3)
+		tab <- tapply(df$opt_plur, df$sin_plur, table)
+		tab <- do.call(rbind, tab)
+		return(tab)
+	}
+}
+
+vote_mat_rcv <- lapply(by_s_df, function(x) vote_matrix(x, type = "rcv"))
+vote_mat_plur <- lapply(by_s_df, function(x) vote_matrix(x, type = "plur"))
+
+v_vec_init_weighted <- as.numeric(v_vec[1:6] / sum(v_vec[1:6]))
+v_vec_init_weighted_plur <- c(v_vec_init_weighted[1] + v_vec_init_weighted[2],
+	v_vec_init_weighted[3] + v_vec_init_weighted[4], 
+	v_vec_init_weighted[5] + v_vec_init_weighted[6])
+
+new_vec <- lapply(vote_mat_rcv, function(x) v_vec_init_weighted %*% x)
+new_vec <- lapply(new_vec, function(x) x / sum(x))
+new_vec <- lapply(new_vec, function(x) lambda * x + (1 - lambda) * v_vec_init_weighted)
+
+# How will this work for plurality? Will need 6 x 3 matrix, rather than 6 x 6.
+new_vec_plur <- lapply(vote_mat_plur, function(x) v_vec_init_weighted_plur %*% x)
+new_vec_plur <- lapply(new_vec_plur, function(x) x / sum(x))
+new_vec_plur <- lapply(new_vec_plur, function(x) lambda * x + (1 - lambda) * v_vec_init_weighted)
+# Get proportion of level-2 strategic voters
+# Doesn't make sense right now -- produces output for multiple values for s in each list element even though each new_vec comes from a specific value for s
+# work with for loop instead?
+level_2_strat_incent_rcv <- lapply(new_vec, function(x) return_sv_prop(c(x, 0, 0, 0), aes_utils[, 1:3], s_list))
+
+
+inter_df <- matrix(NA, ncol = 5, nrow = length(s_list))
+
+for (i in 1:length(s_list)){
+	out_rcv <- return_sv_prop(c(new_vec[[i]], 0, 0, 0), aes_utils[, 1:3], list(s_list[[i]]))
+	print(apply(out_rcv, 2, class))
+	print(class(out_rcv[1, 1:3]))
+	inter_df[i, 1:3] <- as.matrix(out_rcv[1, 1:3])
+}
+
+# compare to original
+return_sv_prop(c(v_vec_init_weighted, 0, 0, 0), aes_utils[, 1:3], s_list)
+# Repeat same exercise for plurality

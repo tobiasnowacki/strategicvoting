@@ -71,7 +71,7 @@ opt_vote <- function(utility_df, p_list, type = "rcv"){
 	}
 }
 
-return_sv_prop <- function(v_vec, util_df, s_breaks){
+return_sv_prop <- function(v_vec, util_df, s_breaks, full_mat = FALSE){
 	# Function that takes a ballot profile, a dataframe of utilities, and a list of s values
 	#	Returns: a data.frame with voters by vote type for levels of s
 
@@ -95,6 +95,10 @@ return_sv_prop <- function(v_vec, util_df, s_breaks){
 	opt_vote_prop_plur <- lapply(opt_vec_list_plur, function(x) sum_opt_votes(sin_vec, x, type = "plur"))
 
 	prop_df_plur <- do.call(rbind, opt_vote_prop_plur)
+
+	if(full_mat == TRUE){
+		return(list(opt_vec_list, opt_vec_list_plur))
+	}
 
 	# Add plurality to DF
 	prop_df$plurality_first <- as.numeric(prop_df_plur[, 1])
@@ -125,13 +129,22 @@ return_sv_tau <- function(v_vec, util_df, s_breaks){
 	eu_list_plur <- lapply(p_list_plur, function(x) opt_vote(util_df, x, type = "plur"))
 	tau_list_plur <- lapply(eu_list_plur, function(x) calculate_tau(x, sin_vec_plur))
 
+	# Render optimal votes
+	opt_list <- lapply(eu_list, function(x) opt_vote_scalar(x))
+	opt_vec <- unlist(opt_list)
+
+	opt_list_plur <- lapply(eu_list_plur, function(x) opt_vote_scalar(x))
+	opt_vec_plur <- unlist(opt_list_plur)
+
 	# Merge into one big data-frame
 	n <- length(s_breaks)
 	# return(tau_list[[1]][1:3])
 	tau_vec_rcv <- unlist(tau_list)
 	# return(tau_vec_rcv)
 	tau_vec_plur <- unlist(tau_list_plur)
-	out_df <- as.data.frame(cbind(rep(sin_vec, n), tau_vec_rcv, tau_vec_plur, rep(s_breaks, each = nrow(util_df))))
+	out_df <- as.data.frame(cbind(rep(sin_vec, n), rep(sin_vec_plur, n), tau_vec_rcv, tau_vec_plur, opt_vec, opt_vec_plur, rep(unlist(s_breaks), each = nrow(util_df))))
+	#out_df <- apply(out_df, 2, function(x) unlist(x))
+	names(out_df) <- c("sin_rcv", "sin_plur", "tau_rcv", "tau_plur", "opt_rcv", "opt_plur", "s")
 	return(out_df)
 
 }
@@ -227,6 +240,23 @@ sum_opt_votes <- function(sin_vec, opt_vec, type = "rcv"){
 		return(colSums(out))
 	}
 
+}
+
+qq_function <- function(const_bp_no_trunc, utils, s){
+	# Takes dataframe of ballot proportions, dataframe of utilities, and level of uncertainty
+	# Returns dataframe of coordiantes for qq-plot, grouped by constituency
+	const_taus <- list()
+	const_taus_qq <- list()
+	for(i in 1:nrow(const_bp_no_trunc)){
+			# print(const_bp_no_trunc[i, ])
+			v_vec <- const_bp_no_trunc[i, 2:10]
+			const_taus[[i]] <- return_sv_tau(as.numeric(v_vec), utils, s)
+			const_taus_qq[[i]] <- as.data.frame(qqplot(x = unlist(const_taus[[i]]$tau_vec_plur[const_taus[[i]]$V4 == s]), 
+				y = unlist(const_taus[[i]]$tau_vec_rcv[const_taus[[i]]$V4 == s]), plot.it = FALSE))
+	}
+	const_taus_qq_df <- do.call(rbind, const_taus_qq)
+	const_taus_qq_df$const <- rep(const_bp_no_trunc$district, each = nrow(aes_utils))
+	return(const_taus_qq_df)
 }
 
 # Andy's function(s) (for reference):
