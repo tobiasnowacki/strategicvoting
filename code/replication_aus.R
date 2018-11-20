@@ -57,6 +57,10 @@ const_bp_no_trunc <- const_bp
 const_bp_no_trunc[, 8:10] <- 0
 const_bp_no_trunc[, 2:10] <- t(apply(const_bp_no_trunc[, 2:10], 1, function(x) x / sum(x)))
 
+# TO-DO: for data *WITH* truncated prefs, make sure sin_vec is evaluated correctly
+# 	--> functions.r
+# TO-DO (GENERAL): check whether opt. vote results make sense (e.g. very little severe pushover / third pref opt)
+
 
 # LEVELS OF STRATEGIC VOTING.
 
@@ -148,25 +152,25 @@ ggsave(here("../output/figures/australia_sv_qq.pdf"), qq_plot_faceted)
 ## Second part of interdependence replication?
 
 
-# Pack all of this into a function at the end.
-lambda <- 0.5
+# Todo: Pack all of this into a function at the end and shift to functions.r
+lambda <- 0.3
 
 # Get the optimal votes for one constituency.
-v_vec <- const_bp_no_trunc[1, 2:10]
+v_vec <- const_bp_no_trunc[5, 2:10]
 mega_df <- return_sv_tau(v_vec, aes_utils[, 1:3], s_list)
 by_s_df <- split(mega_df, mega_df$s)
 
 # For each s, get 6x6 (and 3x3) mat
 vote_matrix <- function(df, type = "rcv"){
 	if(type == "rcv"){
-		df$opt_rcv <- factor(df$opt_rcv, 1:6)
+		df$opt_rcv <- factor(df$opt_rcv, levels = 1:6)
 		tab <- tapply(df$opt_rcv, df$sin_rcv, table)
 		tab <- do.call(rbind, tab)
 		return(tab)
 	}
 	if(type == "plur"){
-		df$opt_plur <- factor(df$opt_plur, 1:3)
-		tab <- tapply(df$opt_plur, df$sin_plur, table)
+		df$opt_plur <- factor(df$opt_plur, levels = 1:3)
+		tab <- tapply(df$opt_plur, df$sin_rcv, table)
 		tab <- do.call(rbind, tab)
 		return(tab)
 	}
@@ -180,29 +184,41 @@ v_vec_init_weighted_plur <- c(v_vec_init_weighted[1] + v_vec_init_weighted[2],
 	v_vec_init_weighted[3] + v_vec_init_weighted[4], 
 	v_vec_init_weighted[5] + v_vec_init_weighted[6])
 
+# I can wrap this into a new function.
 new_vec <- lapply(vote_mat_rcv, function(x) v_vec_init_weighted %*% x)
 new_vec <- lapply(new_vec, function(x) x / sum(x))
 new_vec <- lapply(new_vec, function(x) lambda * x + (1 - lambda) * v_vec_init_weighted)
 
 # How will this work for plurality? Will need 6 x 3 matrix, rather than 6 x 6.
-new_vec_plur <- lapply(vote_mat_plur, function(x) v_vec_init_weighted_plur %*% x)
+new_vec_plur <- lapply(vote_mat_plur, function(x) v_vec_init_weighted %*% x)
 new_vec_plur <- lapply(new_vec_plur, function(x) x / sum(x))
-new_vec_plur <- lapply(new_vec_plur, function(x) lambda * x + (1 - lambda) * v_vec_init_weighted)
+new_vec_plur <- lapply(new_vec_plur, function(x) lambda * x + (1 - lambda) * v_vec_init_weighted_plur)
+
 # Get proportion of level-2 strategic voters
+
 # Doesn't make sense right now -- produces output for multiple values for s in each list element even though each new_vec comes from a specific value for s
 # work with for loop instead?
-level_2_strat_incent_rcv <- lapply(new_vec, function(x) return_sv_prop(c(x, 0, 0, 0), aes_utils[, 1:3], s_list))
+# level_2_strat_incent_rcv <- lapply(new_vec, function(x) return_sv_prop(c(x, 0, 0, 0), aes_utils[, 1:3], s_list))
+# Given for-loop, obsolete?
 
+# To obtain the proportion of voters in plurality, I will need to do either of the following:
+# (a) Take 3-item vec in new_vec_plur and split it into 6 such that I can run return_sv_prop
+new_vec_plur_six <- lapply(new_vec_plur, function(x) rep(x, each = 2) / 2)
+# (b) Write a new function for plurality specifically (why if can avoid?).
+
+# For loop: For each level of S, compute proportion of voters voting for first, second, third vote in AV and first, second in plurality.
 
 inter_df <- matrix(NA, ncol = 5, nrow = length(s_list))
 
 for (i in 1:length(s_list)){
 	out_rcv <- return_sv_prop(c(new_vec[[i]], 0, 0, 0), aes_utils[, 1:3], list(s_list[[i]]))
-	print(apply(out_rcv, 2, class))
-	print(class(out_rcv[1, 1:3]))
+	# to-do (still): add plurality proportions, see above comment.
+	out_plur <- return_sv_prop(c(new_vec_plur_six[[i]], 0, 0, 0), aes_utils[, 1:3], list(s_list[[i]]))
 	inter_df[i, 1:3] <- as.matrix(out_rcv[1, 1:3])
+	inter_df[i, 4:5] <- as.matrix(out_rcv[1, 4:5])
 }
 
 # compare to original
 return_sv_prop(c(v_vec_init_weighted, 0, 0, 0), aes_utils[, 1:3], s_list)
-# Repeat same exercise for plurality
+
+# Loop over constituencies and put into mega-dataframe for plotting.
