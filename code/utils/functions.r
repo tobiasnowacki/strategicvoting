@@ -71,6 +71,8 @@ opt_vote <- function(utility_df, p_list, type = "rcv"){
 	}
 }
 
+# TO-DO: for data *WITH* truncated prefs, make sure sin_vec is evaluated correctly
+
 return_sv_prop <- function(v_vec, util_df, s_breaks, full_mat = FALSE){
 	# Function that takes a ballot profile, a dataframe of utilities, and a list of s values
 	#	Returns: a data.frame with voters by vote type for levels of s
