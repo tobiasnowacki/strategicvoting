@@ -60,6 +60,15 @@ const_bp_no_trunc[, 2:10] <- t(apply(const_bp_no_trunc[, 2:10], 1, function(x) x
 # TO-DO: for data *WITH* truncated prefs, make sure sin_vec is evaluated correctly
 # 	--> functions.r
 # TO-DO (GENERAL): check whether opt. vote results make sense (e.g. very little severe pushover / third pref opt)
+# DONE -- SEEMS TO BE WORKING
+
+
+# TEST IF OPT VOTE YIELDS SAME RESULTS AS ANDY'S FUNCTION
+v_vec <- c(as.numeric(const_bp_no_trunc[4, 2:10]))
+test_out <- sv(U = aes_utils[, 1:3], v.vec = v_vec[1:6], s = 80, rule = "AV")
+sum(table(test_out$opt.votes.strategic, test_out$opt.votes.sincere)
+test_out_toby <- return_sv_prop(v_vec, aes_utils[, 1:3], list(80))
+# YES!
 
 
 # LEVELS OF STRATEGIC VOTING.
