@@ -59,19 +59,21 @@ const_bp_no_trunc[, 2:10] <- t(apply(const_bp_no_trunc[, 2:10], 1, function(x) x
 
 # TO-DO: for data *WITH* truncated prefs, make sure sin_vec is evaluated correctly
 # 	--> functions.r
-# TO-DO (GENERAL): check whether opt. vote results make sense (e.g. very little severe pushover / third pref opt)
-# DONE -- SEEMS TO BE WORKING
+
+### ---------------------------------
+### ANALYSIS
+### ---------------------------------
 
 
 # TEST IF OPT VOTE YIELDS SAME RESULTS AS ANDY'S FUNCTION
-v_vec <- c(as.numeric(const_bp_no_trunc[4, 2:10]))
-test_out <- sv(U = aes_utils[, 1:3], v.vec = v_vec[1:6], s = 80, rule = "AV")
-sum(table(test_out$opt.votes.strategic, test_out$opt.votes.sincere)
-test_out_toby <- return_sv_prop(v_vec, aes_utils[, 1:3], list(80))
+# v_vec <- c(as.numeric(const_bp_no_trunc[4, 2:10]))
+# test_out <- sv(U = aes_utils[, 1:3], v.vec = v_vec[1:6], s = 80, rule = "AV")
+# sum(table(test_out$opt.votes.strategic, test_out$opt.votes.sincere)
+# test_out_toby <- return_sv_prop(v_vec, aes_utils[, 1:3], list(80))
 # YES!
 
-
 # LEVELS OF STRATEGIC VOTING.
+# TODO: Consider re-writing return_sv_prop such that it works off the return_sv_tau DF
 
 # Set levels of s at which to evaluate.
 s_list <- as.list(seq(from = 10, to = 130, by = 10))
@@ -131,6 +133,7 @@ ggsave(gg_path2)
 
 
 ## QQ-PLOT
+## TODO: Fix function: (a) allow for truncated ballots; (b) feed off "return_sv_tau" object
 
 # Create dataframe of qq-plot coordinates, by constituency and by s
 qq_list <- lapply(s_list, function(x) qq_function(const_bp_no_trunc, aes_utils[, 1:3], x))
@@ -157,75 +160,42 @@ ggsave(here("../output/figures/australia_sv_qq.pdf"), qq_plot_faceted)
 
 
 ## STRATEGIC INTERDEPENDENCE
-## TO-DO: Fix plurality; compare quantities to "level-1 strat voting"
-## Second part of interdependence replication?
+
+# New write-up using function:
+# mega_df <- apply(const_bp[, 2:10], 1, function(x) return_sv_tau(x, aes_utils[, 1:3], s_list))
+v_vec <- as.numeric(const_bp_no_trunc[4, 2:10]) / sum(as.numeric(const_bp_no_trunc[1, 2:10]))
+test <- return_sv_tau(v_vec, aes_utils[, 1:3], list(80))
+lambda_list <- as.list(seq(0, 0.5, 0.02))
+
+test_1 <- level_two_props(v_vec, lambda_list, aes_utils[, 1:3], test, list(80))
 
 
-# Todo: Pack all of this into a function at the end and shift to functions.r
-lambda <- 0.3
-
-# Get the optimal votes for one constituency.
-v_vec <- const_bp_no_trunc[5, 2:10]
-mega_df <- return_sv_tau(v_vec, aes_utils[, 1:3], s_list)
-by_s_df <- split(mega_df, mega_df$s)
-
-# For each s, get 6x6 (and 3x3) mat
-vote_matrix <- function(df, type = "rcv"){
-	if(type == "rcv"){
-		df$opt_rcv <- factor(df$opt_rcv, levels = 1:6)
-		tab <- tapply(df$opt_rcv, df$sin_rcv, table)
-		tab <- do.call(rbind, tab)
-		return(tab)
-	}
-	if(type == "plur"){
-		df$opt_plur <- factor(df$opt_plur, levels = 1:3)
-		tab <- tapply(df$opt_plur, df$sin_rcv, table)
-		tab <- do.call(rbind, tab)
-		return(tab)
-	}
+# Run the actual loop across constituencies
+inter_df <- list()
+lambda_list <- as.list(seq(0, 0.5, 0.02))
+for(i in 1:nrow(const_bp)){
+	print(i)
+	v_vec <- as.numeric(const_bp[i, 2:10]) / sum(as.numeric(const_bp[i, 2:10]))
+	tau <- return_sv_tau(v_vec, aes_utils[, 1:3], list(80))
+	const_props <- level_two_props(v_vec, lambda_list, aes_utils[, 1:3], tau, list(80))
+	const_props$const <- const_bp[i, 1]
+	inter_df[[i]] <- const_props
 }
 
-vote_mat_rcv <- lapply(by_s_df, function(x) vote_matrix(x, type = "rcv"))
-vote_mat_plur <- lapply(by_s_df, function(x) vote_matrix(x, type = "plur"))
+inter_df_full <- do.call(rbind, inter_df)
 
-v_vec_init_weighted <- as.numeric(v_vec[1:6] / sum(v_vec[1:6]))
-v_vec_init_weighted_plur <- c(v_vec_init_weighted[1] + v_vec_init_weighted[2],
-	v_vec_init_weighted[3] + v_vec_init_weighted[4], 
-	v_vec_init_weighted[5] + v_vec_init_weighted[6])
+names(inter_df_full)[1:4] <- c("L1RCV", "L0RCV", "L1PLUR", "L0PLUR")
 
-# I can wrap this into a new function.
-new_vec <- lapply(vote_mat_rcv, function(x) v_vec_init_weighted %*% x)
-new_vec <- lapply(new_vec, function(x) x / sum(x))
-new_vec <- lapply(new_vec, function(x) lambda * x + (1 - lambda) * v_vec_init_weighted)
+lvl1_diff <- ggplot(inter_df_full, aes(x = lambda)) +
+	geom_line(aes(y = L1RCV, group = const), colour = "blue", alpha = 0.5) +
+	geom_line(aes(y = L1PLUR, group = const), colour = "orange", alpha = 0.5)
+ggsave(here("../output/figures/level1_diff.pdf"), lvl1_diff)
 
-# How will this work for plurality? Will need 6 x 3 matrix, rather than 6 x 6.
-new_vec_plur <- lapply(vote_mat_plur, function(x) v_vec_init_weighted %*% x)
-new_vec_plur <- lapply(new_vec_plur, function(x) x / sum(x))
-new_vec_plur <- lapply(new_vec_plur, function(x) lambda * x + (1 - lambda) * v_vec_init_weighted_plur)
 
-# Get proportion of level-2 strategic voters
-
-# Doesn't make sense right now -- produces output for multiple values for s in each list element even though each new_vec comes from a specific value for s
-# work with for loop instead?
-# level_2_strat_incent_rcv <- lapply(new_vec, function(x) return_sv_prop(c(x, 0, 0, 0), aes_utils[, 1:3], s_list))
-# Given for-loop, obsolete?
-
-# To obtain the proportion of voters in plurality, I will need to do either of the following:
-# (a) Take 3-item vec in new_vec_plur and split it into 6 such that I can run return_sv_prop
-new_vec_plur_six <- lapply(new_vec_plur, function(x) rep(x, each = 2) / 2)
-# (b) Write a new function for plurality specifically (why if can avoid?).
-
-# For loop: For each level of S, compute proportion of voters voting for first, second, third vote in AV and first, second in plurality.
-
-inter_df <- matrix(NA, ncol = 5, nrow = length(s_list))
-
-for (i in 1:length(s_list)){
-	out_rcv <- return_sv_prop(c(new_vec[[i]], 0, 0, 0), aes_utils[, 1:3], list(s_list[[i]]))
-	# to-do (still): add plurality proportions, see above comment.
-	out_plur <- return_sv_prop(c(new_vec_plur_six[[i]], 0, 0, 0), aes_utils[, 1:3], list(s_list[[i]]))
-	inter_df[i, 1:3] <- as.matrix(out_rcv[1, 1:3])
-	inter_df[i, 4:5] <- as.matrix(out_rcv[1, 4:5])
-}
+lvl0_diff <- ggplot(inter_df_full, aes(x = lambda)) +
+	geom_line(aes(y = L0RCV, group = const), colour = "blue", alpha = 0.5) +
+	geom_line(aes(y = L0PLUR, group = const), colour = "orange", alpha = 0.5)
+ggsave(here("../output/figures/level0_diff.pdf"))
 
 # compare to original
 return_sv_prop(c(v_vec_init_weighted, 0, 0, 0), aes_utils[, 1:3], s_list)
