@@ -365,21 +365,19 @@ level_two_props <- function(v_vec, lambda_list, util, sv_df, s){
 	lvl_two_summary_plur <- do.call(rbind, lvl_two_summary_plur)
 
 	df_out <- as.data.frame(cbind(lvl_two_summary_rcv, lvl_two_summary_plur))
-	names(df_out) <- c("L1 RCV", "L0 RCV", "L1 PLUR", "L0 PLUR")
+	names(df_out) <- c("L1RCV", "L0RCV", "L1PLUR", "L0PLUR")
 	df_out$s <- s
 	df_out$lambda <- unlist(lambda_list)
 
 	return(df_out)
 }
 
-
-
 return_lvl_two_prop <- function(sv_df, lvl_2, type = "rcv"){
 	n <- nrow(sv_df)
 	if(type == "rcv"){
 		vs_lvl_one_rcv <- 1 - sum(lvl_2$opt_rcv == sv_df$opt_rcv) / n
-		vs_sin_rcv <- sum(lvl_2$opt_rcv == lvl_2$sin_rcv) / n
-		return(c(vs_sin_rcv, vs_lvl_one_rcv))
+		vs_sin_rcv <- 1 - sum(lvl_2$opt_rcv == lvl_2$sin_rcv) / n
+		return(c(vs_lvl_one_rcv, vs_sin_rcv))
 	}
 	if(type == "plur"){
 		vs_lvl_one_plur <- 1 - sum(lvl_2$opt_plur == sv_df$opt_plur) / n

@@ -163,11 +163,18 @@ ggsave(here("../output/figures/australia_sv_qq.pdf"), qq_plot_faceted)
 
 # New write-up using function:
 # mega_df <- apply(const_bp[, 2:10], 1, function(x) return_sv_tau(x, aes_utils[, 1:3], s_list))
-v_vec <- as.numeric(const_bp_no_trunc[4, 2:10]) / sum(as.numeric(const_bp_no_trunc[1, 2:10]))
-test <- return_sv_tau(v_vec, aes_utils[, 1:3], list(80))
-lambda_list <- as.list(seq(0, 0.5, 0.02))
+# v_vec <- as.numeric(const_bp_no_trunc[1, 2:10]) / sum(as.numeric(const_bp_no_trunc[1, 2:10]))
+# test <- return_sv_tau(v_vec, aes_utils[, 1:3], list(80))
+# lambda_list <- as.list(seq(0, 0.5, 0.02))
+# vote_mat_rcv <- vote_matrix(test, type = "rcv")
+# v_vec_init <- v_vec[1:6]
+# v_vec_lvl1 <- unlist(new_v_vec(vote_mat_rcv, v_vec_init, list(0.00), type = "rcv"))
+# test_lvl1 <- return_sv_tau(v_vec_lvl1, aes_utils[, 1:3], list(80))
 
-test_1 <- level_two_props(v_vec, lambda_list, aes_utils[, 1:3], test, list(80))
+# test_lvl1 <- level_two_props(v_vec, list(0), aes_utils[, 1:3], test, 80)
+# return_lvl_two_prop(test, test_lvl1[[1]], type = "rcv")
+
+# test_1 <- level_two_props(v_vec, lambda_list, aes_utils[, 1:3], test, list(80))
 
 
 # Run the actual loop across constituencies
@@ -175,7 +182,7 @@ inter_df <- list()
 lambda_list <- as.list(seq(0, 0.5, 0.02))
 for(i in 1:nrow(const_bp)){
 	print(i)
-	v_vec <- as.numeric(const_bp[i, 2:10]) / sum(as.numeric(const_bp[i, 2:10]))
+	v_vec <- as.numeric(const_bp_no_trunc[i, 2:10]) / sum(as.numeric(const_bp_no_trunc[i, 2:10]))
 	tau <- return_sv_tau(v_vec, aes_utils[, 1:3], list(80))
 	const_props <- level_two_props(v_vec, lambda_list, aes_utils[, 1:3], tau, list(80))
 	const_props$const <- const_bp[i, 1]
@@ -187,14 +194,18 @@ inter_df_full <- do.call(rbind, inter_df)
 names(inter_df_full)[1:4] <- c("L1RCV", "L0RCV", "L1PLUR", "L0PLUR")
 
 lvl1_diff <- ggplot(inter_df_full, aes(x = lambda)) +
-	geom_line(aes(y = L1RCV, group = const), colour = "blue", alpha = 0.5) +
-	geom_line(aes(y = L1PLUR, group = const), colour = "orange", alpha = 0.5)
+	geom_line(aes(y = L1RCV, group = const), colour = "blue", alpha = 0.2) +
+	geom_line(aes(y = L1PLUR, group = const), colour = "orange", alpha = 0.2) +
+	theme_bw() +
+	labs(x = expression(lambda), y = paste(expression(delta), "Level 2 Strat. Vote - Level 1 Strat. Vote"))
 ggsave(here("../output/figures/level1_diff.pdf"), lvl1_diff)
 
 
 lvl0_diff <- ggplot(inter_df_full, aes(x = lambda)) +
-	geom_line(aes(y = L0RCV, group = const), colour = "blue", alpha = 0.5) +
-	geom_line(aes(y = L0PLUR, group = const), colour = "orange", alpha = 0.5)
+	geom_line(aes(y = L0RCV, group = const), colour = "blue", alpha = 0.2) +
+	geom_line(aes(y = L0PLUR, group = const), colour = "orange", alpha = 0.2) +
+	theme_bw() +
+	labs(x = expression(lambda), y = paste(expression(delta), "Level 2 Strat. Vote - Sincere Vote")
 ggsave(here("../output/figures/level0_diff.pdf"))
 
 # compare to original
