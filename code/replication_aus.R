@@ -37,6 +37,9 @@ library(dplyr)
 aes_utils <- read.csv(here("../data", "australia", "AES_utility.csv"))[, -1]
 aes_utils <- aes_utils[, c("GRN", "LIB", "LAB")] #common ordering
 
+# Import non-standardised utilities
+aes_utils_raw <- read.csv(here("../data", "australia", "aes_nsw_full.csv"))[, -1]
+
 nsw <- read.csv(here("../data/australia/nsw_ballots.csv"))[, -1]
 resampling <- read.csv(here("../data/australia/nsw_resampling.csv"))[, -1]
 
@@ -65,18 +68,59 @@ const_bp_no_trunc[, 2:10] <- t(apply(const_bp_no_trunc[, 2:10], 1, function(x) x
 ### ---------------------------------
 
 
+# Set levels of s at which to evaluate.
+s_list <- as.list(seq(from = 10, to = 130, by = 10))
+
+
+### PLAYGROUND ###
+
+v_vec <- c(as.numeric(const_bp[4, 2:10]))
+
+
+test <- return_sv_tau(v_vec, aes_utils_raw[1:20, ], list(80))
+test_andy <- sv(U = aes_utils_raw[1:20, ], v.vec = v_vec[1:6], s = 80, rule = "AV")
+# OK - even for non-standard vectors, I *finally* get the same results.
+# test_list <- split(test, test$s)
+# lapply(test_list, function(x) print(x$opt_rcv, x$sin_vec))
+# test_prop <- sv_prop(test)
+# table(test_list[[1]]$sin_rcv, test_list[[1]]$opt_rcv)
+
+# colnames(aes_utils_raw) <- c("A", "B", "C")
+# v_vec_three <- c(v_vec[1] + v_vec[2], v_vec[3] + v_vec[4], v_vec[5] + v_vec[6])
+# test_andy <- sv(U = aes_utils_raw[1:10, ], v.vec = v_vec[1:6], s = 80, rule = "AV")
+# test_andy <- sv(U = aes_utils_raw[1:10, ], v.vec = v_vec_three, s = 80, rule = "plurality")
+
+# # No longer the same results... Why? Check my opt function.
+
+# test_p <- av.pivotal.event.probs.general(c(v_vec), rep(80, 4))
+# test_p_plur <- plurality.pivotal.probabilities(v_vec_three, 80)
+# test_toby <- opt_vote(aes_utils_raw[1:10, ], test_p_plur, type = "plur")
+
+
+
+
+
 # TEST IF OPT VOTE YIELDS SAME RESULTS AS ANDY'S FUNCTION
-# v_vec <- c(as.numeric(const_bp_no_trunc[4, 2:10]))
-# test_out <- sv(U = aes_utils[, 1:3], v.vec = v_vec[1:6], s = 80, rule = "AV")
+colnames(aes_utils) <- c("A", "B", "C")
+test_out <- sv(U = aes_utils[, 1:3], v.vec = v_vec[1:6], s = 80, rule = "AV")
 # sum(table(test_out$opt.votes.strategic, test_out$opt.votes.sincere)
 # test_out_toby <- return_sv_prop(v_vec, aes_utils[, 1:3], list(80))
 # YES!
 
+### END PLAYGROUND ###
+
+# Run loop over all constituencies.
+
+	## TO DO ##
+
+
 # LEVELS OF STRATEGIC VOTING.
 # TODO: Consider re-writing return_sv_prop such that it works off the return_sv_tau DF
+# Ideal: run one loop over all s and constituencies with return_sv_tau; then create plots off that
 
-# Set levels of s at which to evaluate.
-s_list <- as.list(seq(from = 10, to = 130, by = 10))
+
+
+
 
 # Run loop over all constituencies.
 const_opt_dist <- list()
@@ -161,22 +205,6 @@ ggsave(here("../output/figures/australia_sv_qq.pdf"), qq_plot_faceted)
 
 ## STRATEGIC INTERDEPENDENCE
 
-# New write-up using function:
-# mega_df <- apply(const_bp[, 2:10], 1, function(x) return_sv_tau(x, aes_utils[, 1:3], s_list))
-# v_vec <- as.numeric(const_bp_no_trunc[1, 2:10]) / sum(as.numeric(const_bp_no_trunc[1, 2:10]))
-# test <- return_sv_tau(v_vec, aes_utils[, 1:3], list(80))
-# lambda_list <- as.list(seq(0, 0.5, 0.02))
-# vote_mat_rcv <- vote_matrix(test, type = "rcv")
-# v_vec_init <- v_vec[1:6]
-# v_vec_lvl1 <- unlist(new_v_vec(vote_mat_rcv, v_vec_init, list(0.00), type = "rcv"))
-# test_lvl1 <- return_sv_tau(v_vec_lvl1, aes_utils[, 1:3], list(80))
-
-# test_lvl1 <- level_two_props(v_vec, list(0), aes_utils[, 1:3], test, 80)
-# return_lvl_two_prop(test, test_lvl1[[1]], type = "rcv")
-
-# test_1 <- level_two_props(v_vec, lambda_list, aes_utils[, 1:3], test, list(80))
-
-
 # Run the actual loop across constituencies
 inter_df <- list()
 lambda_list <- as.list(seq(0, 0.5, 0.02))
@@ -205,7 +233,7 @@ lvl0_diff <- ggplot(inter_df_full, aes(x = lambda)) +
 	geom_line(aes(y = L0RCV, group = const), colour = "blue", alpha = 0.2) +
 	geom_line(aes(y = L0PLUR, group = const), colour = "orange", alpha = 0.2) +
 	theme_bw() +
-	labs(x = expression(lambda), y = paste(expression(delta), "Level 2 Strat. Vote - Sincere Vote")
+	labs(x = expression(lambda), y = paste(expression(delta), "Level 2 Strat. Vote - Sincere Vote"))
 ggsave(here("../output/figures/level0_diff.pdf"))
 
 # compare to original
