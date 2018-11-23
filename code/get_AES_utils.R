@@ -1,18 +1,19 @@
 ### PRELIMINARIES ###
 
-setwd("~/Dropbox/strategic_voting")
+library(plyr)
 library(here)
-
-
 library(haven)
-df <- read_sav("data/australia/AES/aes_2013_01259.sav")
+library(ggplot2)
+
+# Load AES data:
+path <- here("../data/australia/aes_2013_01259.sav")
+df <- read_sav(path)
+
+path_utils <- here("/utils/get_utils_functions.r")
+source(path_utils)
 
 # NSW (without National preferences) still has 736 "full preference" respondents
 df <- df[df$stateab == "NSW", ]
-
-
-### FUNCTIONS ###
-
 
 ### ANALYSIS ###
 
@@ -64,8 +65,16 @@ short_df$st_diff <- apply(short_df[, c(2:4)], 1, function(x) first_second_differ
 
 short_df$beta <- short_df$st_diff / (short_df$fs_diff + short_df$st_diff)
 
-# pass on a matrix of utility vectors.
+# Export "raw" utilities with small perturbation
+ubound <- .5 # Following Andy's parameter setting (assumption of underlying unif dist)
+short_df[, 2:4] <- short_df[, 2:4] + runif(n = nrow(short_df) * 3, min = -ubound, max = ubound)
+# Get rid of negative utilities
+short_df[short_df < 0] <- 0.00001
 
+# change order of columns so that it's the same as in previous work
+write.csv(short_df[, c(3, 4, 2)], here("../data/australia/aes_nsw_full.csv"))
+
+# pass on a matrix of normalised utility vectors.
 order_df <- short_df[short_df$full == TRUE, c(5:7, 11)]
 utility_df <- matrix(NA, nrow = nrow(order_df), ncol = 3)
 for (i in 1:nrow(order_df)){
@@ -98,13 +107,12 @@ utility_df$type2 <- factor(utility_df$type2, levels(utility_df$type2)[c(1, 3, 5,
 
 # Plot frequency of beta by voter type
 
-library(plyr)
 util_count <- ddply(.data=utility_df, 
                  .(type2), 
                  summarize, 
                  n=paste("n =", length(GRN)))
 
-ggplot(data = utility_df) +
+beta_dist <- ggplot(data = utility_df) +
      geom_histogram(aes(x = beta), bins = 10) +
      facet_wrap(~ type2) +
      geom_text(data = util_count, aes(x = 0.8, y = 65, label = n), inherit.aes = F) +
@@ -113,7 +121,7 @@ ggplot(data = utility_df) +
      theme(panel.grid = element_blank()) +
      labs(y = "Respondents", 
           x = expression(beta))
-ggsave("code/figs/aes_respondents_beta_distribution.pdf", width = 16, height = 10, units = "cm")
+ggsave(here("../output/figures/AES_NSW_beta_distribution.pdf"), beta_dist, width = 16, height = 10, units = "cm")
 
 # Export for simulations
-write.csv(utility_df, "data/AES_utility.csv")
+write.csv(utility_df, here("../data/australia/aes_nsw_normal.csv"))

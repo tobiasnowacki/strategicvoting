@@ -39,13 +39,14 @@ opt_vote <- function(utility_df, p_list, type = "rcv"){
 		w_test <- w_av[, rep(1:18, nrow(utility_df))]
 		u_test <- utility_df[, rep(1:3, 6)]
 		u_test <- as.vector(t(u_test))
+		u_df <- matrix(rep(u_test, 12), nrow = 12, byrow = T)
 
-		test <- matrix((mapply(`*`,w_test,u_test,SIMPLIFY=TRUE)), nrow = 12)
+		test <- w_test * u_df
 
 		cond_utils_sum <- test[, c(T, F, F)] + test[, c(F, T, F)] +
 		test[, c(F, F, T)]
-		cond_utils_sum_event <- cond_utils_sum * p_list
-		vote_utils <- colSums(cond_utils_sum_event)
+		#return(cond_utils_sum)
+		vote_utils <- t(as.matrix(p_list)) %*% as.matrix(cond_utils_sum)
 		vote_utils <- matrix(vote_utils, ncol = 6, byrow = T)
 		return(vote_utils)
 	}
@@ -60,12 +61,13 @@ opt_vote <- function(utility_df, p_list, type = "rcv"){
 		u_test <- utility_df[, rep(1:3, 3)]
 		u_test <- as.vector(t(u_test))
 
-		test <- matrix((mapply(`*`,w_test, u_test, SIMPLIFY=TRUE)), nrow = 3)
+		u_df <- matrix(rep(u_test, 3), nrow = 3, byrow = T)
+		test <- w_test * u_df
+
 		cond_utils_sum <- test[, c(T, F, F)] + test[, c(F, T, F)] +
 		test[, c(F, F, T)]
-		cond_utils_sum_event <- cond_utils_sum * p_list
-
-		vote_utils <- colSums(cond_utils_sum_event)
+		#return(cond_utils_sum)
+		vote_utils <- t(as.matrix(p_list)) %*% as.matrix(cond_utils_sum)
 		vote_utils <- matrix(vote_utils, ncol = 3, byrow = T)
 		return(vote_utils)
 	}
@@ -111,6 +113,20 @@ return_sv_prop <- function(v_vec, util_df, s_breaks, full_mat = FALSE){
 	names(prop_df)[1:3] <- c("first", "second", "third")
 	return(prop_df)
 
+}
+
+sv_prop <- function(tau_obj){
+	tau_list <- split(tau_obj, tau_obj$s)
+
+	# RCV proportions
+	opt_vote_prop <- lapply(tau_list, function(x) sum_opt_votes(x$sin_rcv, x$opt_rcv, type = "rcv"))
+	prop_df_rcv <- do.call(rbind, opt_vote_prop)
+
+	opt_vote_prop_plur <- lapply(tau_list, function(x) sum_opt_votes(x$sin_rcv, x$opt_plur, type = "plur"))
+	prop_df_plur <- do.call(rbind, opt_vote_prop_plur)
+
+	prop_df <- cbind(prop_df_rcv, prop_df_plur)
+	return(prop_df)
 }
 
 # Function: take ballot profile, DF of utilities, and returns vector of tactical incentives at different
