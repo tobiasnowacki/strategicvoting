@@ -69,49 +69,47 @@ const_bp_no_trunc[, 2:10] <- t(apply(const_bp_no_trunc[, 2:10], 1, function(x) x
 
 
 # Set levels of s at which to evaluate.
-s_list <- as.list(seq(from = 10, to = 130, by = 10))
+s_list <- as.list(seq(from = 10, to = 120, by = 10))
 
 
-### PLAYGROUND ###
-
-v_vec <- c(as.numeric(const_bp[4, 2:10]))
-
-
-test <- return_sv_tau(v_vec, aes_utils_raw[1:20, ], list(80))
-test_andy <- sv(U = aes_utils_raw[1:20, ], v.vec = v_vec[1:6], s = 80, rule = "AV")
-# OK - even for non-standard vectors, I *finally* get the same results.
-# test_list <- split(test, test$s)
-# lapply(test_list, function(x) print(x$opt_rcv, x$sin_vec))
-# test_prop <- sv_prop(test)
-# table(test_list[[1]]$sin_rcv, test_list[[1]]$opt_rcv)
-
-# colnames(aes_utils_raw) <- c("A", "B", "C")
-# v_vec_three <- c(v_vec[1] + v_vec[2], v_vec[3] + v_vec[4], v_vec[5] + v_vec[6])
-# test_andy <- sv(U = aes_utils_raw[1:10, ], v.vec = v_vec[1:6], s = 80, rule = "AV")
-# test_andy <- sv(U = aes_utils_raw[1:10, ], v.vec = v_vec_three, s = 80, rule = "plurality")
-
-# # No longer the same results... Why? Check my opt function.
-
-# test_p <- av.pivotal.event.probs.general(c(v_vec), rep(80, 4))
-# test_p_plur <- plurality.pivotal.probabilities(v_vec_three, 80)
-# test_toby <- opt_vote(aes_utils_raw[1:10, ], test_p_plur, type = "plur")
+### PLAYGROUND ### ---
+### END PLAYGROUND ### ----
 
 
+# Run return_sv_tau loop over all constituencies.
+set.seed(23112018)
+mega_tau_list <- list()
+
+for(i in 1:nrow(const_bp)){
+	print(i)
+	v_vec <- as.numeric(const_bp[i, 2:10])
+	mega_tau_list[[i]] <- return_sv_tau(v_vec, aes_utils_raw, s_list)
+	mega_tau_list[[i]]$const <- const_bp[i, 1]
+}
+
+# Problem: some longer than others. Resolved by increasing runif range (?)
+v_vec <- as.numeric(const_bp[69, 2:10])
+test <- return_sv_tau(v_vec, aes_utils_raw, s_list)
+test_opt <- lapply(test, function(x) opt_vote_scalar(x))
+# save as separate object to avoid having to run it every time.
+
+apply(aes_utils_raw, 1, function(x) sum(x[3] == x[1]))
 
 
+# From resulting loop, run:
+# (1) levels of strategic voting
+prop_list <- lapply(mega_tau_list, function(x) sv_prop(x))
 
-# TEST IF OPT VOTE YIELDS SAME RESULTS AS ANDY'S FUNCTION
-colnames(aes_utils) <- c("A", "B", "C")
-test_out <- sv(U = aes_utils[, 1:3], v.vec = v_vec[1:6], s = 80, rule = "AV")
-# sum(table(test_out$opt.votes.strategic, test_out$opt.votes.sincere)
-# test_out_toby <- return_sv_prop(v_vec, aes_utils[, 1:3], list(80))
-# YES!
 
-### END PLAYGROUND ###
+# (2) q-q plots
 
-# Run loop over all constituencies.
 
-	## TO DO ##
+# (3) occurence of voting paradoxes
+
+# (still have to write code for this one)
+
+
+# (4) interdependence
 
 
 # LEVELS OF STRATEGIC VOTING.
