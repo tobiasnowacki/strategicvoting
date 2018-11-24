@@ -88,21 +88,62 @@ for(i in 1:nrow(const_bp)){
 }
 
 # Problem: some longer than others. Resolved by increasing runif range (?)
-v_vec <- as.numeric(const_bp[69, 2:10])
+unlist(lapply(mega_tau_list, nrow)) == 13596
+v_vec <- as.numeric(const_bp[46, 2:10])
 test <- return_sv_tau(v_vec, aes_utils_raw, s_list)
+unlist(lapply(test[[12]], length))
 test_opt <- lapply(test, function(x) opt_vote_scalar(x))
+
 # save as separate object to avoid having to run it every time.
-
-apply(aes_utils_raw, 1, function(x) sum(x[3] == x[1]))
-
+save(mega_tau_list, file = here("../output/mega_tau_list.Rdata"))
 
 # From resulting loop, run:
 # (1) levels of strategic voting
 prop_list <- lapply(mega_tau_list, function(x) sv_prop(x))
+prop_df <- as.data.frame(do.call(rbind, prop_list))
+prop_df$const <- rep(c(const_bp$district), each = length(s_list))
+prop_df$s <- rep(unlist(s_list), nrow(const_bp))
+prop_df[, 1:5] <- prop_df[, 1:5] / 1133
+prop_df <- prop_df[, c(2, 3, 5, 6, 7)]
+names(prop_df)[1:3] <- c("second", "third", "plur_second")
 
+prop_df_long <- melt(prop_df, id.vars = c("const", "s"))
+prop_df_agg <- as.data.frame(prop_df_long %>% 
+                                         group_by(variable, s) %>% 
+                                         summarize(mean(value)))
+names(prop_df_agg)[3] <- "value"
+
+aus_freq <- ggplot(prop_df_long, aes(x = s, y = value)) +
+  geom_line(aes(colour = variable, group = interaction(const, variable)), alpha = 0.3) +
+  geom_line(data = prop_df_agg, aes(colour = variable, group = variable, x = s, y = value),
+            size = 3) + 
+  labs(x = "Information (s)", 
+       y = "Proportion of voters in AES casting ballot type",
+       colour = "Sincere pref. as first on ballot") +
+  theme_bw() +
+  theme(legend.position = "bottom")
+
+gg_path <- here("output/figures/australia_sv_freq.pdf")
+ggsave(gg_path)
 
 # (2) q-q plots
 
+qq_mega_list <- lapply(mega_tau_list, function(x) qq_function_two(x, aes_utils_raw))
+qq_mega_df <- as.data.frame(do.call(rbind, qq_mega_list))
+qq_mega_df$const <- rep(c(const_bp$district), each = nrow(aes_utils_raw) * length(unlist(s_list)))
+
+qq_mega_by_s <- split(qq_mega_df, qq_mega_df$s)
+qq_agg <- lapply(qq_mega_by_s, function(z) as.data.frame(qqplot(x = z$x, y = z$y, plot.it = FALSE)))
+qq_agg_df <- as.data.frame(do.call(rbind, qq_agg))
+qq_agg_df$s <- rep(unlist(s_list), each = nrow(aes_utils_raw) * nrow(const_bp))
+
+aus_qq <- ggplot(qq_mega_df, aes(x = x, y = y)) +
+  geom_line(aes(x = x, y = y, group = const), alpha = 0.1) +
+  geom_line(data = qq_agg_df, aes(x = x, y = y), colour = "red", lwd = 2) + 
+  geom_abline(intercept = 0, slope = 1, linetype = "dotted", colour = "blue") +
+  theme_bw()  + 
+  facet_wrap(vars(s))
+ggsave(here("../output/figures/australia_sv_qq_trunc.pdf"), aus_qq)
 
 # (3) occurence of voting paradoxes
 
@@ -120,38 +161,38 @@ prop_list <- lapply(mega_tau_list, function(x) sv_prop(x))
 
 
 
-# Run loop over all constituencies.
-const_opt_dist <- list()
-for(i in 1:nrow(const_bp_no_trunc)){
-	print(i)
-	prop <- return_sv_prop(const_bp_no_trunc[i, 2:10], aes_utils[, 1:3], s_list)
-	prop[, 1:3] <- as.data.frame(t(apply(prop[, 1:3], 1, function(x) x / sum(x))))
-	prop$const <- const_bp_no_trunc[i, 1]
-	const_opt_dist[[i]] <- prop
-}
-
-const_opt_dist_df_wide <- do.call(rbind, const_opt_dist)
-const_opt_dist_df <- melt(const_opt_dist_df_wide[, c("second", "third", "plurality_second", "const", "s")], 
-							id.vars = c("const", "s"))
-
-# Get means.
-const_opt_dist_df_agg <- as.data.frame(const_opt_dist_df %>% 
-							group_by(variable, s) %>% 
-							summarize(mean(value)))
-names(const_opt_dist_df_agg)[3] <- "value"
-
-# Plot. (SI over levels of s, by SI type)
-aus_freq <- ggplot(const_opt_dist_df, aes(x = s, y = value)) +
-	geom_line(aes(colour = variable, group = interaction(const, variable)), alpha = 0.3) +
-	geom_line(data = const_opt_dist_df_agg, aes(colour = variable, group = variable, x = s, y = value),
-		size = 3) + 
-	labs(x = "Information (s)", 
-		y = "Proportion of voters in AES casting ballot type",
-		colour = "Sincere pref. as first on ballot") +
-	theme_bw() +
-	theme(legend.position = "bottom")
-gg_path <- here("output/figures/australia_sv_freq.pdf")
-ggsave(gg_path)
+# # Run loop over all constituencies.
+# const_opt_dist <- list()
+# for(i in 1:nrow(const_bp_no_trunc)){
+# 	print(i)
+# 	prop <- return_sv_prop(const_bp_no_trunc[i, 2:10], aes_utils[, 1:3], s_list)
+# 	prop[, 1:3] <- as.data.frame(t(apply(prop[, 1:3], 1, function(x) x / sum(x))))
+# 	prop$const <- const_bp_no_trunc[i, 1]
+# 	const_opt_dist[[i]] <- prop
+# }
+# 
+# const_opt_dist_df_wide <- do.call(rbind, const_opt_dist)
+# const_opt_dist_df <- melt(const_opt_dist_df_wide[, c("second", "third", "plurality_second", "const", "s")], 
+# 							id.vars = c("const", "s"))
+# 
+# # Get means.
+# const_opt_dist_df_agg <- as.data.frame(const_opt_dist_df %>% 
+# 							group_by(variable, s) %>% 
+# 							summarize(mean(value)))
+# names(const_opt_dist_df_agg)[3] <- "value"
+# 
+# # Plot. (SI over levels of s, by SI type)
+# aus_freq <- ggplot(const_opt_dist_df, aes(x = s, y = value)) +
+# 	geom_line(aes(colour = variable, group = interaction(const, variable)), alpha = 0.3) +
+# 	geom_line(data = const_opt_dist_df_agg, aes(colour = variable, group = variable, x = s, y = value),
+# 		size = 3) + 
+# 	labs(x = "Information (s)", 
+# 		y = "Proportion of voters in AES casting ballot type",
+# 		colour = "Sincere pref. as first on ballot") +
+# 	theme_bw() +
+# 	theme(legend.position = "bottom")
+# gg_path <- here("output/figures/australia_sv_freq.pdf")
+# ggsave(gg_path)
 
 # Next, let's have a distribution of cases according to whether they are more amenable to SV in RCV or Plurality.
 # head(const_opt_dist_df_wide)
@@ -176,25 +217,25 @@ ggsave(gg_path2)
 
 ## QQ-PLOT
 ## TODO: Fix function: (a) allow for truncated ballots; (b) feed off "return_sv_tau" object
-
-# Create dataframe of qq-plot coordinates, by constituency and by s
-qq_list <- lapply(s_list, function(x) qq_function(const_bp_no_trunc, aes_utils[, 1:3], x))
-qq_df <- do.call(rbind, qq_list)
-qq_df$s <- unlist(rep(as.vector(s_list), each = nrow(aes_utils) * nrow(const_bp_no_trunc)))
-
-# Also get coordinates for qq-plot aggregated over constituencies, by s
-big_qq_list <- lapply(qq_list, function(z) as.data.frame(qqplot(x = z$x, y = z$y, plot.it = FALSE)))
-big_qq_df <- do.call(rbind, big_qq_list)
-big_qq_df$s <- rep(unlist(s_list), each = nrow(aes_utils) * nrow(const_bp_no_trunc))
-
-# Plot.
-qq_plot_faceted <- ggplot(qq_df) +
-	geom_line(aes(x = x, y = y, group = const), alpha = 0.1) +
-	geom_line(data = big_qq_df, aes(x = x, y = y), colour = "red", lwd = 2) + 
-	geom_abline(intercept = 0, slope = 1, linetype = "dotted", colour = "blue") +
-	theme_bw()  + 
-	facet_wrap(vars(s))
-ggsave(here("../output/figures/australia_sv_qq.pdf"), qq_plot_faceted)
+# 
+# # Create dataframe of qq-plot coordinates, by constituency and by s
+# qq_list <- lapply(s_list, function(x) qq_function(const_bp_no_trunc, aes_utils[, 1:3], x))
+# qq_df <- do.call(rbind, qq_list)
+# qq_df$s <- unlist(rep(as.vector(s_list), each = nrow(aes_utils) * nrow(const_bp_no_trunc)))
+# 
+# # Also get coordinates for qq-plot aggregated over constituencies, by s
+# big_qq_list <- lapply(qq_list, function(z) as.data.frame(qqplot(x = z$x, y = z$y, plot.it = FALSE)))
+# big_qq_df <- do.call(rbind, big_qq_list)
+# big_qq_df$s <- rep(unlist(s_list), each = nrow(aes_utils) * nrow(const_bp_no_trunc))
+# 
+# # Plot.
+# qq_plot_faceted <- ggplot(qq_df) +
+# 	geom_line(aes(x = x, y = y, group = const), alpha = 0.1) +
+# 	geom_line(data = big_qq_df, aes(x = x, y = y), colour = "red", lwd = 2) + 
+# 	geom_abline(intercept = 0, slope = 1, linetype = "dotted", colour = "blue") +
+# 	theme_bw()  + 
+# 	facet_wrap(vars(s))
+# ggsave(here("../output/figures/australia_sv_qq.pdf"), qq_plot_faceted)
 
 ## OCCURRENCE OF VOTING PARADOXES
 
