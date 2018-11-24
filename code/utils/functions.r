@@ -181,8 +181,12 @@ sin_vote_plur_transform <- function(x){
 opt_vote_scalar <- function(eu_df){
 	# Function that takes a dataframe of expected utilities (6 or 3 times no. of respondents)
 	# 	Returns: vector of optimal votes (as scalars)
-	apply(eu_df, 1, function(x) which(x == max(x))) 
+	scalars <- apply(eu_df, 1, function(x) which(x == max(x))) 
+	stopifnot(nrow(eu_df) == length(scalars))
+	return(scalars)
 }
+
+
 
 sin_vote_scalar <- function(util){
 	# Input: DF of utilities

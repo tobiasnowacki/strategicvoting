@@ -69,10 +69,12 @@ short_df$beta <- short_df$st_diff / (short_df$fs_diff + short_df$st_diff)
 ubound <- .5 # Following Andy's parameter setting (assumption of underlying unif dist)
 short_df[, 2:4] <- short_df[, 2:4] + runif(n = nrow(short_df) * 3, min = -ubound, max = ubound)
 # Get rid of negative utilities
-short_df[short_df < 0] <- 0.00001
+export_df <- short_df[, 2:4]
+number_negative <- sum(export_df < 0)
+export_df[export_df < 0] <- runif(n = number_negative, min = 0.00001, max = ubound)
 
 # change order of columns so that it's the same as in previous work
-write.csv(short_df[, c(3, 4, 2)], here("../data/australia/aes_nsw_full.csv"))
+write.csv(export_df[, c(2, 3, 1)], here("../data/australia/aes_nsw_full.csv"))
 
 # pass on a matrix of normalised utility vectors.
 order_df <- short_df[short_df$full == TRUE, c(5:7, 11)]
