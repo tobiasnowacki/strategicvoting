@@ -181,12 +181,17 @@ sin_vote_plur_transform <- function(x){
 opt_vote_scalar <- function(eu_df){
 	# Function that takes a dataframe of expected utilities (6 or 3 times no. of respondents)
 	# 	Returns: vector of optimal votes (as scalars)
-	scalars <- apply(eu_df, 1, function(x) which(x == max(x))) 
-	stopifnot(nrow(eu_df) == length(scalars))
+	scalars <- apply(eu_df, 1, function(x){ 
+	  out <- which(x == max(x))
+	  if(length(out) > 1){out <- NA}
+	  return(out)
+	    }
+	  )
+	if(class(scalars) == "list"){
+	  
+	}
 	return(scalars)
 }
-
-
 
 sin_vote_scalar <- function(util){
 	# Input: DF of utilities
@@ -299,6 +304,14 @@ qq_function <- function(const_bp_no_trunc, utils, s){
 	const_taus_qq_df <- do.call(rbind, const_taus_qq)
 	const_taus_qq_df$const <- rep(const_bp_no_trunc$district, each = nrow(aes_utils))
 	return(const_taus_qq_df)
+}
+
+qq_function_two <- function(tau_obj, utils){
+  tau_list <- split(tau_obj, tau_obj$s)
+  qq_list <- lapply(tau_list, function(x) as.data.frame(qqplot(x = unlist(x$tau_plur), y = unlist(x$tau_rcv), plot.it = FALSE)))
+  qq_df <- as.data.frame(do.call(rbind, qq_list))
+  qq_df$s <- rep(unlist(s_list), each = nrow(utils))
+  return(qq_df)
 }
 
 # level_two_props <- function(v_vec, lambda, util, sv_df, s){
