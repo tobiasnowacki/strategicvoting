@@ -358,37 +358,37 @@ qq_function_two <- function(tau_obj, utils){
 # }
 
 new_v_vec <- function(vote_mat, v_vec_init_weighted, lambda_list, type = "rcv"){
-	v_vec_init_weighted_plur <- c(v_vec_init_weighted[1] + v_vec_init_weighted[2],
-		v_vec_init_weighted[3] + v_vec_init_weighted[4], 
-		v_vec_init_weighted[5] + v_vec_init_weighted[6])
+	v_vec_init_weighted_plur <- c(v_vec_init_weighted[1] + v_vec_init_weighted[2] + v_vec_init_weighted[7],
+		v_vec_init_weighted[3] + v_vec_init_weighted[4] + v_vec_init_weighted[8], 
+		v_vec_init_weighted[5] + v_vec_init_weighted[6] + v_vec_init_weighted[9])
 
-	new_vec <- v_vec_init_weighted %*% vote_mat
+	new_vec <- v_vec_init_weighted[1:6] %*% vote_mat
 	new_vec <- new_vec / sum(new_vec)
 	
 	if(type == "rcv"){
-		new_vec <- lapply(lambda_list, function(lambda) c(lambda * new_vec + (1 - lambda) * v_vec_init_weighted, 0, 0, 0))
+	  new_vec_rcv <- c(new_vec, 0, 0, 0)
+		new_vec <- lapply(lambda_list, function(lambda) c(lambda * new_vec_rcv + (1 - lambda) * v_vec_init_weighted))
 		return(new_vec)
 	}
 	if(type == "plur"){
+	  new_vec_plur <- c(rep(new_vec, each = 2) / 2, 0, 0, 0)
 		new_vec <- lapply(lambda_list, function(lambda) {
-			x <- lambda * new_vec + (1 - lambda) * v_vec_init_weighted_plur
-			x <- rep(x, each = 2) / 2
-			x <- c(x, 0, 0, 0)
+			x <- lambda * new_vec_plur + (1 - lambda) * v_vec_init_weighted
+			return(x)
 			})
 		return(new_vec)
 	}
-
 }
 
 level_two_props <- function(v_vec, lambda_list, util, sv_df, s){
 	# Create 6x6 and 6x3 matrices
 	vote_mat_rcv <- vote_matrix(sv_df, type = "rcv")
 	vote_mat_plur <- vote_matrix(sv_df, type = "plur")
-	v_vec_init_weighted <- as.numeric(v_vec[1:6] / sum(v_vec[1:6]))
+	v_vec_init_weighted <- as.numeric(v_vec[1:9] / sum(v_vec[1:9]))
 
 	v_vec_rcv <- new_v_vec(vote_mat_rcv, v_vec_init_weighted, lambda_list, type = "rcv")
 	v_vec_plur <- new_v_vec(vote_mat_plur, v_vec_init_weighted, lambda_list, type = "plur")
-
+	
 	sv_lvl_two_rcv <- lapply(v_vec_rcv, function(x) return_sv_tau(x, util, s))
 	lvl_two_summary_rcv <- lapply(sv_lvl_two_rcv, function(x) return_lvl_two_prop(sv_df, x, type = "rcv"))
 	lvl_two_summary_rcv <- do.call(rbind, lvl_two_summary_rcv)

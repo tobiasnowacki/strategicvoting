@@ -126,6 +126,23 @@ aus_freq <- ggplot(prop_df_long, aes(x = s, y = value)) +
 gg_path <- here("output/figures/australia_sv_freq.pdf")
 ggsave(gg_path)
 
+# Total strategic incentives
+
+prop_df$inc_rcv <- prop_df$second + prop_df$third
+prop_df$inc_plur <- prop_df$plur_second
+
+aus_inc <- ggplot(prop_df, aes(x = inc_plur, y = inc_rcv)) +
+  geom_point() +
+  geom_abline(slope = 1, intercept = 0) + 
+  facet_wrap(~ s) +
+  theme_bw() +
+  scale_x_continuous(limits = c(0, 0.7), expand = c(0, 0)) +
+  scale_y_continuous(limits = c(0, 0.7), expand = c(0, 0)) +
+  labs(x = "Proportion of AES respondents with positive SI under Plurality",
+       y = "Proportion of AES respondents with positive SI under RCV")
+gg_path2 <- here("../output/figures/australia_sv_prop.pdf")
+ggsave(gg_path2, aus_inc)
+
 # (2) q-q plots
 
 qq_mega_list <- lapply(mega_tau_list, function(x) qq_function_two(x, aes_utils_raw))
@@ -151,6 +168,25 @@ ggsave(here("../output/figures/australia_sv_qq_trunc.pdf"), aus_qq)
 
 
 # (4) interdependence
+
+# Set s = 80
+mega_tau_fixed_s <- lapply(mega_tau_list, function(x) x[x$s == 80, ])
+
+# Run loop over constituencies. This will take a long time...
+inter_df <- list()
+lambda_list <- as.list(seq(0, 0.5, 0.05))
+for(i in 1:nrow(const_bp)){
+  print(i)
+  v_vec <- as.numeric(const_bp[i, 2:10]) / sum(as.numeric(const_bp[i, 2:10]))
+  tau <- mega_tau_fixed_s[[i]]
+  const_props <- level_two_props(v_vec, lambda_list, aes_utils_raw, tau, list(80))
+  #const_props$const <- const_bp[i, 1]
+  inter_df[[i]] <- const_props
+}
+
+# todo: adjust function such that it can deal with truncated ballots (right now, it can't).
+
+### OLD STUFF ----
 
 
 # LEVELS OF STRATEGIC VOTING.
@@ -197,26 +233,25 @@ ggsave(here("../output/figures/australia_sv_qq_trunc.pdf"), aus_qq)
 # Next, let's have a distribution of cases according to whether they are more amenable to SV in RCV or Plurality.
 # head(const_opt_dist_df_wide)
 
-## Table: by constituency
-const_opt_dist_df_wide$inc_rcv <- const_opt_dist_df_wide[, 2] + const_opt_dist_df_wide[, 3]
-const_opt_dist_df_wide$inc_plur <- const_opt_dist_df_wide$plurality_second
-
-# Plot. (Total SI, for a given level of s)
-aus_prop <- ggplot(const_opt_dist_df_wide, aes(x = inc_plur, y = inc_rcv)) +
-	geom_point() +
-	geom_abline(slope = 1, intercept = 0) +
-	facet_wrap(~ s) +
-	theme_bw() +
-	scale_x_continuous(limits = c(0, 0.7), expand = c(0, 0)) +
-	scale_y_continuous(limits = c(0, 0.7), expand = c(0, 0)) +
-	labs(x = "Proportion of AES respondents with positive SI under Plurality",
-		y = "Proportion of AES respondents with positive SI under RCV")
-gg_path2 <- here("output/figures/australia_sv_prop.pdf")
-ggsave(gg_path2)
-
+# ## Table: by constituency
+# const_opt_dist_df_wide$inc_rcv <- const_opt_dist_df_wide[, 2] + const_opt_dist_df_wide[, 3]
+# const_opt_dist_df_wide$inc_plur <- const_opt_dist_df_wide$plurality_second
+# 
+# # Plot. (Total SI, for a given level of s)
+# aus_prop <- ggplot(const_opt_dist_df_wide, aes(x = inc_plur, y = inc_rcv)) +
+# 	geom_point() +
+# 	geom_abline(slope = 1, intercept = 0) +
+# 	facet_wrap(~ s) +
+# 	theme_bw() +
+# 	scale_x_continuous(limits = c(0, 0.7), expand = c(0, 0)) +
+# 	scale_y_continuous(limits = c(0, 0.7), expand = c(0, 0)) +
+# 	labs(x = "Proportion of AES respondents with positive SI under Plurality",
+# 		y = "Proportion of AES respondents with positive SI under RCV")
+# gg_path2 <- here("output/figures/australia_sv_prop.pdf")
+# ggsave(gg_path2)
+# 
 
 ## QQ-PLOT
-## TODO: Fix function: (a) allow for truncated ballots; (b) feed off "return_sv_tau" object
 # 
 # # Create dataframe of qq-plot coordinates, by constituency and by s
 # qq_list <- lapply(s_list, function(x) qq_function(const_bp_no_trunc, aes_utils[, 1:3], x))
