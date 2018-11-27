@@ -184,7 +184,20 @@ for(i in 1:nrow(const_bp)){
   inter_df[[i]] <- const_props
 }
 
-# todo: adjust function such that it can deal with truncated ballots (right now, it can't).
+save(inter_df, file = here("../output/interdependence.Rdata"))
+
+inter_df_full <- as.data.frame(do.call(rbind, inter_df))
+inter_df_full$const <- rep(const_bp$district, each = length(lambda_list))
+
+l1_plot <- ggplot(inter_df_full, aes(x = lambda, group = const)) +
+  geom_line(aes(y = L1RCV), colour = "blue", alpha = 0.25) +
+  geom_line(aes(y = L1PLUR), colour = "orange", alpha = 0.25) +
+  theme_bw()
+
+l0_plot <- ggplot(inter_df_full, aes(x = lambda, group = const)) +
+  geom_line(aes(y = L0RCV), colour = "blue", alpha = 0.25) +
+  geom_line(aes(y = L0PLUR), colour = "orange", alpha = 0.25) +
+  theme_bw()
 
 ### OLD STUFF ----
 

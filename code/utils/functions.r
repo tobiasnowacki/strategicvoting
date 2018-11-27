@@ -199,7 +199,9 @@ sin_vote_scalar <- function(util){
 	stopifnot(length(util) == 3)
 	max <- which(util == max(util))
 	min <- which(util == min(util))
-
+	if(length(max) > 1){
+	  print(util)
+	}
 	if (max == 1){
 	if (min == 3){
 	  out <- 1
