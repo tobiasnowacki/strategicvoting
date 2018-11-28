@@ -86,8 +86,6 @@ save(file = here("../output/sv_list.Rdata"), sv_list)
 
 
 # Proportion of optimal strategic votes
-# prop_list <- lapply(sv_list, function(x) sv_prop(x))
-# Add case name and s to dfs
 prop_list <- list()
 for(i in 1:length(sv_list)){
   print(i)
@@ -124,7 +122,6 @@ cses_prop <- ggplot(prop_df_long, aes(x = s, y = value)) +
 ggsave(here("../output/figures/cses_prop.pdf"), cses_prop)
 
 # Distribution of incentives 
-# this won't work because it disregards the weights(?)
 prop_df$inc_rcv <- prop_df$rcv_sec + prop_df$rcv_third
 prop_df$inc_plur <- prop_df$plur_sec
 
@@ -139,8 +136,33 @@ cses_inc <- ggplot(prop_df[prop_df$s == 60, ], aes(x = inc_plur, y = inc_rcv)) +
        y = "Proportion of CSES respondents with positive SI under RCV")
 ggsave(here("../output/figures/cses_inc.pdf"), cses_inc)
 
+
+# Check alternative method of computing incentive proportions
+sv_prop_alt <- function(tau_obj, weights, s = 60){
+  tau_obj <- tau_obj[tau_obj$s == s, ]
+  inc_rcv <- sum(weights[tau_obj$tau_rcv > 0]) / sum(weights)
+  inc_plur <- sum(weights[tau_obj$tau_plur > 0]) / sum(weights)
+  return(c(inc_rcv, inc_plur))
+}
+
+prop_list_alt <- list()
+for(i in 1:length(sv_list)){
+  prop_list_alt[[i]] <- sv_prop_alt(sv_list[[i]], big_list_na_omit[[i]]$weights, 60)
+}
+prop_df_alt <- as.data.frame(do.call(rbind, prop_list_alt))
+ggplot(prop_df_alt, aes(V2, V1)) +
+  geom_point() +
+  geom_abline(slope = 1, intercept = 0) + 
+  theme_bw() +
+  scale_x_continuous(limits = c(0, 0.7), expand = c(0, 0)) +
+  scale_y_continuous(limits = c(0, 0.7), expand = c(0, 0))
+
+# Ok, still not the same as Andy's results. Wonder why? Next step is to compare the precise tau output.
+
+
 # Voting paradoxes
 
 # Interdependence
+
 
 
