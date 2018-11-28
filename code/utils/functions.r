@@ -4,7 +4,7 @@
 ## Date: 30/10/2018
 ## Author:
 ##################################################
-
+library(questionr)
 
 opt_vote <- function(utility_df, p_list, type = "rcv"){
 # Calculate Optimal Votes
@@ -115,14 +115,14 @@ return_sv_prop <- function(v_vec, util_df, s_breaks, full_mat = FALSE){
 
 }
 
-sv_prop <- function(tau_obj){
+sv_prop <- function(tau_obj, weights){
 	tau_list <- split(tau_obj, tau_obj$s)
 
 	# RCV proportions
-	opt_vote_prop <- lapply(tau_list, function(x) sum_opt_votes(x$sin_rcv, x$opt_rcv, type = "rcv"))
+	opt_vote_prop <- lapply(tau_list, function(x) sum_opt_votes(x$sin_rcv, x$opt_rcv, type = "rcv", weights = weights))
 	prop_df_rcv <- do.call(rbind, opt_vote_prop)
 
-	opt_vote_prop_plur <- lapply(tau_list, function(x) sum_opt_votes(x$sin_rcv, x$opt_plur, type = "plur"))
+	opt_vote_prop_plur <- lapply(tau_list, function(x) sum_opt_votes(x$sin_rcv, x$opt_plur, type = "plur", weights = weights))
 	prop_df_plur <- do.call(rbind, opt_vote_prop_plur)
 
 	prop_df <- cbind(prop_df_rcv, prop_df_plur)
@@ -241,13 +241,15 @@ calculate_tau <- function(eu_df, sin_vec){
 	return(tau)
 }
 
-sum_opt_votes <- function(sin_vec, opt_vec, type = "rcv"){
+sum_opt_votes <- function(sin_vec, opt_vec, type = "rcv", weights = rep(1, length(opt_vec))){
 	# Input: vector of sincere preferences, vector of opt. votes
+  # todo: add weights through wtd.table()
 	# Output: Table
+  
 	if(type == "rcv"){
 		sin_vec <- factor(sin_vec, levels = 1:6)
 		opt_vec <- factor(opt_vec, levels = 1:6)
-		tab <- table(sin_vec, opt_vec)
+		tab <- wtd.table(sin_vec, opt_vec, weights = weights)
 		out <- rbind(c(tab[1, 1], tab[1, 3], tab[1, 5]),
 					 c(tab[2, 2], tab[2, 5], tab[2, 3]),
 					 c(tab[3, 3], tab[3, 1], tab[3, 6]),
@@ -259,7 +261,7 @@ sum_opt_votes <- function(sin_vec, opt_vec, type = "rcv"){
 	if(type == "plur"){
 		sin_vec <- factor(sin_vec, levels = 1:6)
 		opt_vec <- factor(opt_vec, levels = 1:3)
-		tab <- table(sin_vec, opt_vec)
+		tab <- wtd.table(sin_vec, opt_vec, weights = weights)
 		out <- rbind(c(tab[1, 1], tab[1, 2]),
 					 c(tab[2, 1], tab[2, 3]),
 					 c(tab[3, 2], tab[3, 1]),
