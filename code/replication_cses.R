@@ -71,7 +71,8 @@ for(i in 1:length(sin_vote_list)){
 
 s_list <- as.list(seq(from = 10, to = 120, by = 10))
 
-
+names(big_list)[[39]]
+names(big_list)[[145]]
 big_list_na_omit[[39]] <- NULL
 big_list_na_omit[[144]] <- NULL
 
@@ -85,14 +86,17 @@ save(file = here("../output/sv_list.Rdata"), sv_list)
 
 
 # Proportion of optimal strategic votes
-prop_list <- lapply(sv_list, function(x) sv_prop(x))
+# prop_list <- lapply(sv_list, function(x) sv_prop(x))
 # Add case name and s to dfs
-for(i in 1:length(prop_list)){
+prop_list <- list()
+for(i in 1:length(sv_list)){
+  print(i)
+  prop_list[[i]] <- sv_prop(sv_list[[i]], big_list_na_omit[[i]]$weights)
   df <- as.data.frame(prop_list[[i]])
   df$case <- as.character(names(big_list_na_omit)[[i]])
   df$s <- as.numeric(s_list)
   n <- apply(df[, 1:3], 1, function(x) sum(x))
-  df[, 1:5] <- df[, 1:5] / n
+  df[, 1:5] <- df[, 1:5] / sum(big_list_na_omit[[i]]$weights)
   prop_list[[i]] <- df
 }
 prop_df <- do.call(rbind, prop_list)
@@ -102,6 +106,8 @@ prop_df_agg <- as.data.frame(prop_df_long %>%
                                group_by(variable, s) %>% 
                                summarize(mean(value)))
 names(prop_df_agg)[3] <- "value"
+
+# Need to include weights to fully replicate Andy's function.
 
 cses_prop <- ggplot(prop_df_long, aes(x = s, y = value)) +
   geom_line(aes(colour = variable, group = interaction(case, variable)), alpha = 0.06) +
@@ -117,17 +123,24 @@ cses_prop <- ggplot(prop_df_long, aes(x = s, y = value)) +
   theme(legend.position = "bottom")
 ggsave(here("../output/figures/cses_prop.pdf"), cses_prop)
 
-# Distribution of incentives
+# Distribution of incentives 
+# this won't work because it disregards the weights(?)
 prop_df$inc_rcv <- prop_df$rcv_sec + prop_df$rcv_third
 prop_df$inc_plur <- prop_df$plur_sec
 
-cses_inc <- ggplot(prop_df, aes(x = inc_plur, y = inc_rcv)) +
+cses_inc <- ggplot(prop_df[prop_df$s == 60, ], aes(x = inc_plur, y = inc_rcv)) +
   geom_point() +
   geom_abline(slope = 1, intercept = 0) + 
   facet_wrap(~ s) +
   theme_bw() +
   scale_x_continuous(limits = c(0, 0.7), expand = c(0, 0)) +
   scale_y_continuous(limits = c(0, 0.7), expand = c(0, 0)) +
-  labs(x = "Proportion of AES respondents with positive SI under Plurality",
-       y = "Proportion of AES respondents with positive SI under RCV")
+  labs(x = "Proportion of CSES respondents with positive SI under Plurality",
+       y = "Proportion of CSES respondents with positive SI under RCV")
 ggsave(here("../output/figures/cses_inc.pdf"), cses_inc)
+
+# Voting paradoxes
+
+# Interdependence
+
+
