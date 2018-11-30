@@ -76,11 +76,39 @@ names(big_list)[[145]]
 big_list_na_omit[[39]] <- NULL
 big_list_na_omit[[144]] <- NULL
 
+# Loop that creates the tau objects
 sv_list <- list()
 for(i in 144:length(big_list_na_omit)){
   print(i)
   sv_list[[i]] <- return_sv_tau(c(big_list_na_omit[[i]]$v_vec, 0, 0, 0), big_list_na_omit[[i]]$U, s_list)
 }
+
+###
+
+# Check whether they really do produce the same as Andy's function!
+test_toby <- return_sv_tau(c(big_list_na_omit[[109]]$v_vec, 0, 0, 0), big_list_na_omit[[109]]$U, list(60))
+test_andy <- sv(U = big_list_na_omit[[109]]$U, weights = big_list_na_omit[[109]]$weights, s = 60, rule = "AV")
+# OK, what I need to do is to run the entire loop with Andy's function and check the entire DF for discrepancies.
+
+andy_list <- list()
+andy_list_prop <- list()
+for(i in 1:length(big_list)){
+  this_list <- big_list[[i]]
+  print(i)
+  sv_obj <- sv(U = this_list$U, weights = this_list$weights, s = 60, rule = "AV")
+  sv_obj_plur <- sv(U = this_list$U, weights = this_list$weights, s = 60)
+  andy_list[[i]] <- sv_obj
+  prop_av <- sum(sv_obj$weights[!is.na(sv_obj$tau) & sv_obj$tau > 0]) / sum(sv_obj$weights[!is.na(sv_obj$tau)])
+  prop_plur <- sum(sv_obj_plur$weights[!is.na(sv_obj_plur$tau) & sv_obj_plur$tau > 0]) / sum(sv_obj_plur$weights[!is.na(sv_obj$tau)]) 
+  andy_list_prop[[i]] <- c(prop_av, prop_plur)
+}
+
+andy_list_prop_df <- do.call(rbind, andy_list_prop)
+
+# compare:
+andy_list_prop_df == prop_df[prop_df$s == 60, c(8, 9)]
+
+####
 
 save(file = here("../output/sv_list.Rdata"), sv_list)
 
@@ -130,11 +158,11 @@ cses_inc <- ggplot(prop_df[prop_df$s == 60, ], aes(x = inc_plur, y = inc_rcv)) +
   geom_abline(slope = 1, intercept = 0) + 
   facet_wrap(~ s) +
   theme_bw() +
-  scale_x_continuous(limits = c(0, 0.7), expand = c(0, 0)) +
+  scale_x_continuous(limits = c(0, 0.25), expand = c(0, 0)) +
   scale_y_continuous(limits = c(0, 0.7), expand = c(0, 0)) +
   labs(x = "Proportion of CSES respondents with positive SI under Plurality",
        y = "Proportion of CSES respondents with positive SI under RCV")
-ggsave(here("../output/figures/cses_inc.pdf"), cses_inc)
+ggsave(here("../output/figures/cses_inc.pdf"), cses_inc, width = 3, height = 6)
 
 
 # Check alternative method of computing incentive proportions
@@ -158,6 +186,8 @@ ggplot(prop_df_alt, aes(V2, V1)) +
   scale_y_continuous(limits = c(0, 0.7), expand = c(0, 0))
 
 # Ok, still not the same as Andy's results. Wonder why? Next step is to compare the precise tau output.
+
+
 
 
 # Voting paradoxes
