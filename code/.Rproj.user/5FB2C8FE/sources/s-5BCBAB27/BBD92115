@@ -7,13 +7,13 @@
     "folds" : "",
     "hash" : "0",
     "id" : "BBD92115",
-    "lastKnownWriteTime" : 1543700522,
-    "last_content_update" : 1543700541585,
+    "lastKnownWriteTime" : 1543856584,
+    "last_content_update" : 1543856737329,
     "path" : "~/github/strategicvoting/code/replication_cses.R",
     "project_path" : "replication_cses.R",
     "properties" : {
-        "cursorPosition" : "177,0",
-        "scrollLine" : "175"
+        "cursorPosition" : "231,0",
+        "scrollLine" : "210"
     },
     "relative_order" : 1,
     "source_on_save" : false,

@@ -77,13 +77,14 @@ big_list_na_omit[[39]] <- NULL
 big_list_na_omit[[144]] <- NULL
 
 # Loop that creates the tau objects
-sv_list <- list()
-for(i in 1:length(big_list_na_omit)){
-  print(i)
-  sv_list[[i]] <- return_sv_tau(c(big_list_na_omit[[i]]$v_vec, 0, 0, 0), big_list_na_omit[[i]]$U, s_list)
-}
+# uses my own function -- see below for faster implementation
+# sv_list <- list()
+# for(i in 1:length(big_list_na_omit)){
+#   print(i)
+#   sv_list[[i]] <- return_sv_tau(c(big_list_na_omit[[i]]$v_vec, 0, 0, 0), big_list_na_omit[[i]]$U, s_list)
+# }
 
-# Use 
+# Use Andy's function to get us started and convert into my dataframe
 sv_list <- list()
 for(i in 1:length(big_list_na_omit)){
   print(i)
@@ -161,7 +162,7 @@ cses_prop <- ggplot(prop_df_long, aes(x = s, y = value)) +
   theme(legend.position = "bottom", legend.direction = "vertical")
 ggsave(here("../output/figures/cses_freq.pdf"), cses_prop, height = 5, width = 4)
 
-# Distribution of incentives 
+# Distribution of incentives (in scatterplot)
 prop_df$inc_rcv <- prop_df$rcv_second + prop_df$rcv_third
 prop_df$inc_plur <- prop_df$plur_second
 
@@ -178,28 +179,54 @@ ggsave(here("../output/figures/cses_prop.pdf"), cses_inc, width = 5, height = 5)
 
 
 # Check alternative method of computing incentive proportions
-sv_prop_alt <- function(tau_obj, weights, s = 60){
-  tau_obj <- tau_obj[tau_obj$s == s, ]
-  inc_rcv <- sum(weights[tau_obj$tau_rcv > 0]) / sum(weights)
-  inc_plur <- sum(weights[tau_obj$tau_plur > 0]) / sum(weights)
-  return(c(inc_rcv, inc_plur))
-}
+# sv_prop_alt <- function(tau_obj, weights, s = 60){
+#   tau_obj <- tau_obj[tau_obj$s == s, ]
+#   inc_rcv <- sum(weights[tau_obj$tau_rcv > 0]) / sum(weights)
+#   inc_plur <- sum(weights[tau_obj$tau_plur > 0]) / sum(weights)
+#   return(c(inc_rcv, inc_plur))
+# }
+# 
+# prop_list_alt <- list()
+# for(i in 1:length(sv_list)){
+#   prop_list_alt[[i]] <- sv_prop_alt(sv_list[[i]], big_list_na_omit[[i]]$weights, 60)
+# }
+# prop_df_alt <- as.data.frame(do.call(rbind, prop_list_alt))
+# ggplot(prop_df_alt, aes(V2, V1)) +
+#   geom_point() +
+#   geom_abline(slope = 1, intercept = 0) + 
+#   theme_bw() +
+#   scale_x_continuous(limits = c(0, 0.7), expand = c(0, 0)) +
+#   scale_y_continuous(limits = c(0, 0.7), expand = c(0, 0))
 
-prop_list_alt <- list()
+## QQ-Plots
+
+qq_mega_list <- list()
 for(i in 1:length(sv_list)){
-  prop_list_alt[[i]] <- sv_prop_alt(sv_list[[i]], big_list_na_omit[[i]]$weights, 60)
+  print(i)
+  x <- sv_list[[i]]
+  utils <- big_list_na_omit[[i]]$U
+  case <- names(big_list_na_omit)[[i]]
+  qq <- qq_function_two(x, utils)
+  qq$case <- case
+  qq_mega_list[[i]] <- qq
 }
-prop_df_alt <- as.data.frame(do.call(rbind, prop_list_alt))
-ggplot(prop_df_alt, aes(V2, V1)) +
-  geom_point() +
-  geom_abline(slope = 1, intercept = 0) + 
-  theme_bw() +
-  scale_x_continuous(limits = c(0, 0.7), expand = c(0, 0)) +
-  scale_y_continuous(limits = c(0, 0.7), expand = c(0, 0))
-
-# Ok, still not the same as Andy's results. Wonder why? Next step is to compare the precise tau output.
-
-
+qq_mega_df <- as.data.frame(do.call(rbind, qq_mega_list))
+qq_mega_by_s <- split(qq_mega_df, qq_mega_df$s)
+qq_agg <- lapply(as.list(names(qq_mega_by_s)), function(s) {
+    z <- qq_mega_by_s[[s]]
+    df <- as.data.frame(qqplot(x = z$x, y = z$y, plot.it = FALSE))
+    df$s <- rep(s, nrow(df))
+    return(df)
+  })
+qq_agg_df <- as.data.frame(do.call(rbind, qq_agg))
+cses_qq <- ggplot(qq_mega_df, aes(x = x, y = y)) +
+  geom_line(aes(x = x, y = y, group = case), alpha = 0.1) +
+  geom_line(data = qq_agg_df, aes(x = x, y = y), colour = "red", lwd = 2) + 
+  geom_abline(intercept = 0, slope = 1, linetype = "dotted", colour = "blue") +
+  theme_bw()  + 
+  facet_wrap(vars(s)) +
+  xlim(-30, 30) + ylim(-30, 30)
+ggsave(here("../output/figures/cses_qq.pdf"), cses_qq, width = 6, height = 6)
 
 
 # Voting paradoxes

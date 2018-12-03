@@ -2,18 +2,18 @@
     "collab_server" : "",
     "contents" : "",
     "created" : 1543692702960.000,
-    "dirty" : false,
+    "dirty" : true,
     "encoding" : "UTF-8",
     "folds" : "",
     "hash" : "0",
     "id" : "A72F7354",
     "lastKnownWriteTime" : 1543700482,
-    "last_content_update" : 1543700482812,
+    "last_content_update" : 1543856722106,
     "path" : "~/github/strategicvoting/code/replication_aus.R",
     "project_path" : "replication_aus.R",
     "properties" : {
-        "cursorPosition" : "141,57",
-        "scrollLine" : "129"
+        "cursorPosition" : "159,0",
+        "scrollLine" : "145"
     },
     "relative_order" : 1,
     "source_on_save" : false,
