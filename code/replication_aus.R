@@ -60,8 +60,6 @@ const_bp_no_trunc <- const_bp
 const_bp_no_trunc[, 8:10] <- 0
 const_bp_no_trunc[, 2:10] <- t(apply(const_bp_no_trunc[, 2:10], 1, function(x) x / sum(x)))
 
-# TO-DO: for data *WITH* truncated prefs, make sure sin_vec is evaluated correctly
-# 	--> functions.r
 
 ### ---------------------------------
 ### ANALYSIS
@@ -69,7 +67,7 @@ const_bp_no_trunc[, 2:10] <- t(apply(const_bp_no_trunc[, 2:10], 1, function(x) x
 
 
 # Set levels of s at which to evaluate.
-s_list <- as.list(seq(from = 10, to = 120, by = 10))
+s_list <- as.list(c(15, 30, 45, 60, 75, 90, 105))
 
 
 ### PLAYGROUND ### ---
@@ -87,25 +85,19 @@ for(i in 1:nrow(const_bp)){
 	mega_tau_list[[i]]$const <- const_bp[i, 1]
 }
 
-# Problem: some longer than others. Resolved by increasing runif range (?)
-unlist(lapply(mega_tau_list, nrow)) == 13596
-v_vec <- as.numeric(const_bp[46, 2:10])
-test <- return_sv_tau(v_vec, aes_utils_raw, s_list)
-unlist(lapply(test[[12]], length))
-test_opt <- lapply(test, function(x) opt_vote_scalar(x))
-
 # save as separate object to avoid having to run it every time.
 save(mega_tau_list, file = here("../output/mega_tau_list.Rdata"))
+# load(here("../output/mega_tau_list.Rdata"))
 
 # From resulting loop, run:
 # (1) levels of strategic voting
-prop_list <- lapply(mega_tau_list, function(x) sv_prop(x))
+prop_list <- lapply(mega_tau_list, function(x) try(sv_prop(x)))
 prop_df <- as.data.frame(do.call(rbind, prop_list))
 prop_df$const <- rep(c(const_bp$district), each = length(s_list))
 prop_df$s <- rep(unlist(s_list), nrow(const_bp))
 prop_df[, 1:5] <- prop_df[, 1:5] / 1133
 prop_df <- prop_df[, c(2, 3, 5, 6, 7)]
-names(prop_df)[1:3] <- c("second", "third", "plur_second")
+names(prop_df)[1:3] <- c("RCV_second", "RCV_third", "plur_second")
 
 prop_df_long <- melt(prop_df, id.vars = c("const", "s"))
 prop_df_agg <- as.data.frame(prop_df_long %>% 
@@ -114,21 +106,23 @@ prop_df_agg <- as.data.frame(prop_df_long %>%
 names(prop_df_agg)[3] <- "value"
 
 aus_freq <- ggplot(prop_df_long, aes(x = s, y = value)) +
-  geom_line(aes(colour = variable, group = interaction(const, variable)), alpha = 0.3) +
+  geom_line(aes(colour = variable, group = interaction(const, variable)), alpha = 0.05) +
   geom_line(data = prop_df_agg, aes(colour = variable, group = variable, x = s, y = value),
-            size = 3) + 
+            size = 2) + 
   labs(x = "Information (s)", 
        y = "Proportion of voters in AES casting ballot type",
        colour = "Sincere pref. as first on ballot") +
   theme_bw() +
-  theme(legend.position = "bottom")
+  scale_x_continuous(expand = c(0, 0)) +
+  scale_y_continuous(expand = c(0.1, 0), limits = c(0, 0.5)) + 
+  theme(legend.position = "bottom", legend.direction = "vertical")
 
-gg_path <- here("output/figures/australia_sv_freq.pdf")
-ggsave(gg_path)
+gg_path <- here("../output/figures/australia_sv_freq.pdf")
+ggsave(gg_path, height = 5, width = 4)
 
 # Total strategic incentives
 
-prop_df$inc_rcv <- prop_df$second + prop_df$third
+prop_df$inc_rcv <- prop_df$RCV_second + prop_df$RCV_third
 prop_df$inc_plur <- prop_df$plur_second
 
 aus_inc <- ggplot(prop_df, aes(x = inc_plur, y = inc_rcv)) +
@@ -141,7 +135,7 @@ aus_inc <- ggplot(prop_df, aes(x = inc_plur, y = inc_rcv)) +
   labs(x = "Proportion of AES respondents with positive SI under Plurality",
        y = "Proportion of AES respondents with positive SI under RCV")
 gg_path2 <- here("../output/figures/australia_sv_prop.pdf")
-ggsave(gg_path2, aus_inc)
+ggsave(gg_path2, aus_inc, width = 5, height = 5)
 
 # (2) q-q plots
 

@@ -69,7 +69,7 @@ for(i in 1:length(sin_vote_list)){
   big_list_na_omit[[i]]$v_vec <- as.numeric(v_vec)
 }
 
-s_list <- as.list(seq(from = 10, to = 120, by = 10))
+s_list <- as.list(c(15, 30, 45, 60, 75, 85, 90))
 
 names(big_list)[[39]]
 names(big_list)[[145]]
@@ -78,39 +78,52 @@ big_list_na_omit[[144]] <- NULL
 
 # Loop that creates the tau objects
 sv_list <- list()
-for(i in 144:length(big_list_na_omit)){
+for(i in 1:length(big_list_na_omit)){
   print(i)
   sv_list[[i]] <- return_sv_tau(c(big_list_na_omit[[i]]$v_vec, 0, 0, 0), big_list_na_omit[[i]]$U, s_list)
 }
 
-###
-
-# Check whether they really do produce the same as Andy's function!
-test_toby <- return_sv_tau(c(big_list_na_omit[[109]]$v_vec, 0, 0, 0), big_list_na_omit[[109]]$U, list(60))
-test_andy <- sv(U = big_list_na_omit[[109]]$U, weights = big_list_na_omit[[109]]$weights, s = 60, rule = "AV")
-# OK, what I need to do is to run the entire loop with Andy's function and check the entire DF for discrepancies.
-
-andy_list <- list()
-andy_list_prop <- list()
-for(i in 1:length(big_list)){
-  this_list <- big_list[[i]]
+# Use 
+sv_list <- list()
+for(i in 1:length(big_list_na_omit)){
   print(i)
-  sv_obj <- sv(U = this_list$U, weights = this_list$weights, s = 60, rule = "AV")
-  sv_obj_plur <- sv(U = this_list$U, weights = this_list$weights, s = 60)
-  andy_list[[i]] <- sv_obj
-  prop_av <- sum(sv_obj$weights[!is.na(sv_obj$tau) & sv_obj$tau > 0]) / sum(sv_obj$weights[!is.na(sv_obj$tau)])
-  prop_plur <- sum(sv_obj_plur$weights[!is.na(sv_obj_plur$tau) & sv_obj_plur$tau > 0]) / sum(sv_obj_plur$weights[!is.na(sv_obj$tau)]) 
-  andy_list_prop[[i]] <- c(prop_av, prop_plur)
+  this_list <- big_list_na_omit[[i]]
+  df_list <- lapply(s_list, function(x) convert_andy_to_sv_item(this_list, s = x))
+  df <- as.data.frame(do.call(rbind, df_list))
+  df$case <- names(big_list_na_omit)[[i]]
+  #df <- apply(df, 2, as.numeric)
+  sv_list[[i]] <- df
 }
 
-andy_list_prop_df <- do.call(rbind, andy_list_prop)
+####
 
-# compare:
-andy_list_prop_df == prop_df[prop_df$s == 60, c(8, 9)]
+# Check whether they really do produce the same as Andy's function!
+# test_toby <- return_sv_tau(c(big_list_na_omit[[109]]$v_vec, 0, 0, 0), big_list_na_omit[[109]]$U, list(60))
+# test_andy <- sv(U = big_list_na_omit[[109]]$U, weights = big_list_na_omit[[109]]$weights, s = 60, rule = "AV")
+# # OK, what I need to do is to run the entire loop with Andy's function and check the entire DF for discrepancies.
+# 
+# andy_list <- list()
+# andy_list_prop <- list()
+# for(i in 1:length(big_list)){
+#   this_list <- big_list[[i]]
+#   print(i)
+#   sv_obj <- sv(U = this_list$U, weights = this_list$weights, s = 60, rule = "AV")
+#   sv_obj_plur <- sv(U = this_list$U, weights = this_list$weights, s = 60)
+#   andy_list[[i]] <- sv_obj
+#   prop_av <- sum(sv_obj$weights[!is.na(sv_obj$tau) & sv_obj$tau > 0]) / sum(sv_obj$weights[!is.na(sv_obj$tau)])
+#   prop_plur <- sum(sv_obj_plur$weights[!is.na(sv_obj_plur$tau) & sv_obj_plur$tau > 0]) / sum(sv_obj_plur$weights[!is.na(sv_obj$tau)]) 
+#   andy_list_prop[[i]] <- c(prop_av, prop_plur)
+# }
+# 
+# andy_list_prop_df <- do.call(rbind, andy_list_prop)
+# 
+# # compare:
+# andy_list_prop_df == prop_df[prop_df$s == 60, c(8, 9)]
 
 ####
 
 save(file = here("../output/sv_list.Rdata"), sv_list)
+# load(here("../output/sv_list.Rdata"))
 
 
 # Proportion of optimal strategic votes
@@ -126,43 +139,42 @@ for(i in 1:length(sv_list)){
   prop_list[[i]] <- df
 }
 prop_df <- do.call(rbind, prop_list)
-names(prop_df)[1:5] <- c("rcv_first", "rcv_sec", "rcv_third", "plur_first", "plur_sec")
+names(prop_df)[1:5] <- c("rcv_first", "rcv_second", "rcv_third", "plur_first", "plur_second")
 prop_df_long <- melt(prop_df[, c(2, 3, 5, 6, 7)], id.vars = c("case", "s"))
 prop_df_agg <- as.data.frame(prop_df_long %>% 
                                group_by(variable, s) %>% 
                                summarize(mean(value)))
 names(prop_df_agg)[3] <- "value"
 
-# Need to include weights to fully replicate Andy's function.
 
 cses_prop <- ggplot(prop_df_long, aes(x = s, y = value)) +
-  geom_line(aes(colour = variable, group = interaction(case, variable)), alpha = 0.06) +
+  geom_line(aes(colour = variable, group = interaction(case, variable)), alpha = 0.05) +
   geom_line(data = prop_df_agg, aes(colour = variable, group = variable, x = s, y = value),
-            size = 1) + 
+            size = 2) + 
   labs(x = "Information (s)", 
        y = "Proportion of voters in CSES (case) casting ballot type",
        colour = "Ballot order") +
   theme_bw() +
-  scale_color_manual(values = c("lime green", "blue", "red")) + 
+  # scale_color_manual(values = c("lime green", "blue", "red")) + 
   scale_x_continuous(expand = c(0, 0)) +
-  scale_y_continuous(expand = c(0.1, 0)) + 
-  theme(legend.position = "bottom")
-ggsave(here("../output/figures/cses_prop.pdf"), cses_prop)
+  scale_y_continuous(expand = c(0.1, 0), limits = c(0, 0.5)) + 
+  theme(legend.position = "bottom", legend.direction = "vertical")
+ggsave(here("../output/figures/cses_inc.pdf"), cses_prop, height = 5, width = 4)
 
 # Distribution of incentives 
-prop_df$inc_rcv <- prop_df$rcv_sec + prop_df$rcv_third
-prop_df$inc_plur <- prop_df$plur_sec
+prop_df$inc_rcv <- prop_df$rcv_second + prop_df$rcv_third
+prop_df$inc_plur <- prop_df$plur_second
 
-cses_inc <- ggplot(prop_df[prop_df$s == 60, ], aes(x = inc_plur, y = inc_rcv)) +
+cses_inc <- ggplot(prop_df, aes(x = inc_plur, y = inc_rcv)) +
   geom_point() +
   geom_abline(slope = 1, intercept = 0) + 
   facet_wrap(~ s) +
   theme_bw() +
-  scale_x_continuous(limits = c(0, 0.25), expand = c(0, 0)) +
+  scale_x_continuous(limits = c(0, 0.7), expand = c(0, 0)) +
   scale_y_continuous(limits = c(0, 0.7), expand = c(0, 0)) +
   labs(x = "Proportion of CSES respondents with positive SI under Plurality",
        y = "Proportion of CSES respondents with positive SI under RCV")
-ggsave(here("../output/figures/cses_inc.pdf"), cses_inc, width = 3, height = 6)
+ggsave(here("../output/figures/cses_prop.pdf"), cses_inc, width = 5, height = 5)
 
 
 # Check alternative method of computing incentive proportions

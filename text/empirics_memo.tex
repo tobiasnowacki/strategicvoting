@@ -1,0 +1,89 @@
+\documentclass[11pt, letter, margin = 2 in]{article}
+
+\usepackage[style = authoryear, autocite=inline, doi=false,isbn=false,url=false]{biblatex}
+\usepackage[colorlinks, citecolor = red]{hyperref}
+\usepackage[long, nodayofweek]{datetime}
+\usepackage[]{booktabs}
+\usepackage{graphicx}
+
+\usepackage[sf,pagestyles]{titlesec} % make section headings \sffamily
+% make headers \sffamily
+\newpagestyle{main}[\sffamily]{
+    \sethead{\thepage}{}{\sectiontitle}
+    }
+\pagestyle{main}
+\usepackage{titling}
+% make titling elements \sffamily
+\pretitle{\begin{center}\sffamily\LARGE}
+\preauthor{\begin{center}
+            \large\sffamily \lineskip 0.5em%
+            \begin{tabular}[t]{c}}
+\predate{\begin{center}\sffamily\large}
+\usepackage{abstract}
+% make abstract title \sffamily
+\renewcommand\abstractnamefont{\sffamily}
+\usepackage{caption} 
+\captionsetup{font=sf, labelfont = bf}
+
+\begin{document}
+\author{Andy Eggers\thanks{Nuffield College and Department of Politics and International Relations, University of Oxford, United Kingdom. \texttt{aeggers@nuffield.ox.ac.uk}}
+\and
+Tobias Nowacki\thanks{Department of Political Science, Stanford University, CA, United States. \texttt{tnowacki@stanford.edu}}}
+\date{\today}
+\title{Strategic Voting under Ranked Choice Voting and Plurality: Empirics}
+
+\maketitle
+
+\section{Introduction}
+
+This memo sets out, compares, and contrasts the main empirical results from our work so far. For a given distribution of voters with specific preferences over three parties, and a belief over the likely election outcome (centred on the ballot profile ${\bf v}_0$), we evaluate the following for both RCV and plurality:
+\begin{itemize}
+\item what proportion of the voting population faces a positive incentive to vote strategically?
+\item (under RCV) how is this incentive further distributed between second-first and third-first ballots?
+\item how likely are voting paradoxes (no-show, monotonicity violation) to occur?
+\item if voters anticipate other voters' strategic behaviour, how do the incentives change? (which system is more vulnerable to coordination problems?)
+\end{itemize}
+
+Unfortunately, we do not know of a data source that captures both voters' relative preferences over parties as well as their vote choice under plurality \textbf{and} RCV (which, as the name suggests, requires a ranked choice over parties/candidates).\footnote{We do have utilities and the first \textit{two} ballot ranks recorded in the AES, but the number of respondents who rank major parties as the top two is small; furthermore, respondents are bad at giving accurate responses for lower ranks.} Instead, we draw on two complementary data sources: first, the CSES (\textit{Comparative Study of Electoral Systems}), which contains 162 surveys in different countries (at different times). Here, we use respondents' like-dislike scores (thermometer) about parties to construct their vMN utilities. For the purposes of further analysis, we then assume that voters believe that the expected election outcome is centred on the outcome that would occur if everyone else in that survey voted sincerely. Second, look at the 2015 state election in New South Wales (NSW), Australia, which used ranked-choice voting, with the possibility to truncate one's ballot. We use the Australian Election Study (specifically, only respondents from NSW) for to construct voters' utilities; and the actual distribution of ballots from the 2015 election to inform ${\bf v}_0$.
+
+\section{Data}
+
+\subsection{Summary}
+
+\begin{itemize}
+	\item mention key differences between data sets
+\end{itemize}
+
+\subsection{Descriptive Statistics}
+
+
+\begin{itemize}
+	\item include simplex plots of distribution of ${\bf v}_0$s
+	\item summarise preference distribution
+\end{itemize}
+
+\section{Frequency of Strategic Voting Incentives}
+
+\begin{figure}[!h]
+	\centering
+	\includegraphics[width = .45 \textwidth]{"../output/figures/australia_sv_freq"}
+	\includegraphics[width = .45 \textwidth]{"../output/figures/cses_freq"}
+	\caption{Proportion of voters with non-sincere optimal vote, by level of information. Left panel: NSW. Right panel: CSES}
+	\label{fig:figure1}
+\end{figure}
+
+What can we see here?
+The pattern is extremely similar across both cases. At very low levels of information, there are roughly similar proportions of RCV second and plurality second optimal votes (with plurality being slightly higher). There exists virtually no incentive to vote RCV third. This changes as information improves: the plurality incentive stagnates below 0.2 on average, whereas RCV second keeps rising. Crucially, at high levels of information, the incentive to vote RCV third also becomes very large. (how is this related to the theory?)
+
+\section{Direct Comparison of Frequency}
+
+\begin{figure}[!h]
+	\centering
+	\includegraphics[width = .45 \textwidth]{"../output/figures/australia_sv_prop"}
+	\includegraphics[width = .45 \textwidth]{"../output/figures/cses_prop"}
+	\caption{Proportion of voters with non-sincere optimal vote, by level of information. Left panel: NSW. Right panel: CSES}
+	\label{fig:figure1}
+\end{figure}
+
+
+\end{document}
