@@ -1,0 +1,66 @@
+prop_list <- list()
+for(i in 1:length(sv_list)){
+  print(i)
+  prop_list[[i]] <- sv_prop(sv_list[[i]], big_list_na_omit[[i]]$weights)
+  df <- as.data.frame(prop_list[[i]])
+  df$case <- as.character(names(big_list_na_omit)[[i]])
+  df$s <- as.numeric(s_list)
+  n <- apply(df[, 1:3], 1, function(x) sum(x))
+  df[, 1:5] <- df[, 1:5] / sum(big_list_na_omit[[i]]$weights)
+  prop_list[[i]] <- df
+}
+prop_df <- do.call(rbind, prop_list)
+names(prop_df)[1:5] <- c("rcv_first", "rcv_second", "rcv_third", "plur_first", "plur_second")
+prop_df_long <- melt(prop_df[, c(2, 3, 5, 6, 7)], id.vars = c("case", "s"))
+prop_df_agg <- as.data.frame(prop_df_long %>% 
+                               group_by(variable, s) %>% 
+                               summarize(mean(value)))
+names(prop_df_agg)[3] <- "value"
+
+
+cses_prop <- ggplot(prop_df_long, aes(x = s, y = value)) +
+  geom_line(aes(colour = variable, group = interaction(case, variable)), alpha = 0.05) +
+  geom_line(data = prop_df_agg, aes(colour = variable, group =]0;~/github/strategicvoting/code[?1034hDN0a1e4f0d:code tobiasnowacki$ prop_list <- list()
+bash: syntax error near unexpected token `('
+]0;~/github/strategicvoting/codeDN0a1e4f0d:code tobiasnowacki$ for(i in 1:length(sv_list)){
+bash: syntax error near unexpected token `('
+]0;~/github/strategicvoting/codeDN0a1e4f0d:code tobiasnowacki$   print(i)
+bash: syntax error near unexpected token `i'
+]0;~/github/strategicvoting/codeDN0a1e4f0d:code tobiasnowacki$   prop_list[[i]] <- sv_prop(sv_list[[i]], big_l ist_na_omit[[i]]$weights)
+bash: syntax error near unexpected token `('
+]0;~/github/strategicvoting/codeDN0a1e4f0d:code tobiasnowacki$   df <- as.data.frame(prop_list[[i]])
+bash: syntax error near unexpected token `('
+]0;~/github/strategicvoting/codeDN0a1e4f0d:code tobiasnowacki$   df$case <- as.character(names(big_list_na_omi t)[[i]])
+bash: syntax error near unexpected token `('
+]0;~/github/strategicvoting/codeDN0a1e4f0d:code tobiasnowacki$   df$s <- as.numeric(s_list)
+bash: syntax error near unexpected token `('
+]0;~/github/strategicvoting/codeDN0a1e4f0d:code tobiasnowacki$   n <- apply(df[, 1:3], 1, function(x) sum(x))
+bash: syntax error near unexpected token `('
+]0;~/github/strategicvoting/codeDN0a1e4f0d:code tobiasnowacki$   df[, 1:5] <- df[, 1:5] / sum(big_list_na_omit [[i]]$weights)
+bash: syntax error near unexpected token `('
+]0;~/github/strategicvoting/codeDN0a1e4f0d:code tobiasnowacki$   prop_list[[i]] <- df
+bash: -: No such file or directory
+]0;~/github/strategicvoting/codeDN0a1e4f0d:code tobiasnowacki$ }
+bash: syntax error near unexpected token `}'
+]0;~/github/strategicvoting/codeDN0a1e4f0d:code tobiasnowacki$ prop_df <- do.call(rbind, prop_list)
+bash: syntax error near unexpected token `('
+]0;~/github/strategicvoting/codeDN0a1e4f0d:code tobiasnowacki$ names(prop_df)[1:5] <- c("rcv_first", "rcv_seco nd", "rcv_third", "plur_first", "plur_second")
+bash: syntax error near unexpected token `prop_df'
+]0;~/github/strategicvoting/codeDN0a1e4f0d:code tobiasnowacki$ prop_df_long <- melt(prop_df[, c(2, 3, 5, 6, 7) ], id.vars = c("case", "s"))
+bash: syntax error near unexpected token `('
+]0;~/github/strategicvoting/codeDN0a1e4f0d:code tobiasnowacki$ prop_df_agg <- as.data.frame(prop_df_long %>% 
+bash: syntax error near unexpected token `('
+]0;~/github/strategicvoting/codeDN0a1e4f0d:code tobiasnowacki$                                group_by(variabl e, s) %>% 
+bash: syntax error near unexpected token `variable,'
+]0;~/github/strategicvoting/codeDN0a1e4f0d:code tobiasnowacki$                                summarize(mean(v alue)))
+bash: syntax error near unexpected token `mean'
+]0;~/github/strategicvoting/codeDN0a1e4f0d:code tobiasnowacki$ names(prop_df_agg)[3] <- "value"
+bash: syntax error near unexpected token `prop_df_agg'
+]0;~/github/strategicvoting/codeDN0a1e4f0d:code tobiasnowacki$ 
+]0;~/github/strategicvoting/codeDN0a1e4f0d:code tobiasnowacki$ 
+]0;~/github/strategicvoting/codeDN0a1e4f0d:code tobiasnowacki$ cses_prop <- ggplot(prop_df_long, aes(x = s, y  = value)) +
+bash: syntax error near unexpected token `('
+]0;~/github/strategicvoting/codeDN0a1e4f0d:code tobiasnowacki$   geom_line(aes(colour = variable, group = inte raction(case, variable)), alpha = 0.05) +
+bash: syntax error near unexpected token `aes'
+]0;~/github/strategicvoting/codeDN0a1e4f0d:code tobiasnowacki$   geom_line(data = prop_df_agg, aes(colour = va riable, group = variable, x = s, y 
+]0;~/github/strategicvoting/codeDN0a1e4f0d:code tobiasnowacki$ 

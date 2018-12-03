@@ -115,9 +115,12 @@ return_sv_prop <- function(v_vec, util_df, s_breaks, full_mat = FALSE){
 
 }
 
-sv_prop <- function(tau_obj, weights){
+sv_prop <- function(tau_obj, weights = "fill"){
 	tau_list <- split(tau_obj, tau_obj$s)
-
+  if(weights == "fill") {
+    weights <- rep(1, length(tau_list[[1]]$sin_rcv))
+  }
+	
 	# RCV proportions
 	opt_vote_prop <- lapply(tau_list, function(x) sum_opt_votes(x$sin_rcv, x$opt_rcv, type = "rcv", weights = weights))
 	prop_df_rcv <- do.call(rbind, opt_vote_prop)
@@ -421,4 +424,19 @@ return_lvl_two_prop <- function(sv_df, lvl_2, type = "rcv"){
 		vs_sin_plur <- 1 - sum(lvl_2$opt_plur == lvl_2$sin_plur) / n
 		return(c(vs_lvl_one_plur, vs_sin_plur))
 	}
+}
+
+convert_andy_to_sv_item <- function(list_item, s){
+  # Generates sv object from Andy's function and converts it into my data structure -- much faster!
+  out_rcv <- sv(U = list_item$U, weights = list_item$weights, s = s, rule = "AV")
+  out_plur <- sv(U = list_item$U, weights = list_item$weights, s = s)
+  sin_rcv <- apply(out_rcv$V0, 1, function(x) which(x == 1))
+  sin_plur <- apply(out_plur$V0, 1, function(x) which(x == 1))
+  tau_rcv <- as.numeric(out_rcv$tau)
+  tau_plur <- as.numeric(out_plur$tau)
+  opt_rcv <- apply(out_rcv$V.mat, 1, function(x) which(x == 1))
+  opt_plur <- apply(out_plur$V.mat, 1, function(x) which(x == 1))
+  s <- rep(s, nrow(list_item$U))
+  df <- as.data.frame(cbind(sin_rcv, sin_plur, tau_rcv, tau_plur, opt_rcv, opt_plur, s))
+  return(df)
 }
