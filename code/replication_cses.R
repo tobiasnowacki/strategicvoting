@@ -225,13 +225,48 @@ cses_qq <- ggplot(qq_mega_df, aes(x = x, y = y)) +
   geom_abline(intercept = 0, slope = 1, linetype = "dotted", colour = "blue") +
   theme_bw()  + 
   facet_wrap(vars(s)) +
-  xlim(-30, 30) + ylim(-30, 30) +
-ggsave(here("../output/figures/cses_qq.pdf"), cses_qq)
+  xlim(-30, 30) + ylim(-30, 30)
+ggsave(here("../output/figures/cses_qq.pdf"), cses_qq, width = 6, height = 6)
 
 
 # Voting paradoxes
 
+
+
 # Interdependence
 
+# Isolate DF for just one instance of s
+sv_list_fixed_s <- lapply(sv_list, function(x) x[x$s == 75, ])
 
+lambda_list <- as.list(seq(0, 0.5, 0.05))
 
+inter_list <- list()
+for(i in 1:length(big_list_na_omit)){
+  print(i)
+  df <- big_list_na_omit[[i]]
+  sv_item <- sv_list_fixed_s[[i]]
+  out <- level_two_props_cses(c(df$v_vec, 0, 0, 0), lambda_list, df$U, sv_item, 75, df$weights)
+  out$case <- names(big_list_na_omit)[[i]]
+  inter_list[[i]] <- out
+}
+
+inter_df <- do.call(rbind, inter_list)
+
+inter_df_agg <- as.data.frame(inter_df %>% group_by(lambda) %>% summarize(mean(L1RCV), mean(L1PLUR), mean(L0RCV), mean(L0PLUR)))
+names(inter_df_agg) <- c("lambda", "l1rcv", "l1plur", "l0rcv", "l0plur")
+
+l1_plot <- ggplot(inter_df, aes(x = lambda, group = case)) +
+  geom_line(aes(y = L1RCV), colour = "blue", alpha = 0.05) +
+  geom_line(aes(y = L1PLUR), colour = "orange", alpha = 0.05) +
+  geom_line(data = inter_df_agg, aes(y = l1rcv), colour = "blue", lwd = 2) +
+  geom_line(data = inter_df_agg, aes(y = l1plur), colour = "orange", lwd = 2) +
+  theme_bw()
+ggsave(here("../output/figures/cses_l1.pdf"), l1_plot, width = 5, height = 5)
+
+l0_plot <- ggplot(inter_df, aes(x = lambda, group = case)) +
+  geom_line(aes(y = L0RCV), colour = "blue", alpha = 0.05) +
+  geom_line(aes(y = L0PLUR), colour = "orange", alpha = 0.05) +
+  geom_line(data = inter_df_agg, aes(y = l0rcv), colour = "blue", lwd = 2) +
+  geom_line(data = inter_df_agg, aes(y = l0plur), colour = "orange", lwd = 2) +
+  theme_bw()
+ggsave(here("../output/figures/cses_l0.pdf"), l0_plot, width = 5, height = 5)
