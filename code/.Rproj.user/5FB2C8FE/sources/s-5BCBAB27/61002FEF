@@ -1,21 +1,21 @@
 {
     "collab_server" : "",
     "contents" : "",
-    "created" : 1543692745610.000,
+    "created" : 1543895806894.000,
     "dirty" : false,
     "encoding" : "UTF-8",
     "folds" : "",
     "hash" : "0",
-    "id" : "577EBC49",
-    "lastKnownWriteTime" : 1543699634,
-    "last_content_update" : 1543699634,
+    "id" : "61002FEF",
+    "lastKnownWriteTime" : 1543896951,
+    "last_content_update" : 1543896951593,
     "path" : "~/github/strategicvoting/code/utils/functions.r",
     "project_path" : "utils/functions.r",
     "properties" : {
-        "cursorPosition" : "117,47",
-        "scrollLine" : "0"
+        "cursorPosition" : "445,0",
+        "scrollLine" : "425"
     },
-    "relative_order" : 2,
+    "relative_order" : 4,
     "source_on_save" : false,
     "source_window" : "",
     "type" : "r_source"

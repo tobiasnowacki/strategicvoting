@@ -294,24 +294,24 @@ vote_matrix <- function(df, type = "rcv"){
 	}
 }
 
-qq_function <- function(const_bp_no_trunc, utils, s){
-	# Takes dataframe of ballot proportions, dataframe of utilities, and level of uncertainty
-	# Returns dataframe of coordiantes for qq-plot, grouped by constituency
-
-	# Need to re-work such that it fits the truncated ballots and comes off RST-DF.
-	const_taus <- list()
-	const_taus_qq <- list()
-	for(i in 1:nrow(const_bp_no_trunc)){
-			# print(const_bp_no_trunc[i, ])
-			v_vec <- const_bp_no_trunc[i, 2:10]
-			const_taus[[i]] <- return_sv_tau(as.numeric(v_vec), utils, s)
-			const_taus_qq[[i]] <- as.data.frame(qqplot(x = unlist(const_taus[[i]]$tau_vec_plur[const_taus[[i]]$V4 == s]), 
-				y = unlist(const_taus[[i]]$tau_vec_rcv[const_taus[[i]]$V4 == s]), plot.it = FALSE))
-	}
-	const_taus_qq_df <- do.call(rbind, const_taus_qq)
-	const_taus_qq_df$const <- rep(const_bp_no_trunc$district, each = nrow(aes_utils))
-	return(const_taus_qq_df)
+vote_matrix_weighted <- function(df, type = "rcv", 
+                                 weights = rep(1, nrow(df))){
+  # Input: dataframe output from return_sv_tau
+  # Output: 6x6 (RCV) or 6x3 (Plurality) matrix of votes
+  df$sin_rcv <- factor(df$sin_rcv, levels = 1:6)
+  if(type == "rcv"){
+    df$opt_rcv <- factor(df$opt_rcv, levels = 1:6)
+    tab <- as.matrix(wtd.table(df$sin_rcv, df$opt_rcv, weights))
+    return(tab)
+  }
+  if(type == "plur"){
+    df$opt_plur <- factor(df$opt_plur, levels = 1:3)
+    tab <- as.matrix(wtd.table(df$sin_plur, df$opt_plur, weights))
+    return(tab)
+  }
 }
+
+# Functions for qq-plot
 
 qq_function_two <- function(tau_obj, utils){
   tau_list <- split(tau_obj, tau_obj$s)
@@ -321,48 +321,7 @@ qq_function_two <- function(tau_obj, utils){
   return(qq_df)
 }
 
-# level_two_props <- function(v_vec, lambda, util, sv_df, s){
-
-
-# 	# split return_sv_tau ("sv_df") into list
-# 	by_s_df <- split(sv_df, sv_df$s)
-# 	s_list_internal <- as.list(unique(sv_df$s))
-# 	s_vec <- as.numeric(s_list_internal)
-
-# 	# For each s, get 6x6 (and 6x3) mat
-# 	vote_mat_rcv <- lapply(by_s_df, function(x) vote_matrix(x, type = "rcv"))
-# 	vote_mat_plur <- lapply(by_s_df, function(x) vote_matrix(x, type = "plur"))
-
-# 	# save initial vote distribution
-# 	v_vec_init_weighted <- as.numeric(v_vec[1:6] / sum(v_vec[1:6]))
-
-
-# 	# Get new vote distribution for both RCV and Plurality
-# 	# Could streamline this set into new function (saves having to use lapply multiple times)
-# 	new_vec <- lapply(vote_mat_rcv, function(x) v_vec_init_weighted %*% x)
-# 	new_vec <- lapply(new_vec, function(x) x / sum(x))
-# 	new_vec <- lapply(new_vec, function(x) lambda * x + (1 - lambda) * v_vec_init_weighted)
-# 	new_vec_plur <- lapply(vote_mat_plur, function(x) v_vec_init_weighted %*% x)
-# 	new_vec_plur <- lapply(new_vec_plur, function(x) x / sum(x))
-# 	new_vec_plur <- lapply(new_vec_plur, function(x) lambda * x + (1 - lambda) * v_vec_init_weighted_plur)
-
-# 	# To obtain the proportion of voters in plurality, I will need to do either of the following:
-# 	# Take 3-item vec in new_vec_plur and split it into 6 such that I can run return_sv_prop
-# 	new_vec_plur_six <- lapply(new_vec_plur, function(x) rep(x, each = 2) / 2)
-
-# 	inter_df <- matrix(NA, ncol = 5, nrow = length(s_list_internal))
-
-# 	for (i in 1:length(s_list_internal)){
-# 		out_rcv <- return_sv_prop(c(new_vec[[i]], 0, 0, 0), util, list(s_list_internal[[i]]))
-# 		out_plur <- return_sv_prop(c(new_vec_plur_six[[i]], 0, 0, 0), util, list(s_list_internal[[i]]))
-# 		inter_df[i, 1:3] <- as.matrix(out_rcv[1, 1:3])
-# 		inter_df[i, 4:5] <- as.matrix(out_rcv[1, 4:5])
-# 	}
-# 	inter_df <- as.dataframe(inter_df)
-# 	names(inter_df) <- c("RCV first", "RCV second", "RCV third", "Plur. first", "Plur. second")
-# 	inter_df$s <- s_vec
-# 	return(inter_df)
-# }
+# Functions for interdependence
 
 new_v_vec <- function(vote_mat, v_vec_init_weighted, lambda_list, type = "rcv"){
 	v_vec_init_weighted_plur <- c(v_vec_init_weighted[1] + v_vec_init_weighted[2] + v_vec_init_weighted[7],
@@ -426,10 +385,10 @@ return_lvl_two_prop <- function(sv_df, lvl_2, type = "rcv"){
 	}
 }
 
-convert_andy_to_sv_item <- function(list_item, s){
+convert_andy_to_sv_item <- function(list_item, s, v_vec){
   # Generates sv object from Andy's function and converts it into my data structure -- much faster!
-  out_rcv <- sv(U = list_item$U, weights = list_item$weights, s = s, rule = "AV")
-  out_plur <- sv(U = list_item$U, weights = list_item$weights, s = s)
+  out_rcv <- sv(U = list_item$U, weights = list_item$weights, s = s, rule = "AV", v.vec = v_vec)
+  out_plur <- sv(U = list_item$U, weights = list_item$weights, s = s, v.vec = v_vec)
   sin_rcv <- apply(out_rcv$V0, 1, function(x) which(x == 1))
   sin_plur <- apply(out_plur$V0, 1, function(x) which(x == 1))
   tau_rcv <- as.numeric(out_rcv$tau)
@@ -439,4 +398,47 @@ convert_andy_to_sv_item <- function(list_item, s){
   s <- rep(s, nrow(list_item$U))
   df <- as.data.frame(cbind(sin_rcv, sin_plur, tau_rcv, tau_plur, opt_rcv, opt_plur, s))
   return(df)
+}
+
+# write new function in terms of level_two_props_cases
+convert_andy_to_sv_item_two <- function(U, w, s, v_vec){
+  # Generates sv object from Andy's function and converts it into my data structure -- much faster!
+  out_rcv <- sv(U = U, weights = w, s = s, rule = "AV", v.vec = v_vec)
+  out_plur <- sv(U = U, weights = w, s = s, v.vec = v_vec)
+  sin_rcv <- apply(out_rcv$V0, 1, function(x) which(x == 1))
+  sin_plur <- apply(out_plur$V0, 1, function(x) which(x == 1))
+  tau_rcv <- as.numeric(out_rcv$tau)
+  tau_plur <- as.numeric(out_plur$tau)
+  opt_rcv <- apply(out_rcv$V.mat, 1, function(x) which(x == 1))
+  opt_plur <- apply(out_plur$V.mat, 1, function(x) which(x == 1))
+  s <- rep(s, nrow(list_item$U))
+  df <- as.data.frame(cbind(sin_rcv, sin_plur, tau_rcv, tau_plur, opt_rcv, opt_plur, s))
+  return(df)
+}
+
+level_two_props_cses <- function(v_vec, lambda_list, util, sv_df, s, w = c(rep(1, nrow(util)))){
+  # Create 6x6 and 6x3 matrices
+  vote_mat_rcv <- vote_matrix_weighted(sv_df, type = "rcv", w)
+  vote_mat_plur <- vote_matrix_weighted(sv_df, type = "plur", w)
+  v_vec_init_weighted <- as.numeric(v_vec[1:9] / sum(v_vec[1:9]))
+  
+  return(vote_mat_rcv)
+  v_vec_rcv <- new_v_vec(vote_mat_rcv, v_vec_init_weighted, lambda_list, type = "rcv")
+  v_vec_plur <- new_v_vec(vote_mat_plur, v_vec_init_weighted, lambda_list, type = "plur")
+  
+  # sv_lvl_two_rcv <- lapply(v_vec_rcv, function(x) return_sv_tau(x, util, s))
+  sv_lvl_two_rcv <- lapply(v_vec_rcv, function(x) convert_andy_to_sv_item_two(util, w, s, v_vec))
+  lvl_two_summary_rcv <- lapply(sv_lvl_two_rcv, function(x) return_lvl_two_prop(sv_df, x, type = "rcv"))
+  lvl_two_summary_rcv <- do.call(rbind, lvl_two_summary_rcv)
+  
+  sv_lvl_two_rcv <- lapply(v_vec_plur, function(x) convert_andy_to_sv_item_two(util, w, s, v_vec))
+  lvl_two_summary_plur <- lapply(sv_lvl_two_plur, function(x) return_lvl_two_prop(sv_df, x, type = "plur"))
+  lvl_two_summary_plur <- do.call(rbind, lvl_two_summary_plur)
+  
+  df_out <- as.data.frame(cbind(lvl_two_summary_rcv, lvl_two_summary_plur))
+  names(df_out) <- c("L1RCV", "L0RCV", "L1PLUR", "L0PLUR")
+  df_out$s <- s
+  df_out$lambda <- unlist(lambda_list)
+  
+  return(df_out)
 }

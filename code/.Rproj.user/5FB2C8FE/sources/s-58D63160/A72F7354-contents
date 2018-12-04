@@ -161,11 +161,10 @@ ggsave(here("../output/figures/australia_sv_qq_trunc.pdf"), aus_qq, width = 6, h
 
 # (still have to write code for this one)
 
-
 # (4) interdependence
 
 # Set s = 80
-mega_tau_fixed_s <- lapply(mega_tau_list, function(x) x[x$s == 80, ])
+mega_tau_fixed_s <- lapply(mega_tau_list, function(x) x[x$s == 75, ])
 
 # Run loop over constituencies. This will take a long time...
 inter_df <- list()

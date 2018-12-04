@@ -153,18 +153,18 @@ aus_qq <- ggplot(qq_mega_df, aes(x = x, y = y)) +
   geom_line(data = qq_agg_df, aes(x = x, y = y), colour = "red", lwd = 2) + 
   geom_abline(intercept = 0, slope = 1, linetype = "dotted", colour = "blue") +
   theme_bw()  + 
-  facet_wrap(vars(s))
-ggsave(here("../output/figures/australia_sv_qq_trunc.pdf"), aus_qq)
+  facet_wrap(vars(s)) +
+  xlim(-30, 30) + ylim(-30, 30)
+ggsave(here("../output/figures/australia_sv_qq_trunc.pdf"), aus_qq, width = 6, height = 6)
 
 # (3) occurence of voting paradoxes
 
 # (still have to write code for this one)
 
-
 # (4) interdependence
 
 # Set s = 80
-mega_tau_fixed_s <- lapply(mega_tau_list, function(x) x[x$s == 80, ])
+mega_tau_fixed_s <- lapply(mega_tau_list, function(x) x[x$s == 75, ])
 
 # Run loop over constituencies. This will take a long time...
 inter_df <- list()
