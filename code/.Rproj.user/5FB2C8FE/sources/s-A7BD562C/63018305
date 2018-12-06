@@ -1,0 +1,22 @@
+{
+    "collab_server" : "",
+    "contents" : "",
+    "created" : 1544050053553.000,
+    "dirty" : true,
+    "encoding" : "UTF-8",
+    "folds" : "",
+    "hash" : "0",
+    "id" : "63018305",
+    "lastKnownWriteTime" : 1544115515,
+    "last_content_update" : 1544115557069,
+    "path" : "~/github/strategicvoting/code/replication_cses.R",
+    "project_path" : "replication_cses.R",
+    "properties" : {
+        "cursorPosition" : "278,0",
+        "scrollLine" : "263"
+    },
+    "relative_order" : 2,
+    "source_on_save" : false,
+    "source_window" : "",
+    "type" : "r_source"
+}
