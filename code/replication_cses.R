@@ -270,11 +270,11 @@ ggplot(paradox_df, aes(x = wasted)) +
   geom_smooth(method = "loess", aes(y = no_show), colour = "blue") +
   geom_smooth(method = "loess", aes(y = nonmon), colour = "red") +
   xlim(0, 0.4) + ylim(0, 0.4) +
-  labs(x = "Pr(Wasted Vote, Plurality)", y = "Pr(Voting Paradox, RCV)") +
+  labs(x = "Pr(Wasted Vote, Plurality)", y = "Pr(Voting Paradox, RCV)", colour = "Paradox type") +
   scale_colour_manual(breaks = c("No-show", "Non-mon"), values = c("No-show" = "blue", "Non-mon" = "red")) +
   theme_bw() +
   theme(legend.position = "bottom", legend.direction = "horizontal")
-
+ggsave(here("../output/figures/paradoxes_cses.pdf"), height = 4, width = 4)
 
 # (5) Interdependence
 

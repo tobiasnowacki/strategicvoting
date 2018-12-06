@@ -166,22 +166,23 @@ ggsave(here("../output/figures/australia_sv_qq_trunc.pdf"), aus_qq, width = 6, h
 
 # Non-monotonicity under AV
 nonmon_list <- c()
-s <- 85
+s <- 15
 for(i in 1:nrow(const_bp)){
   print(i)
   v_vec <- as.numeric(const_bp[i, 2:10] / sum(const_bp[i, 2:10]))
   pprobs <- av.pivotal.event.probs.general(v_vec, rep(s, 4))
-  nonmon_list[[i]] <- non_monoton(mega_tau_list[[i]], pprobs)
+  nonmon_list[[i]] <- non_monoton(mega_tau_list[[i]][mega_tau_list[[i]]$s == s, ], pprobs)
 }
 
 # Wasted vote under Plurality
+# need to decide what to do with trunc in plurality.
 wasted_list <- c()
 for(i in 1:nrow(const_bp)){
   print(i)
   v_vec <- as.numeric(const_bp[i, 2:10] / sum(const_bp[i, 2:10]))
-  v_vec_three <- c(v_vec[1] + v_vec[2], v_vec[3] + v_vec[4], v_vec[5] + v_vec[6])
+  v_vec_three <- c(v_vec[1] + v_vec[2] + v_vec[7], v_vec[3] + v_vec[4] + v_vec[8], v_vec[5] + v_vec[6] + v_vec[9])
   pprobs <- plurality.pivotal.probabilities(v_vec_three, s)
-  wasted_list[[i]] <- wasted_vote(mega_tau_list[[i]], pprobs)
+  wasted_list[[i]] <- wasted_vote(mega_tau_list[[i]][mega_tau_list[[i]]$s == s, ], pprobs)
 }
 
 paradox_df <- matrix(NA, ncol = 3, nrow = nrow(const_bp))
@@ -195,10 +196,17 @@ paradox_df <- as.data.frame(paradox_df)
 names(paradox_df) <- c("no_show", "nonmon", "wasted")
 
 ggplot(paradox_df, aes(x = wasted)) +
-  geom_point(aes(y = no_show)) +
-  geom_point(aes(y = nonmon), colour = "blue") +
-  geom_abline(intercept = 0, slope = 1) +
-  xlim(0, 0.5) + ylim(0, 0.15)
+  geom_point(aes(y = no_show, colour = "No-show"), size = 1.5, alpha = 0.2) +
+  geom_point(aes(y = nonmon, colour = "Non-mon"), size = 1.5, alpha = 0.2) +
+  geom_abline(intercept = 0, slope = 1, lty = "dotted") +
+  geom_smooth(method = "loess", aes(y = no_show), colour = "blue") +
+  geom_smooth(method = "loess", aes(y = nonmon), colour = "red") +
+  xlim(0, 0.7) + ylim(0, 0.4) +
+  labs(x = "Pr(Wasted Vote, Plurality)", y = "Pr(Voting Paradox, RCV)", colour = "Paradox type") +
+  scale_colour_manual(breaks = c("No-show", "Non-mon"), values = c("No-show" = "blue", "Non-mon" = "red")) +
+  theme_bw() +
+  theme(legend.position = "bottom", legend.direction = "horizontal")
+ggsave(here("../output/figures/paradoxes_aus.pdf"), width = 4, height = 4)
 
 # Check if Andy's function yields the same result...
 # v_vec <- const_bp_no_trunc[4, 2:10] / sum(const_bp_no_trunc[1, 4:10])

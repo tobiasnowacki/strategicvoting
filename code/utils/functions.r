@@ -475,9 +475,9 @@ wasted_vote <- function(sv_obj, piv_probs, weights = rep(1, nrow(sv_obj))){
     V0_tab[[i, x]] <- 1
   }
   wasted <- cbind(rep(piv_probs$BC, nrow(sv_obj)), piv_probs$AC, piv_probs$AB)
-  return(list(wasted, weights)
+  #return(list(wasted, weights))
   wasted_prob <- apply(wasted * V0_tab, 1, sum, na.rm = T)
-  return(list(wasted_prob, weights))
+  #return(list(wasted_prob, weights))
   wasted_sum <- sum(wasted_prob * weights, na.rm = T) / sum(weights[!is.na(wasted_prob)], na.rm = T)
   
   total <- sum(unlist(piv_probs))
