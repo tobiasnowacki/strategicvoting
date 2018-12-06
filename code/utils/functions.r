@@ -443,3 +443,43 @@ level_two_props_cses <- function(v_vec, lambda_list, util, sv_df, s, w = c(rep(1
   
   return(df_out)
 }
+
+non_monoton <- function(sv_obj, piv_probs, weights = rep(1, nrow(sv_obj))){
+  V0_tab <- matrix(0, ncol = 6, nrow = nrow(sv_obj))
+  for(i in 1:nrow(V0_tab)){
+    x <- sv_obj$sin_rcv[[i]]
+    V0_tab[[i, x]] <- 1
+  }
+  no_show <- cbind(rep(piv_probs$AB.CB, nrow(sv_obj)), piv_probs$AC.BC, piv_probs$AB.AC, piv_probs$BC.AC, piv_probs$AC.AB, piv_probs$BC.BA)
+  no_show_prob <- apply(no_show * V0_tab, 1, sum, na.rm = T)
+  no_show_sum <- sum(no_show_prob * weights, na.rm = T) / sum(weights[!is.na(no_show_prob)], na.rm = T)
+
+
+  nonmon1 <- cbind(rep(piv_probs$BC.AC, nrow(sv_obj)), piv_probs$BC.BA, piv_probs$AC.BC, piv_probs$AC.AB, piv_probs$AB.CB, piv_probs$AB.AC)  
+  nonmon1_prob <- apply(nonmon1 * V0_tab, 1, sum, na.rm = T)
+  nonmon1_sum <- sum(nonmon1_prob * weights, na.rm = T) / sum(weights[!is.na(nonmon1_prob)], na.rm = T)
+  
+  nonmon2 <- nonmon1[, c(2, 1, 4, 3, 6, 5)]
+  nonmon2_prob <- apply(nonmon2 * V0_tab, 1, sum, na.rm = T)
+  nonmon2_sum <- sum(nonmon2_prob * weights, na.rm = T) / sum(weights[!is.na(nonmon2_prob)], na.rm = T)
+  
+  total <- sum(unlist(piv_probs))
+  
+  return(list(no_show = no_show_sum, nonmon1 = nonmon1_sum, nonmon2 = nonmon2_sum, total = total))
+  }
+
+wasted_vote <- function(sv_obj, piv_probs, weights = rep(1, nrow(sv_obj))){
+  V0_tab <- matrix(0, ncol = 3, nrow = nrow(sv_obj))
+  for(i in 1:nrow(V0_tab)){
+    x <- sv_obj$sin_plur[[i]]
+    V0_tab[[i, x]] <- 1
+  }
+  wasted <- cbind(rep(piv_probs$BC, nrow(sv_obj)), piv_probs$AC, piv_probs$AB)
+  return(list(wasted, weights)
+  wasted_prob <- apply(wasted * V0_tab, 1, sum, na.rm = T)
+  return(list(wasted_prob, weights))
+  wasted_sum <- sum(wasted_prob * weights, na.rm = T) / sum(weights[!is.na(wasted_prob)], na.rm = T)
+  
+  total <- sum(unlist(piv_probs))
+  return(list(wasted = wasted_sum, total = total))
+}

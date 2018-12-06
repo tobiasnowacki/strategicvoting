@@ -1,0 +1,22 @@
+{
+    "collab_server" : "",
+    "contents" : "",
+    "created" : 1544050177345.000,
+    "dirty" : true,
+    "encoding" : "UTF-8",
+    "folds" : "",
+    "hash" : "0",
+    "id" : "365A3EC0",
+    "lastKnownWriteTime" : 1544114542,
+    "last_content_update" : 1544114627254,
+    "path" : "~/github/strategicvoting/code/utils/functions.r",
+    "project_path" : "utils/functions.r",
+    "properties" : {
+        "cursorPosition" : "485,0",
+        "scrollLine" : "464"
+    },
+    "relative_order" : 3,
+    "source_on_save" : false,
+    "source_window" : "",
+    "type" : "r_source"
+}
