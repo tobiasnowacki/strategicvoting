@@ -87,7 +87,7 @@ for(i in 1:nrow(const_bp)){
 
 # save as separate object to avoid having to run it every time.
 save(mega_tau_list, file = here("../output/mega_tau_list.Rdata"))
-# load(here("../output/mega_tau_list.Rdata"))
+load(here("../output/mega_tau_list.Rdata"))
 
 ##
 # From resulting loop, run:
@@ -158,7 +158,7 @@ aus_qq <- ggplot(qq_mega_df, aes(x = x, y = y)) +
   theme_bw()  + 
   facet_wrap(vars(s)) +
   xlim(-30, 30) + ylim(-30, 30)
-ggsave(here("../output/figures/australia_sv_qq_trunc.pdf"), aus_qq, width = 6, height = 6)
+ggsave(here("../output/figures/australia_sv_qq.pdf"), aus_qq, width = 6, height = 6)
 
 # (4) occurence of voting paradoxes
 ### Note that I could do this much faster if I incorporated it into the main loop --
@@ -201,7 +201,7 @@ ggplot(paradox_df, aes(x = wasted)) +
   geom_abline(intercept = 0, slope = 1, lty = "dotted") +
   geom_smooth(method = "loess", aes(y = no_show), colour = "blue") +
   geom_smooth(method = "loess", aes(y = nonmon), colour = "red") +
-  xlim(0, 0.7) + ylim(0, 0.4) +
+  xlim(0, 0.4) + ylim(0, 0.4) +
   labs(x = "Pr(Wasted Vote, Plurality)", y = "Pr(Voting Paradox, RCV)", colour = "Paradox type") +
   scale_colour_manual(breaks = c("No-show", "Non-mon"), values = c("No-show" = "blue", "Non-mon" = "red")) +
   theme_bw() +
