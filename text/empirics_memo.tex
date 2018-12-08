@@ -40,11 +40,14 @@ This memo sets out, compares, and contrasts the main empirical results from our 
 \begin{itemize}
 \item what proportion of the voting population faces a positive incentive to vote strategically?
 \item (under RCV) how is this incentive further distributed between second-first and third-first ballots?
+\item what is the distribution of magnitudes of these strategic incentives?
 \item how likely are voting paradoxes (no-show, monotonicity violation) to occur?
 \item if voters anticipate other voters' strategic behaviour, how do the incentives change? (which system is more vulnerable to coordination problems?)
 \end{itemize}
 
-Unfortunately, we do not know of a data source that captures both voters' relative preferences over parties as well as their vote choice under plurality \textbf{and} RCV (which, as the name suggests, requires a ranked choice over parties/candidates).\footnote{We do have utilities and the first \textit{two} ballot ranks recorded in the AES, but the number of respondents who rank major parties as the top two is small; furthermore, respondents are bad at giving accurate responses for lower ranks.} Instead, we draw on two complementary data sources: first, the CSES (\textit{Comparative Study of Electoral Systems}), which contains 162 surveys in different countries (at different times). Here, we use respondents' like-dislike scores (thermometer) about parties to construct their vMN utilities. For the purposes of further analysis, we then assume that voters believe that the expected election outcome is centred on the outcome that would occur if everyone else in that survey voted sincerely. Second, look at the 2015 state election in New South Wales (NSW), Australia, which used ranked-choice voting, with the possibility to truncate one's ballot. We use the Australian Election Study (specifically, only respondents from NSW) for to construct voters' utilities; and the actual distribution of ballots from the 2015 election to inform ${\bf v}_0$.
+Beyond that, it is also worth thinking about / exploring strategic voting incentives at an individual level: can we show that certain strategic votes are more likely than others? Can we also show that, with strategic voting, this usually benefits a particular party (e.g., the centrist under single-peaked preferences)?
+
+Unfortunately, we do not know of a data source that captures both voters' relative preferences over parties as well as their vote choice under plurality \textbf{and} RCV (which, as the name suggests, requires a ranked choice over parties/candidates).\footnote{We do have utilities and the first \textit{two} ballot ranks recorded in the AES, but the number of respondents who rank major parties as the top two is small; furthermore, respondents are bad at giving accurate responses for lower ranks.} Instead, we draw on two complementary data sources: first, the CSES (\textit{Comparative Study of Electoral Systems}), which contains 162 surveys in different countries (at different times).\footnote{Note that two cases in this dataset had no respondents with complete preferences over at least three parties, so that it was impossible to analyse strategic voting in these situations. I dropped these two cases from the analysis.} Here, we use respondents' like-dislike scores (thermometre) about parties to construct their vMN utilities. For the purposes of further analysis, we then assume that voters believe that the expected election outcome is centred on the outcome that would occur if everyone else in that survey voted sincerely. Second, look at the 2015 state election in New South Wales (NSW), Australia, which used ranked-choice voting, with the possibility to truncate one's ballot. We use the Australian Election Study (specifically, only respondents from NSW) for to construct voters' utilities; and the actual distribution of ballots from the 2015 election to inform ${\bf v}_0$.
 
 \section{Data}
 
@@ -54,12 +57,15 @@ Unfortunately, we do not know of a data source that captures both voters' relati
 	\item mention key differences between data sets
 \end{itemize}
 
+\textit{For NSW: All constituencies included, with truncated ballots. Robustness checks / appendix results should include: (a) subsample where Greens are credible third party; (b) sample without truncated ballots.}
+
 \subsection{Descriptive Statistics}
 
 
 \begin{itemize}
 	\item include simplex plots of distribution of ${\bf v}_0$s
-	\item summarise preference distribution
+	\item for each case: how realistic is the three-party assumption?
+	\item summarise preference distribution (both categories and betas)
 \end{itemize}
 
 \section{Frequency of Strategic Voting Incentives}
@@ -69,11 +75,19 @@ Unfortunately, we do not know of a data source that captures both voters' relati
 	\includegraphics[width = .45 \textwidth]{"../output/figures/australia_sv_freq"}
 	\includegraphics[width = .45 \textwidth]{"../output/figures/cses_freq"}
 	\caption{Proportion of voters with non-sincere optimal vote, by level of information. Left panel: NSW. Right panel: CSES}
-	\label{fig:figure1}
+	\label{fig:sv_prop}
 \end{figure}
 
-What can we see here?
-The pattern is extremely similar across both cases. At very low levels of information, there are roughly similar proportions of RCV second and plurality second optimal votes (with plurality being slightly higher). There exists virtually no incentive to vote RCV third. This changes as information improves: the plurality incentive stagnates below 0.2 on average, whereas RCV second keeps rising. Crucially, at high levels of information, the incentive to vote RCV third also becomes very large. (how is this related to the theory?)
+What can we see here? The plot describes the proportion of voters in each case that, conditional on the level of information, $s$, have a strategic incentive to either rank their second preference first (RCV second) or their third preference first (RCV third), and to vote for their second preference under plurality (Plurality second).
+The aggregate pattern is extremely similar across both cases. At very low levels of information, there are roughly similar proportions of RCV second and plurality second optimal votes (with plurality being slightly higher). There exists virtually no incentive to vote RCV third. This changes as information improves: the plurality incentive stagnates below 0.2 on average, whereas RCV second keeps rising. Crucially, at high levels of information, the incentive to vote RCV third also becomes very large. (how is this related to the theory?)
+
+The hypothesised reason for this is that in very low information environments, the "strong pushover" (i.e., putting your third preference first on the RCV ballot) may accidentally elect one's third preference. With more precise beliefs, this is unlikely to occur.
+
+\textit{Main takeaways:}
+\begin{itemize}
+\item Overall proportion of strategic voters in high-information environments is higher under RCV than it is under plurality (but this doesn't say anything yet about the magnitude of these incentives!)
+\item "Strong pushover" only occurs at very high levels of information.
+\end{itemize}
 
 \section{Direct Comparison of Frequency}
 
@@ -82,33 +96,90 @@ The pattern is extremely similar across both cases. At very low levels of inform
 	\includegraphics[width = .45 \textwidth]{"../output/figures/australia_sv_prop"}
 	\includegraphics[width = .45 \textwidth]{"../output/figures/cses_prop"}
 	\caption{Proportion of voters with non-sincere optimal vote, by level of information. Left panel: NSW. Right panel: CSES}
-	\label{fig:figure1}
+	\label{fig:sv_dist}
 \end{figure}
+
+Figure~\ref{fig:sv_dist} plots the proportion of "optimal" strategic voters under RCV and Plurality for each case seperately. This further supports the conclusions from the previous section: For the most part, the proportion of strategic voters under plurality remains capped at around $\approx 0.2$ (there are some outliers in the NSW case that require more investigation). For low levels of $s$, the cases are distributed around very low levels of strategic voting under both electoral systems. However, as information increases, the proportion of voters with a positive incentive under AV increases dramatically.
+
+Given that an information environment of $s \approx 85$ is feasible (Eggers and Vivyan, 2018), it would seem as if strategic voting under RCV is not just feasible, but should also concern a strong minority of voters. Why, then, is this not something that political debates about RCV have picked up so far? (1) So far, we don't know how large that incentive to vote strategically is. It may be extremely small, and, assuming costs to strategic voting, ultimately not worth it. (2) Parties may have incorporated such strategic considerations in their how-to-vote cards, thus reducing costs for voters. (Can we check this empirically?)
 
 \section{QQ-Plots}
 
 \begin{figure}[!h]
 	\centering
-	\includegraphics[width = \textwidth]{"../output/figures/australia_sv_qq_trunc"}
-	\caption{QQ-Plot of strategic incentives, $\tau$, under Plurality (x) and RCV (y), across all NSW cases}
+	\includegraphics[width = .45 \textwidth]{"../output/figures/australia_sv_qq"}
+	\includegraphics[width = .45 \textwidth]{"../output/figures/cses_qq"}
+	\caption{QQ-Plot of strategic incentives, $\tau$, under Plurality (x) and RCV (y). Left panel: NSW. Right panel: CSES.}
+	\label{fig:qqplots}
+\end{figure}
+
+So we see that under RCV, incentives to vote strategically exist. But exactly how large are these incentives: do they warrant acting upon? Fortunately, our approach of calculating pivotal probabilities and expected utilities allows us to quantify the exact strategic incentive ($\tau$, see also Eggers and Vivyan 2018). 
+
+Figure~\ref{fig:qqplots} compares the distribution of strategic incentives under both plurality and RCV, conditional on $s$, in QQ-Plots. A couple of general observations: (1) The greater $s$, the greater the variance in both $\tau_{RCV}$ and  $\tau_{P}$. This makes sense: when I know very little about the likely electoral outcome, voting sincerely is a less risky strategy, and incentives to vote strategically are smaller. (2) For any level of $s$, \textit{negative} strategic incentives (i.e., situations where the sincere vote is the optimal vote) are relatively more common. (3) Conversely, for any level of $s$, (small and moderate) \textit{positive} strategic incentives are more common under plurality. This is not true of very high levels of $\tau$, which are, again, more common under RCV (see how the aggregate line crosses the 45-degree line in the CSES panel again). (4) The Australian case features smaller incentives to vote strategically overall (?) -- this may have to do with the relative weakness of the Greens. 
+
+The main takeaway here is that strategic voting under RCV, for the most part, brings smaller benefits compared to a sincere vote. There are, however, a few situations at the extreme end where there is a very high incentive under RCV.
+
+What this means is that if we assume strategic voting to be costly (relative to a sincere vote), then we would observe much less of it in RCV. This is equivalent to calculating $\hat{\tau} \equiv \tau - c$, where $c$ is a constant cost. Under RCV, this would shift a much greater part of the distribution into the negative domain, thus attenuating any strategic incentive.
+
+\section{Incidence of Voting Paradoxes}
+
+\begin{figure}[!h]
+	\centering
+	\includegraphics[width = .45 \textwidth]{"../output/figures/paradoxes_aus"}
+	\includegraphics[width = .45 \textwidth]{"../output/figures/paradoxes_cses"}
+	\caption{Probability of voting paradoxes under RCV over probability of wasted vote under plurality. Left panel: NSW. Right panel: CSES}
+	\label{fig:paradox}
+\end{figure}
+
+Figure~\ref{fig:paradox} plots the probability of different voting paradoxes under RCV over the probability of wasting one's vote under plurality. This is conditional on $s = 85$. In both cases, there is a higher chance of the non-monotonicity paradox occuring than there is of the the no-show paradox occuring. However, in either situation this is overshadowed by the much higher probablity of casting a wasted vote under plurality: the entire sample fits to the right of the 45-degree line. What this suggests is that, no matter what the strategic voting incentives, RCV is much better at avoiding tricky electoral situations.
+
+\textit{(Need to check why in the Australian case Pr(Wasted Vote) begins at $\approx 0.2$)}
+
+Also note that the LOESS in the Australian case probably suffers from overfitting - one or two observations towards the high end of Pr(Wasted Vote) pull the non-mon curve downwards.
+
+\section{Interdependence}
+
+\begin{figure}[!h]
+	\centering
+	\includegraphics[width = .45 \textwidth]{"../output/figures/level0_diff"}
+	\includegraphics[width = .45 \textwidth]{"../output/figures/cses_l0"}
+	\caption{Proportion of voters whose Level-2 strategic vote differs from their sincere vote, conditional on proportion of Level 2 strategic voters in population ($\lambda$). Left panel: NSW. Right panel: CSES.}
 	\label{fig:figure1}
 \end{figure}
 
 \begin{figure}[!h]
 	\centering
-	\includegraphics[width = \textwidth]{"../output/figures/cses_qq"}
-	\caption{QQ-Plot of strategic incentives, $\tau$, under Plurality (x) and RCV (y), across all CSES cases}
+	\includegraphics[width = .45 \textwidth]{"../output/figures/level1_diff"}
+	\includegraphics[width = .45 \textwidth]{"../output/figures/cses_l1"}
+	\caption{Proportion of voters whose Level-2 strategic vote differs from their Level-1 strategic vote, conditional on proportion of Level 2 strategic voters in population ($\lambda$). Left panel: NSW. Right panel: CSES.}
 	\label{fig:figure1}
 \end{figure}
 
-What can we see from these qq-plots? Fundamentally, the distributions are such that there is a much higher proportion of the total population under RCV that experiences a negative $\tau$, meaning they have no incentive to vote strategically. On the other side, there is a moderately higher proportion of voters under plurality that have positive strategic incentives, although this pattern reverses for extremely high values of $\tau$.
+Need to provide interpretation still.
 
-We can also look at these figures and ask: what if strategic voting came with an additional cost? If this cost is constant, the new threshold for optimal strategic voting becomes $\tau^* \equiv \tau - c$. (Interpretation)
+Main takeaway: Under RCV, strategic coordination is much more difficult. The higher the probability that $j$ votes strategically (Level 1), the higher the probability that I will also have to adjust my vote. (Is this a complementary or substitution effect?) Along with costliness of strategic voting, this may be another reason why strategic voting in RCV does not seem to be a popular / highly visible phenomenon.
 
-\section{Incidence of Voting Paradoxes}
+\textit{To do: multiple levels of strategic voting: tatonnement equilibrium?}
 
-\section{Interdependence}
+\section{Effects of Strategic Voting?}
+
+The above sections looked at aggregate patterns: compare RCV to plurality, evaluate incentives, the probability of paradoxes occuring, and the sensitivity to more complex strategic thinking. One of the main takeaways is that even though, in theory, incentives to vote strategically in RCV exist, these may be erased by (a) (even small) costs of strategic voting, and (b) the difficult of strategic co-ordination. (I would also like to be able to say that this result holds independent of whether the situation is single-peaked or divided-majority).
+
+But this tells us very little about what happens if strategic voting \textit{does} occur. Who is it who votes strategically, and what is the net effect on the result? One of the 'folk' theorems that we're trying to establish is that, in single-peaked situations, the centrist always benefits from strategic voting. Can we show this empirically? What other predictions does the theory have that we can test? 
+
+Is it worth summarising strategic voting incentives conditional on sincere preference ordering? (similar to what we had before)
 
 \section{Conclusion}
+
+\textbf{TO-DO / Ideas Empirics:}
+
+\begin{itemize}
+\item Output how probability of particular strategic voting types (push-over, compromise, etc.) -- How to calculate this from piv probs and utilities?
+\item Plot distribution of strategic incentives conditional on the electoral strength of $A$ or the closeness of the result between $B$ and $C$ ($v_A > v_B > v_C$).
+\item Is it worth running some kind of regression on this, too? This may require more cases $\rightarrow$ draw from hyperprior.
+\item Evaulate strategic voting incentives under rule of thumb (which is presumably less costly)
+\item Split CSES by SP / DM cases and check whether results hold independently
+
+\end{itemize}
 
 \end{document}
