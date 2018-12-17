@@ -30,6 +30,7 @@ source(functions)
 library(ggplot2)
 library(reshape2)
 library(dplyr)
+library(ggtern)
 
 
 # Import AES and Ballot data
@@ -60,6 +61,15 @@ const_bp_no_trunc <- const_bp
 const_bp_no_trunc[, 8:10] <- 0
 const_bp_no_trunc[, 2:10] <- t(apply(const_bp_no_trunc[, 2:10], 1, function(x) x / sum(x)))
 
+### ---------------------------------
+### SUMMARY STATS
+### ---------------------------------
+
+simplex_df <- data.frame(A = const_bp[, 2] + const_bp[, 3] + const_bp[, 8],
+                         B = const_bp[, 4] + const_bp[, 5] + const_bp[, 9],
+                         C = const_bp[, 6] + const_bp[, 7] + const_bp[, 10])
+ggtern(simplex_df, aes(A, B, C)) +
+  geom_point()
 
 ### ---------------------------------
 ### ANALYSIS
@@ -69,10 +79,8 @@ const_bp_no_trunc[, 2:10] <- t(apply(const_bp_no_trunc[, 2:10], 1, function(x) x
 # Set levels of s at which to evaluate.
 s_list <- as.list(c(15, 30, 45, 60, 75, 85, 90))
 
-
 ### PLAYGROUND ### ---
 ### END PLAYGROUND ### ----
-
 
 # Run return_sv_tau loop over all constituencies.
 set.seed(23112018)
@@ -85,9 +93,19 @@ for(i in 1:nrow(const_bp)){
 	mega_tau_list[[i]]$const <- const_bp[i, 1]
 }
 
+# Do the same as for-loop, just with 
+library(pbapply)
+mega_tau_list_2 <- pbapply(const_bp[, 2:10], 1, function(x) return_sv_tau(as.numeric(x), aes_utils_raw, s_list))
+
+mega_tau_list <- mega_tau_list_2
+
+for(i in 1:nrow(const_bp)){
+  mega_tau_list[[i]]$const <- const_bp[i, 1]
+}
+
 # save as separate object to avoid having to run it every time.
-save(mega_tau_list, file = here("../output/mega_tau_list.Rdata"))
-load(here("../output/mega_tau_list.Rdata"))
+save(mega_tau_list, file = here("../output/mega_tau_list_trunc_plur.Rdata"))
+load(here("../output/mega_tau_list_trunc_plur.Rdata"))
 
 ##
 # From resulting loop, run:
@@ -139,6 +157,18 @@ aus_inc <- ggplot(prop_df, aes(x = inc_plur, y = inc_rcv)) +
        y = "Proportion of AES respondents with positive SI under RCV")
 gg_path2 <- here("../output/figures/australia_sv_prop.pdf")
 ggsave(gg_path2, aus_inc, width = 5, height = 5)
+
+# This still seems weird. What is happening here?
+inc60 <- prop_df[prop_df$s == 60, ]
+sum(apply(aes_utils_raw, 1, function(x) max(x) == x[1])) / nrow(aes_utils_raw)
+# Basically, all Green voters want to vote strategically in plurality, with a few exceptions.
+
+# Check out who the outliers are
+# inc90 <- prop_df[prop_df$s == 90, ]
+# outliers <- which(inc90$inc_plur > 0.2)
+# ggtern(simplex_df[outliers, ], aes(A, B, C)) +
+#   geom_point(data = simplex_df, aes(A, B, C), colour = "light grey") +  
+#   geom_point()
 
 # (3) q-q plots
 
@@ -222,11 +252,12 @@ ggsave(here("../output/figures/paradoxes_aus.pdf"), width = 4, height = 4)
 # (5) interdependence
 
 # Set s = 80
-mega_tau_fixed_s <- lapply(mega_tau_list, function(x) x[x$s == 75, ])
+mega_tau_fixed_s <- lapply(mega_tau_list, function(x) x[x$s == 85, ])
 
 # Run loop over constituencies. This will take a long time...
 inter_df <- list()
 lambda_list <- as.list(seq(0, 0.5, 0.05))
+# This is going to run for a long time!
 for(i in 1:nrow(const_bp)){
   print(i)
   v_vec <- as.numeric(const_bp[i, 2:10]) / sum(as.numeric(const_bp[i, 2:10]))

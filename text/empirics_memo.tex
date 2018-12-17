@@ -47,7 +47,7 @@ This memo sets out, compares, and contrasts the main empirical results from our 
 
 Beyond that, it is also worth thinking about / exploring strategic voting incentives at an individual level: can we show that certain strategic votes are more likely than others? Can we also show that, with strategic voting, this usually benefits a particular party (e.g., the centrist under single-peaked preferences)?
 
-Unfortunately, we do not know of a data source that captures both voters' relative preferences over parties as well as their vote choice under plurality \textbf{and} RCV (which, as the name suggests, requires a ranked choice over parties/candidates).\footnote{We do have utilities and the first \textit{two} ballot ranks recorded in the AES, but the number of respondents who rank major parties as the top two is small; furthermore, respondents are bad at giving accurate responses for lower ranks.} Instead, we draw on two complementary data sources: first, the CSES (\textit{Comparative Study of Electoral Systems}), which contains 162 surveys in different countries (at different times).\footnote{Note that two cases in this dataset had no respondents with complete preferences over at least three parties, so that it was impossible to analyse strategic voting in these situations. I dropped these two cases from the analysis.} Here, we use respondents' like-dislike scores (thermometre) about parties to construct their vMN utilities. For the purposes of further analysis, we then assume that voters believe that the expected election outcome is centred on the outcome that would occur if everyone else in that survey voted sincerely. Second, look at the 2015 state election in New South Wales (NSW), Australia, which used ranked-choice voting, with the possibility to truncate one's ballot. We use the Australian Election Study (specifically, only respondents from NSW) for to construct voters' utilities; and the actual distribution of ballots from the 2015 election to inform ${\bf v}_0$.
+Unfortunately, we do not know of a data source that captures both voters' relative preferences over parties as well as their vote choice under plurality \textbf{and} RCV (which, as the name suggests, requires a ranked choice over parties/candidates).\footnote{We do have utilities and the first \textit{two} ballot ranks recorded in the AES, but the number of respondents who rank major parties as the top two is small; furthermore, respondents are bad at giving accurate responses for lower ranks.} Instead, we draw on two complementary data sources: first, the CSES (\textit{Comparative Study of Electoral Systems}), which contains 162 surveys in different countries (at different times).\footnote{Note that two cases in this dataset had no respondents with complete preferences over at least three parties, so that it was impossible to analyse strategic voting in these situations. I dropped these two cases from the analysis.} Here, we use respondents' like-dislike scores (thermometre) about parties to construct their vMN utilities. For the purposes of further analysis, we then assume that voters believe that the expected election outcome is centred on the outcome that would occur if everyone else in that survey voted sincerely. Second, look at the 2015 state election in New South Wales (NSW), Australia, which used ranked-choice voting, with the possibility to truncate one's ballot. We use the Australian Election Study (specifically, only respondents from NSW) for to construct voters' utilities; and the actual distribution of ballots from the 2015 election to inform ${\bf v}_0$. (This brings some problems, too -- the results will be pretty similar across the board since we're using the same utility dataframe.)
 
 \section{Data}
 
@@ -64,11 +64,16 @@ Unfortunately, we do not know of a data source that captures both voters' relati
 
 \begin{itemize}
 	\item include simplex plots of distribution of ${\bf v}_0$s
+	\item include summary of second preference distributions
 	\item for each case: how realistic is the three-party assumption?
 	\item summarise preference distribution (both categories and betas)
 \end{itemize}
 
+
+
 \section{Frequency of Strategic Voting Incentives}
+
+\textbf{ToDo:} Plurality function did \textit{not} include truncated ballots. For true comparison between RCV and Plurality, need to include them into the three-party vector.
 
 \begin{figure}[!h]
 	\centering
@@ -99,7 +104,9 @@ The hypothesised reason for this is that in very low information environments, t
 	\label{fig:sv_dist}
 \end{figure}
 
-Figure~\ref{fig:sv_dist} plots the proportion of "optimal" strategic voters under RCV and Plurality for each case seperately. This further supports the conclusions from the previous section: For the most part, the proportion of strategic voters under plurality remains capped at around $\approx 0.2$ (there are some outliers in the NSW case that require more investigation). For low levels of $s$, the cases are distributed around very low levels of strategic voting under both electoral systems. However, as information increases, the proportion of voters with a positive incentive under AV increases dramatically.
+Figure~\ref{fig:sv_dist} plots the proportion of "optimal" strategic voters under RCV and Plurality for each case seperately. This further supports the conclusions from the previous section: For the most part, the proportion of strategic voters under plurality remains capped at around $\approx 0.2$. For low levels of $s$, the cases are distributed around very low levels of strategic voting under both electoral systems. However, as information increases, the proportion of voters with a positive incentive under AV increases dramatically.
+
+What explains the odd pattern in the Australian case? Most cases seem to scatter pretty clearly around a proportion of $\approx 0.18$ for plurality. This is a consequence of using the same set of ``voters'' every time: the proportion of Green voters remains fixed; and in most cases in NSW, Greens face a \textit{very} strong incentive to abandon their first preference under plurality. The few outliers to the right of the $0.18$ plurality value are those cases where the Greens are strong enough such that supporters of other parties have an incentive of abandoning those instead. 
 
 Given that an information environment of $s \approx 85$ is feasible (Eggers and Vivyan, 2018), it would seem as if strategic voting under RCV is not just feasible, but should also concern a strong minority of voters. Why, then, is this not something that political debates about RCV have picked up so far? (1) So far, we don't know how large that incentive to vote strategically is. It may be extremely small, and, assuming costs to strategic voting, ultimately not worth it. (2) Parties may have incorporated such strategic considerations in their how-to-vote cards, thus reducing costs for voters. (Can we check this empirically?)
 
@@ -178,7 +185,7 @@ Is it worth summarising strategic voting incentives conditional on sincere prefe
 \item Plot distribution of strategic incentives conditional on the electoral strength of $A$ or the closeness of the result between $B$ and $C$ ($v_A > v_B > v_C$).
 \item Is it worth running some kind of regression on this, too? This may require more cases $\rightarrow$ draw from hyperprior.
 \item Evaulate strategic voting incentives under rule of thumb (which is presumably less costly)
-\item Split CSES by SP / DM cases and check whether results hold independently
+\item Split CSES by SP / DM cases and check whether results hold independently.
 
 \end{itemize}
 
