@@ -34,13 +34,11 @@ library(ggplot2)
 library(reshape2)
 library(dplyr)
 library(purrr)
+library(ggtern)
 
 # Load CSES data:
 load(here("../output/cses_big_list_2.RData"))
 
-###
-### ANALYSIS
-###
 
 remove_nas <- function(x){
   mat <- cbind(x$U, x$weights)
@@ -84,6 +82,38 @@ big_list_na_omit[[144]] <- NULL
 #   print(i)
 #   sv_list[[i]] <- return_sv_tau(c(big_list_na_omit[[i]]$v_vec, 0, 0, 0), big_list_na_omit[[i]]$U, s_list)
 # }
+
+###
+### DESCRIPTIVE
+###
+
+v_vec_df <- matrix(NA, nrow = 160, ncol = 6)
+simplex_df <- matrix(NA, nrow = 160, ncol = 3)
+for(i in 1:length(big_list_na_omit)){
+  v_vec <- big_list_na_omit[[i]]$v_vec
+  simplex_vec <- c(v_vec[1] + v_vec[2], v_vec[3] + v_vec[4], v_vec[5] + v_vec[6])
+  v_vec_df[i, ] <- as.numeric(v_vec)
+  simplex_df[i, ] <- simplex_vec
+}
+simplex_df <- as.data.frame(simplex_df)
+names(simplex_df) <- c("A", "B", "C")
+
+ggtern(simplex_df, aes(A, B, C)) +
+  geom_point()
+
+# Distribution of second preferences
+second_prefs <- data.frame(mAB = v_vec_df[, 1] / (v_vec_df[, 1] + v_vec_df[, 2]), mBA = v_vec_df[, 3] / (v_vec_df[, 3] + v_vec_df[, 4]), mCB = v_vec_df[, 6] / (v_vec_df[, 5] + v_vec_df[, 6]))
+
+ggplot(second_prefs, aes(mAB, mCB)) +
+  geom_point() +
+  geom_smooth(method = "loess")
+  theme_bw()
+  
+# How else to summarise? Fit line (mAB/mCB) and describe cases by residuals.
+
+###
+### ANALYSIS
+###
 
 # Use Andy's function to create list of sv objects for each case
 sv_list <- list()

@@ -145,7 +145,7 @@ return_sv_tau <- function(v_vec, util_df, s_breaks){
 	# Plurality part
 	# Do the same for plurality
 	sin_vec_plur <- sin_vote_plur_transform(sin_vec)
-	v_vec_three <- c(v_vec[1] + v_vec[2], v_vec[3] + v_vec[4], v_vec[5] + v_vec[6])
+	v_vec_three <- c(v_vec[1] + v_vec[2] + v_vec[7], v_vec[3] + v_vec[4] + v_vec[8], v_vec[5] + v_vec[6] + v_vec[9])
 	p_list_plur <- lapply(s_breaks, function(x) plurality.pivotal.probabilities(v_vec_three, x))
 	eu_list_plur <- lapply(p_list_plur, function(x) opt_vote(util_df, x, type = "plur"))
 	tau_list_plur <- lapply(eu_list_plur, function(x) calculate_tau(x, sin_vec_plur))
