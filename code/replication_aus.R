@@ -276,9 +276,11 @@ l1_plot <- ggplot(inter_df_full, aes(x = lambda, group = const)) +
   geom_line(aes(y = L1RCV), colour = "blue", alpha = 0.25) +
   geom_line(aes(y = L1PLUR), colour = "orange", alpha = 0.25) +
   theme_bw()
+ggsave(here("../output/figures/level1_diff.pdf"))
 
 l0_plot <- ggplot(inter_df_full, aes(x = lambda, group = const)) +
   geom_line(aes(y = L0RCV), colour = "blue", alpha = 0.25) +
   geom_line(aes(y = L0PLUR), colour = "orange", alpha = 0.25) +
   theme_bw()
+ggsave(here("../output/figures/level0_diff.pdf"))
 

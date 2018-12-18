@@ -64,6 +64,8 @@ summary(mod_ABC)
 mod_ACB <- lm("svACB ~ I(vABC + vACB) + I(vBAC + vBCA) + I((vABC + vACB) * (vBAC + vBCA)) + mAB + mCB", v_vec_df)
 summary(mod_ACB)
 
+stargazer(mod_ABC, mod_ACB)
+
 ggtern(v_vec_df, aes(vABC + vACB, vBAC + vBCA, vCAB + vCBA)) +
   geom_point(aes(colour = svABC), alpha = 0.1)
 ggsave("../output/figures/regression/abc.pdf")
