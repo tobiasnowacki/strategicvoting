@@ -1,0 +1,90 @@
+\documentclass[11pt, letter, margin = 2 in]{article}
+
+\usepackage[style = authoryear, autocite=inline, doi=false,isbn=false,url=false]{biblatex}
+\usepackage[colorlinks, citecolor = red]{hyperref}
+\usepackage[long, nodayofweek]{datetime}
+\usepackage[]{booktabs}
+\usepackage{graphicx}
+
+\usepackage[sf,pagestyles]{titlesec} % make section headings \sffamily
+% make headers \sffamily
+\newpagestyle{main}[\sffamily]{
+    \sethead{\thepage}{}{\sectiontitle}
+    }
+\pagestyle{main}
+\usepackage{titling}
+% make titling elements \sffamily
+\pretitle{\begin{center}\sffamily\LARGE}
+\preauthor{\begin{center}
+            \large\sffamily \lineskip 0.5em%
+            \begin{tabular}[t]{c}}
+\predate{\begin{center}\sffamily\large}
+\usepackage{abstract}
+% make abstract title \sffamily
+\renewcommand\abstractnamefont{\sffamily}
+\usepackage{caption} 
+\captionsetup{font=sf, labelfont = bf}
+
+\begin{document}
+\author{Andy Eggers\thanks{Nuffield College and Department of Politics and International Relations, University of Oxford, United Kingdom. \texttt{aeggers@nuffield.ox.ac.uk}}
+\and
+Tobias Nowacki\thanks{Department of Political Science, Stanford University, CA, United States. \texttt{tnowacki@stanford.edu}}}
+\date{\today}
+\title{Strategic Voting under Ranked Choice Voting and Plurality: Empirics}
+
+\maketitle
+
+\section{Introduction}
+
+So far, we have come up with the following theoretical predictions:
+\begin{itemize}
+\item Overall, the incentive to vote strategically is more likely in AV than it is under Plurality
+\item However, the magnitude of that incentive is smaller.
+\item AV should be more likely to benefit the Condorcet winner.
+\end{itemize}
+
+We have a general idea that these things should hold true in our idealised cases that we discussed in the theroy; but a lot will depend on whether the empirical cases conform to the idealised world, or whether they are outlying and extreme. (There are also some aspects of our theory that yielded ambiguous predictions, which we need to evaluate.)
+
+How can we test this in practice? The ideal research design would have us run multiple elections -- each with voters who have different beliefs about the likely outcome, and different preferences -- and run these elections twice: once under RCV, and once under Plurality.
+
+Of course, this is not feasible. A major obstacle is that we do not have a data set that matches voters sincere preferences with their actual voting behaviour. We get close to that in surveys under the assumption that the reported answers are true. But here, we only record the vote choice under the \textit{actual} electoral system -- which, in the vast majority of cases -- is just Plurality. Even in cases where the electoral system in question is RCV, such as Australia, respondents are at most asked about their top two preferences; furthermore, evidence suggests that respondents' recorded answers about rankings past second are inaccurate.
+
+Thus, we're faced with a significant limitation: we cannot observe whether voters truly cast votes in a strategic fashion or not. Instead, we focus on voters' (presumptively) true preferences, and on simply examining the \textit{incentive} to vote strategically. (We're not interested, at least for now, whether they actually follow that incentive or not). To that end, we take the CSES, a collection of 160 surveys from XX countries before major legislative elections, as our main source for empirical analysis. For each of the cases contained within, we take the sample of voters as representative of the electorate. We assume that they were just given a poll result (forecast) of that election that corresponds to the CSES case sample, where everyone votes according to their sincere preferences. For each voter within that sample, we then calculate their strategic voting incentive: what ballot ordering is optimal, conditional on the beliefs about the outcome and everyone else voting sincerely? (We relax that assumption in a later section when we look at empirics)
+
+\section{Methods}
+
+\section{Descriptive Statistics}
+
+Summary statistics of CSES data
+
+- ternary plot with first preferences
+- still unsure how to summarise sec
+
+\begin{itemize}
+\item ternary plot with first preferences
+\item still unsure how to summarise second preferences
+\item radar plot for pivotal probabilities
+\item distribution of betas?
+\end{itemize}
+
+The CSES dataset comprises a total of 162 cases. Of these, we discard two (Belarus 2008 and Lithuania 1997), because no respondent has complete preferences over all three parties. Within each case, we applied the label $A$ to the party that most respondents stated as first preference; the label $B$ to the party that the second-most respondents stated as second preference; and, finally, the label $C$ to the party that the third-most respondents stated as their first preference. Thus, the expected ballot profile for all of the cases is $v_A > v_B > v_C$. Figure XX plots the distribution of first preferences for each case on a ternary diagram.
+
+Next, we point out an empirical regularity across the CSES cases: they tend to conform relatively well to the single-peaked -- neutral -- divided majority spectrum. (Point out any potential outliers)
+
+(Include second preference plot here.)
+
+OK, so I have first and second preferences covered now.
+
+This tells us that we have a wide range of cases that represent the set of empirically "likely" situations. The analysis that we run on this is therefore
+(Talk about distribution of pivotal probabilities)
+
+
+
+\section{Results: Incentives}
+
+Extent and magnitude of strategic incentives
+
+\section{Results: Performance}
+
+Comparing the overall performance of the two electoral systems -- Condorcet winner; interdependence.
+\end{document}
