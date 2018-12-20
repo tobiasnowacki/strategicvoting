@@ -73,8 +73,6 @@ opt_vote <- function(utility_df, p_list, type = "rcv"){
 	}
 }
 
-# TO-DO: for data *WITH* truncated prefs, make sure sin_vec is evaluated correctly
-
 return_sv_prop <- function(v_vec, util_df, s_breaks, full_mat = FALSE){
 	# Function that takes a ballot profile, a dataframe of utilities, and a list of s values
 	#	Returns: a data.frame with voters by vote type for levels of s
@@ -482,4 +480,44 @@ wasted_vote <- function(sv_obj, piv_probs, weights = rep(1, nrow(sv_obj))){
   
   total <- sum(unlist(piv_probs))
   return(list(wasted = wasted_sum, total = total))
+}
+
+## CSES-specific functions
+
+remove_nas <- function(x){
+  mat <- cbind(x$U, x$weights)
+  mat <- na.omit(mat)
+  return(list(U = mat[, 1:3], weights = as.numeric(mat[, 4])))
+}
+
+create_v_vec <- function(x){
+  x$U <- x$U + runif(nrow(x$U) * ncol(x$U), min = 0, max = 0.001)
+  sin_vote <- as.numeric(apply(x$U, 1, function(x) sin_vote_scalar(x)))
+  num_list <- c(1:6)
+  sin_df <- (sapply(num_list, function(x) as.numeric(sin_vote == x)))
+  sin_df <- sin_df * x$weights
+  sin_vec <- colSums(sin_df)
+  return(sin_vec / sum(sin_vec))
+}
+
+# Classification function (from Andy)
+
+classify.vec = function(v.vec, the.floor = .6, neutral.max = .1){
+  v.vec = v.vec/sum(v.vec)
+  m.vec = c(v.vec[1]/sum(v.vec[1:2]), v.vec[3]/sum(v.vec[3:4]), v.vec[5]/sum(v.vec[5:6]))
+  most.neutral = which(abs(m.vec - .5) == min(abs(m.vec - .5)))
+  if(most.neutral == 1){
+    if(m.vec[2] > the.floor & m.vec[3] > the.floor){return("SP(A)")}
+    if(m.vec[2] < 1 - the.floor & m.vec[3] < 1 - the.floor){return("DM(A)")}
+    if(abs(m.vec[2] - .5) < neutral.max & abs(m.vec[3] - .5) < neutral.max){return("N(A)")}
+  }else if(most.neutral == 2){
+    if(m.vec[1] > the.floor & m.vec[3] < 1 - the.floor){return("SP(B)")}
+    if(m.vec[1] < 1 - the.floor & m.vec[3] > the.floor){return("DM(B)")}
+    if(abs(m.vec[1] - .5) < neutral.max & abs(m.vec[3] - .5) < neutral.max){return("N(B)")}
+  }else if(most.neutral == 3){
+    if(m.vec[1] < 1 - the.floor & m.vec[2] < 1 - the.floor){return("SP(C)")}
+    if(m.vec[1] > the.floor & m.vec[2] > the.floor){return("DM(C)")}
+    if(abs(m.vec[1] - .5) < neutral.max & abs(m.vec[2] - .5) < neutral.max){return("N(C)")}
+  }
+  "O"
 }
