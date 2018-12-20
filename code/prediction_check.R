@@ -113,21 +113,24 @@ df_long <- gather(v_vec_df[, 7:20], key = "svtype", value = "prop", ABCBAC:CBABC
 ggplot(prob_df_long[prob_df_long$type == "SP(A)" & !(prob_df_long$event %in% c("AB", "AC", "BC")), ]) +
 	geom_boxplot(aes(x = event, y = prob)) +
 	theme_bw() +
+	theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
 	labs(x = "Event", y = "Pr(Event)", caption = "A+")
-ggsave(here("../output/figures/prediction/pprob_sp_a.pdf"))
+ggsave(here("../output/figures/prediction/pprob_sp_a.pdf"), height = 4, width = 4)
 
 ggplot(prob_df_long[prob_df_long$type == "SP(B)" & !(prob_df_long$event %in% c("AB", "AC", "BC")), ]) +
 	geom_boxplot(aes(x = event, y = prob)) +
 	theme_bw() +
+	theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
 	labs(x = "Event", y = "Pr(Event)", caption = "B+")
-ggsave(here("../output/figures/prediction/pprob_sp_b.pdf"))
+ggsave(here("../output/figures/prediction/pprob_sp_b.pdf"), height = 4, width = 4)
 
 
 ggplot(prob_df_long[prob_df_long$type == "SP(C)" & !(prob_df_long$event %in% c("AB", "AC", "BC")), ]) +
 	geom_boxplot(aes(x = event, y = prob)) +
 	theme_bw() +
+	theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
 	labs(x = "Event", y = "Pr(Event)", caption = "C+")
-ggsave(here("../output/figures/prediction/pprob_sp_c.pdf"))
+ggsave(here("../output/figures/prediction/pprob_sp_c.pdf"), height = 4, width = 4)
 
 
 # Plotting strategic vote incidences
@@ -141,6 +144,7 @@ ggplot(df_long[df_long$type == "SP(A)", ]) +
 								 "white", "light grey", "white", "light grey",
 								 "light grey", "white", "white", "white"),
 						guide = FALSE)
+ggsave(here("../output/figures/prediction/svinc_sp_a.pdf"), height = 4, width = 4)
 
 ggplot(df_long[df_long$type == "SP(B)", ]) +
 	geom_boxplot(aes(x = svtype, y = prop, fill = svtype)) +
@@ -152,6 +156,7 @@ ggplot(df_long[df_long$type == "SP(B)", ]) +
 								 "white", "white", "white", "white",
 								 "white", "white", "white", "orange"),
 						guide = FALSE)
+ggsave(here("../output/figures/prediction/svinc_sp_b.pdf"), height = 4, width = 4)
 
 ggplot(df_long[df_long$type == "SP(C)", ]) +
 	geom_boxplot(aes(x = svtype, y = prop, fill = svtype)) +
@@ -163,8 +168,21 @@ ggplot(df_long[df_long$type == "SP(C)", ]) +
 								 "white", "white", "white", "orange",
 								 "white", "white", "white", "white"),
 						guide = FALSE)
+ggsave(here("../output/figures/prediction/svinc_sp_c.pdf"), , height = 4, width = 4)
+
 
 # Other
+
+ggplot(v_vec_df[v_vec_df$type == "SP(C)", ]) +
+	geom_point(aes(x = as.numeric(pprobs_df[v_vec_df$type == "SP(C)", "AC.BC"]) / as.numeric(pprobs_df[v_vec_df$type == "SP(C)", "BC.AC"]), 
+		y = ACBCAB)) +
+	theme_bw() +
+	labs(x = "Pr(AC.BC) / Pr(BC.AC)", y = "Pr(ACBCAB)")
+ggsave("../output/figures/prediction/sp_c_odd.pdf", height = 4, width = 4)
+
+ggtern
+
+
 
 
 ggplot(v_vec_df[v_vec_df$type == "SP(B)", ]) +
