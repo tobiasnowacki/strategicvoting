@@ -44,10 +44,10 @@
   <internal package="biblatex" priority="9" active="0">
     <generic>latex</generic>
     <provides type="dynamic">
-      <file>empirics_text.bcf</file>
+      <file>checking_cases.bcf</file>
     </provides>
     <requires type="dynamic">
-      <file>empirics_text.bbl</file>
+      <file>checking_cases.bbl</file>
     </requires>
     <requires type="static">
       <file>blx-dm.def</file>
@@ -64,19 +64,19 @@
     <generic>biber</generic>
     <cmdline>
       <binary>biber</binary>
-      <infile>empirics_text</infile>
+      <infile>checking_cases</infile>
     </cmdline>
     <input>
-      <file>empirics_text.bcf</file>
+      <file>checking_cases.bcf</file>
     </input>
     <output>
-      <file>empirics_text.bbl</file>
+      <file>checking_cases.bbl</file>
     </output>
     <provides type="dynamic">
-      <file>empirics_text.bbl</file>
+      <file>checking_cases.bbl</file>
     </provides>
     <requires type="dynamic">
-      <file>empirics_text.bcf</file>
+      <file>checking_cases.bcf</file>
     </requires>
   </external>
 </requests>
