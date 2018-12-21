@@ -71,6 +71,13 @@ names(big_list)[[145]]
 big_list_na_omit[[39]] <- NULL
 big_list_na_omit[[144]] <- NULL
 
+# Respondents per case
+mean(unlist(lapply(big_list_na_omit, function(x) nrow(x$U))))
+sd(unlist(lapply(big_list_na_omit, function(x) nrow(x$U))))
+min(unlist(lapply(big_list_na_omit, function(x) nrow(x$U))))
+max(unlist(lapply(big_list_na_omit, function(x) nrow(x$U))))
+
+
 # Create ternary plot with distribution of first preferences.
 v_vec_df <- matrix(NA, nrow = 160, ncol = 6)
 simplex_df <- matrix(NA, nrow = 160, ncol = 3)
