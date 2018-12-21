@@ -106,8 +106,65 @@ v_vec_df$case <- c(names(big_list_na_omit))
 
 df_long <- gather(v_vec_df[, 7:20], key = "svtype", value = "prop", ABCBAC:CBABCA)
 
+# Summary statistics
 
-# Plotting -- SINGLE PEAKED CASES
+mean(unlist(lapply(big_list_na_omit, function(x) nrow(x$U))))
+sd(unlist(lapply(big_list_na_omit, function(x) nrow(x$U))))
+min(unlist(lapply(big_list_na_omit, function(x) nrow(x$U))))
+max(unlist(lapply(big_list_na_omit, function(x) nrow(x$U))))
+
+# First preference distribution
+v_vec_df$def_party <- NA
+v_vec_df$def_party[v_vec_df$type %in% c("SP(A)", "DM(A)")] <- "A"
+v_vec_df$def_party[v_vec_df$type %in% c("SP(B)", "DM(B)")] <- "B"
+v_vec_df$def_party[v_vec_df$type %in% c("SP(C)", "DM(C)")] <- "C"
+v_vec_df$def_class <- "Other"
+v_vec_df$def_class[v_vec_df$type %in% c("SP(A)", "SP(B)", "SP(C)")] <- "single-peaked"
+v_vec_df$def_class[v_vec_df$type %in% c("DM(A)", "DM(B)", "DM(C)")] <- "divided-majority"
+v_vec_df$def_class[v_vec_df$type %in% c("N")] <- "neutral"
+
+ggtern(v_vec_df, aes(ABC + ACB, BAC + BCA, CAB + CBA)) +
+	geom_point(aes(colour = def_party), alpha = 0.25) +
+	facet_wrap(~ def_class) +
+	theme_bw() +
+	labs(x = "A", y = "B", z = "C", colour = "Defining Party") +
+	theme(legend.position = "bottom")
+ggsave(here("../output/figures/cses_fp.pdf"), width = 6, height = 3)
+
+
+# Second preference distribution
+# Need to decide how to best visualise
+
+
+
+# Check "dominance" of predicted event.
+pprobs_df$dominant <- NA
+pprobs_df$dominant[v_vec_df$type == "SP(A)"] <- pprobs_df$"AC.AB"[v_vec_df$type == "SP(A)"]
+pprobs_df$dominant[v_vec_df$type == "DM(A)"] <- pprobs_df$"BC.BC"[v_vec_df$type == "DM(A)"]
+pprobs_df$dominant[v_vec_df$type %in% c("SP(C)", "DM(B)")] <- pprobs_df$"BC.AC"[v_vec_df$type %in% c("SP(C)", "DM(B)")]
+pprobs_df$dominant[v_vec_df$type %in% c("SP(B)", "DM(C)")] <- pprobs_df$"BC.BA"[v_vec_df$type %in% c("SP(B)", "DM(C)")]
+
+pprobs_df$ratio <- apply(pprobs_df[, c(4:12, 15)], 1, function(x) {
+		vec <- as.numeric(x)
+		max(vec[vec != x$dominant]) / x$dominant
+	})
+
+ggplot(pprobs_df) +
+	geom_histogram(aes(x = ratio), bins = 300)
+ggsave(here("../output/figures/prediction/pivotal_ratios.pdf"))
+
+ggplot(pprobs_df) +
+	geom_histogram(aes(x = ratio), bins = 50) +
+	xlim(0, 1.5)
+ggsave(here("../output/figures/prediction/pivotal_ratios_truncated.pdf"))
+
+# Checking massive outlier (ratio > 300)
+which.max(pprobs_df$ratio)
+pprobs_df$type[119]
+plot.av.result(c(unlist(v_vec_df[119, 1:6])), add.fp.result = T)
+pprobs_df[119, ]
+
+# Plotting strategic votes -- SINGLE PEAKED CASES
 
 # Plotting pivotal probabilities
 ggplot(prob_df_long[prob_df_long$type == "SP(A)" & !(prob_df_long$event %in% c("AB", "AC", "BC")), ]) +
@@ -173,6 +230,7 @@ ggsave(here("../output/figures/prediction/svinc_sp_c.pdf"), , height = 4, width 
 
 # Other
 
+# Incidence of main strategic vote in C+, given relative frequency of "conflicting" event (AC.BC)
 ggplot(v_vec_df[v_vec_df$type == "SP(C)", ]) +
 	geom_point(aes(x = as.numeric(pprobs_df[v_vec_df$type == "SP(C)", "AC.BC"]) / as.numeric(pprobs_df[v_vec_df$type == "SP(C)", "BC.AC"]), 
 		y = ACBCAB)) +
@@ -180,9 +238,12 @@ ggplot(v_vec_df[v_vec_df$type == "SP(C)", ]) +
 	labs(x = "Pr(AC.BC) / Pr(BC.AC)", y = "Pr(ACBCAB)")
 ggsave("../output/figures/prediction/sp_c_odd.pdf", height = 4, width = 4)
 
-ggtern
-
-
+# Distribution of sincere FP in single-peaked cases.
+ggtern(v_vec_df[(v_vec_df$type %in% c("SP(A)", "SP(B)", "SP(C)")), c(1:6, 19)], aes(ABC + ACB, BAC + BCA, CAB + CBA)) +
+	geom_point(aes(colour = type)) +
+	labs(x = "A", y = "B", z = "C") +
+	theme_bw()
+ggsave("../output/figures/prediction/sp_cases_tern.pdf", height = 4, width = 4)
 
 
 ggplot(v_vec_df[v_vec_df$type == "SP(B)", ]) +
