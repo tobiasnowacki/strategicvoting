@@ -120,7 +120,7 @@ sv_list <- list()
 for(i in 1:length(big_list_na_omit)){
   print(i)
   this_list <- big_list_na_omit[[i]]
-  df_list <- lapply(s_list, function(x) convert_andy_to_sv_item(this_list, s = x))
+  df_list <- lapply(s_list, function(x) convert_andy_to_sv_item_two(this_list$U, this_list$weights, x, this_list$v_vec))
   df <- as.data.frame(do.call(rbind, df_list))
   df$case <- names(big_list_na_omit)[[i]]
   #df <- apply(df, 2, as.numeric)
@@ -199,7 +199,7 @@ prop_df$inc_rcv <- prop_df$rcv_second + prop_df$rcv_third
 prop_df$inc_plur <- prop_df$plur_second
 
 cses_inc <- ggplot(prop_df, aes(x = inc_plur, y = inc_rcv)) +
-  geom_point() +
+  geom_point(alpha = 0.1) +
   geom_abline(slope = 1, intercept = 0) + 
   facet_wrap(~ s) +
   theme_bw() +
@@ -209,6 +209,12 @@ cses_inc <- ggplot(prop_df, aes(x = inc_plur, y = inc_rcv)) +
        y = "Proportion of CSES respondents with positive SI under RCV")
 ggsave(here("../output/figures/cses_prop.pdf"), cses_inc, width = 5, height = 5)
 
+# Check proportions
+rcv_big <- sapply(s_list, function(x) 
+  sum(prop_df$inc_rcv[prop_df$s == x] > prop_df$inc_plur[prop_df$s == x]))
+rcv_big
+160 - rcv_big
+rcv_big/ 160
 
 # Check alternative method of computing incentive proportions
 # sv_prop_alt <- function(tau_obj, weights, s = 60){

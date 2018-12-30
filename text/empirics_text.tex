@@ -1,7 +1,8 @@
-\documentclass[12pt, letter, margin = 1.5 in]{article}
+\documentclass[11pt, letter]{article}
 
 % Load packages
 \usepackage[style = authoryear, autocite=inline, doi=false,isbn=false,url=false]{biblatex}
+\usepackage[margin = 1 in]{geometry}
 \usepackage[colorlinks, citecolor = red]{hyperref}
 \usepackage{amsmath, amssymb} %essential
 \usepackage[long, nodayofweek]{datetime}
@@ -37,7 +38,7 @@
 \DeclareMathOperator{\Prob}{\mathbb{P}}
 
 \begin{document}
-\author{Andy Eggers\thanks{Nuffield College and Department of Politics and International Relations, University of Oxford, United Kingdom. \texttt{aeggers@nuffield.ox.ac.uk}}
+\author{Andrew C. Eggers\thanks{Nuffield College and Department of Politics and International Relations, University of Oxford, United Kingdom. \texttt{aeggers@nuffield.ox.ac.uk}}
 \and
 Tobias Nowacki\thanks{Department of Political Science, Stanford University, CA, United States. \texttt{tnowacki@stanford.edu}}}
 \date{\today}
@@ -55,9 +56,9 @@ Up to this point, we have achieved the following: we pointed out why thinking ab
 
 (Theory $\rightarrow$ Empirics)
 
-However, in order to achieve this, we necessarily assumed ``ideal cases'' in order to reduce complexity and facilitate the theoretical analysis. As set out in Section 3, the distribution of strategic incentives depends on a number of parameters: the full ballot profile -- that is, the distribution of both first \emph{and} second preferences -- the level of information, $s$, the distribution of preferences and their intensity. Jointly, there are too many permutations of these inputs to be able to make meaningful and accurate predictions for each instance. 
+However, in order to achieve this, we necessarily assumed ``ideal cases'' in order to reduce complexity and facilitate the theoretical analysis. As set out in Section 3, the distribution of strategic incentives depends on a number of parameters: the full ballot profile -- that is, the distribution of both first \emph{and} second preferences -- the level of information, $s$, the distribution of preferences and their intensity. Jointly, there are too many permutations of these inputs to be able to make meaningful and accurate predictions for each instance. One way of dealing with this issue would be to hold all parameters at mean or representative values and examine the comparative statics of each parameter in turn. (This may work for parameters where we have monotonic predictions, e.g., $s$.) However, doing so would still leave us with manyfold dimensions; furthermore, this approach brushes over the important issue of interaction effects. This is particularly relevant when it comes to describing ballot profiles, where the effects of a change in $A$'s vote will strongly depend on how the remainder is split up between $B$ and $C$, and how second preferences are distributed.
 
-We therefore decided to restrict our empirical analysis to three objectives. First, we want to see whether the classification of ballot profiles according to second preferences ($A+$, $B+$, etc.) can be a helpful predictor of what kind of strategic incentives we can expect in this situation.\footnote{Our highly stylised classes made assumptions about what other pivotal events are likely / unlikely. We don't have any prior on whether these are holding up in the empirics?} (We find that, despite significant variance in pivotal probabilities within each class, the predictions for the most dominant type of strategic voting hold). Second, given the distribution of likely ballot profiles (and thus beliefs), we want to compare the overall distribution of strategic incentives (their prevalence and magnitude) under both plurality and RCV. (We find that RCV offers more common incentives to vote strategically, but that these incentives are smaller in terms of magnitude, that is $\tau$). Lastly, we compare the overall performance of the two electoral systems: which one is more likely to suffer from a voting paradox, and which one benefits the Condorcet winner more? (We find that RCV performs better in both categories: fewer paradoxes, and more helpful to the Condorcet winner). Before we present our analysis of these three questions, we shall briefly discuss our methods and summarise the CSES data.
+We therefore decided to restrict our empirical analysis to three objectives. First, we want to see whether the classification of ballot profiles according to second preferences ($A+$, $B+$, etc.) can be a helpful predictor of what kind of strategic incentives we can expect in this situation.\footnote{Our highly stylised classes made assumptions about what other pivotal events are likely / unlikely. We don't have any prior on whether these are holding up in the empirics?} We find that, despite significant variance in pivotal probabilities within each class, the predictions for the most dominant type of strategic voting hold. Second, given the distribution of likely ballot profiles (and thus beliefs), we want to compare the overall distribution of strategic incentives (their prevalence and magnitude) under both plurality and RCV. We find that RCV offers more common incentives to vote strategically, but that these incentives are smaller in terms of magnitude, that is $\tau$. Lastly, we compare the overall performance of the two electoral systems: which one is more likely to suffer from a voting paradox, and which one benefits the Condorcet winner more? We find that RCV performs better in both categories: fewer paradoxes, and more helpful to the Condorcet winner. Before we present our analysis of these three questions, we shall briefly discuss our methodology and summarise the CSES data set.
 
 % \subsection{Justification for using CSES data}
 
@@ -74,7 +75,7 @@ We therefore decided to restrict our empirical analysis to three objectives. Fir
 
 \section{Data and Method}
 
-Our objective in this paper is to measure strategic \emph{incentives}, not actual behaviour. In an ideal setting, we would have access to a dataset that contains information on both voters' sincere preferences and their observed vote choice under different electoral systems. Unfortunately, such a rich data set does not exist.\footnote{Even worse, even in countries with RCV as their main legislative electoral system, survey respondents are typically not asked about their ballot ranking beyond their first or second preferences. XXXX demonstrates that, even if they were, responses are likely to be inaccurate.} Instead, we focus the CSES data, which contains pre-election voter surveys from 160 cases. In each case, respondents (who are weighted such that the survey sample is representative of the electorate) state their preferences for different parties. We then assume that voters are told that the expected ballot profile is one that corresponds to the proportions of preference orderings in the total survey (i.e., everyone is treated as a level-0 voter). Following the approach outlined in Section (2), we then calculate the strategic incentive and optimal preference ordering for each voter. In subsection~\ref{interdep}, we relax the assumption that everyone else is believed to be a level-0 voter, and examine the possibility of a co-ordination problem.
+Our objective in this paper is to measure strategic \emph{incentives}, not actual behaviour. In an ideal setting, we would have access to a dataset that contains information on both voters' sincere preferences and their observed vote choice under different electoral systems. Unfortunately, such a rich data set does not exist.\footnote{Even worse, even in countries with RCV as their main legislative electoral system, survey respondents are typically not asked about their ballot ranking beyond their first or second preferences. XXXX demonstrates that, even if they were, responses are likely to be inaccurate.} Instead, we focus the CSES data, which contains pre-election voter surveys from 160 cases. In each case, respondents (who are weighted such that the survey sample is representative of the electorate) state their preferences for different parties. We then assume that voters are told that the expected ballot profile is one that corresponds to the proportions of preference orderings in the total survey (i.e., everyone is treated as a Level-0 voter). Following the approach outlined in Section (2), we calculate the strategic incentive and optimal preference ordering on the ballot for each voter. In subsection~\ref{interdep}, we relax the assumption that everyone else is believed to be a Level-0 voter, and examine the possibility of a co-ordination problem.
 
 \subsection{CSES data}
 
@@ -97,23 +98,47 @@ Our objective in this paper is to measure strategic \emph{incentives}, not actua
 	\label{fig:cses_fp}
 \end{figure}
 
-The CSES dataset comprises a total of 162 cases, with a mean of 1384 and a standard deviation of 539 respondents per case.\footnote{Minimum: 360 respondents, Hong Kong 2004; maximum: 3795, New Zealand 1996.} Of these, we discarded two (Belarus 2008 and Lithuania 1997), because no respondent has complete preferences over all three parties. Within each case, we applied the label $A$ to the party that most respondents stated as first preference; the label $B$ to the party that the second-most respondents stated as second preference; and, finally, the label $C$ to the party that the third-most respondents stated as their first preference. Thus, the expected ballot profile for all of the cases is $v_A > v_B > v_C$. 
+The CSES dataset comprises a total of 162 cases, with a mean of 1384 and a standard deviation of 539 respondents per case.\footnote{Minimum: 360 respondents, Hong Kong 2004; maximum: 3795, New Zealand 1996.} Of these, we discarded two (Belarus 2008 and Lithuania 1997), because no respondent has complete preferences over all three parties. Figure~\ref{fig:case_map} Within each case, we applied the label $A$ to the party that most respondents stated as first preference; the label $B$ to the party that the second-most respondents stated as second preference; and, finally, the label $C$ to the party that the third-most respondents stated as their first preference. Thus, the expected ballot profile for all of the cases is $v_A > v_B > v_C$. 
 
-Figure~\ref{fig:cses_fp} plots the distribution of first preferences for each case on a ternary diagram. Given the above labelling convention, the distribution is tightly packed into one part of the simplex, its boundaries delineated by the $(1 - v_C) / 2$ boundary on the one side, and the $(1 - v_B) / 2$ on the other.\footnote{Conceptually, this makes sense: a violation of the first one would suggest that $v_B > v_A$, and a violation of the second one would suggest that $v_C > v_B$.} The figure groups together cases that share characteristics in second preferences (single-peaked, i.e. defining party is attractor; divided majority, i.e. defining party is repeller; and all others). There is no discernible difference in the distribution of first preferences between the groups, and there is no discernible difference in the distribution conditional on the defining party. Note that even though the distribution is strongly centred on a particular part of the simplex, our labelling convention is WLOG: the results remain representative.
+\begin{figure}[!htb]
+	\centering
+	\includegraphics[width = .8 \textwidth]{../output/figures/case_map.pdf}
+	\caption{Cases in CSES data, by country}
+	\label{fig:case_map}
+\end{figure}
 
-\vspace*{2em}
-\begin{center}
-[\textbf{GIS plot with countries contained in CSES data} here]
-\end{center}
-\vspace*{2em}
+\subsubsection{Characterising CSES cases}
 
-Next, we point out an empirical regularity across the CSES cases: they tend to conform relatively well to the single-peaked -- neutral -- divided majority spectrum. (Point out any potential outliers)
+How different are the CSES cases from one another? Putting the intensity of preferences aside, we can fully describe each case with the six-item vector $\bf v$. More intuitively, however, we can also describe the cases in terms of the distribution of first and second preferences.
 
-\vspace*{2em}
-\begin{center}
-[\textbf{Visualisation of second preference distribution in CSES data} here]
-\end{center}
-\vspace*{2em}
+\textbf{First preferences.} Figure~\ref{fig:cses_fp} plots the distribution of first preferences for each case on a ternary diagram. Given the above labelling convention, the distribution is tightly packed into one part of the simplex, its boundaries delineated by the $(1 - v_C) / 2$ boundary on the one side, and the $(1 - v_B) / 2$ on the other.\footnote{Conceptually, this makes sense: a violation of the first one would suggest that $v_B > v_A$, and a violation of the second one would suggest that $v_C > v_B$.} The figure groups together cases that share characteristics in second preferences (single-peaked, i.e. defining party is attractor; divided majority, i.e. defining party is repeller; and all others). There is no discernible difference in the distribution of first preferences between the groups; similarly, there is no discernible difference in the distribution conditional on the defining party. Note that even though the distribution is strongly centred on a particular part of the simplex, our labelling convention is without loss of generality: the results remain representative.
+
+\textbf{Second preferences }Describing the distribution of second preferences, especially conditional on first preferences, once again would require the summary (or visualisation) of multidimensional relationships and an impractical number of permutations. (Note how an apt summary of this could be an entire new paper. Figure~\ref{fig:cses_fp} is probably the best we can do for now.)
+
+We restrict our analysis of second preferences to two key points: First, preference distributions in the CSES can be broadly aligned along one dimension ranging from \emph{single-peaked} through \emph{neutral} to \emph{divided majority}. Second, we show how the CSES data is distributed along this spectrum.
+
+The classification of cases has been briefly covered on page 17 in Andy's memo. For completeness' sake, let us state our approach again. Without loss of generality, call the candidate whose first-preference voters have the most equally split second preferences $X$, and the other two $Y$ and $Z$.\footnote{Technically, pick X such that $\mathrm{min} |m_j - 0.5|$.} If both $m_{YZ}, m_{ZY} > 0.6$, then classify this as a single-peaked case $X+$. Conversely, if both $m_{YZ}, m_{ZY} < 0.4$, then classify this as a divided-majority case $X-$. If $m_{YZ}, m_{ZY} \in [0.4, 0.6]$, then classify this as a neutral case, $N(A)$. If neither of these conditions hold (because of unusual second preferences), label this case as other ($O$). 
+
+Table~\ref{tab:csesprefs} summarises the distribution of preference profiles found in the CSES data. Divided majority cases form the plurality of our dataset; however, there is also a large number of single-peaked cases. Fully neutral cases appear to be rarer. Out of the 160 cases in total, 27 cannot be classified using our approach and remain labelled as "other".\footnote{Do we need to show that our results do not depend on these cases?}
+
+\begin{table}[tb]
+	\caption{Distribution of preference profiles in CSES data}
+	\label{tab:csesprefs}
+	\centering
+
+	\begin{tabular}{lccc}
+	\hline
+
+	\toprule
+	\textbf{} & \textbf{A} & \textbf{B} & \textbf{C} \\
+	\cmidrule{2-4}
+	Single-peaked (+) & 18 & 23 & 9  \\
+	Divided majority (-) & 28 & 20 & 20  \\
+	Neutral () & 5 & 7 & 3  \\
+	Other () & & 27 &  \\
+	\bottomrule
+	\end{tabular}
+\end{table}
 
 \subsection{Methods}
 
@@ -127,9 +152,107 @@ Finally, we perform analyses of overall performance of the two electoral systems
 
 \section{Results: Strategic Voting by Second Preference Class}
 
-To be included. Boxplots, scatterplots, etc. See \texttt{checking\_cases.pdf}.
+Objective for this section: check whether theoretical predictions for different cases hold.
+
+Expectation is that the empirics should broadly conform with our theory, but outliers / deviations will occur (for reasons that Andy described in the email).
+
+\subsection{Single-Peaked}
+
+\subsubsection{A is the attractor (A+)}
+
+\begin{figure}[!htb]
+	\centering
+	\includegraphics[width = .45\textwidth]{../output/figures/prediction/pprob_sp_a.pdf}
+	\includegraphics[width = .45\textwidth]{../output/figures/prediction/svinc_sp_a.pdf}
+	\caption{Distribution of pivotal probabilities and proportions of strategic vote incentives for all $A+$ cases.}
+	\label{fig:figure1}
+\end{figure}
+
+The theoretical prediction is that $AC.AB$ is the dominant pivotal event; this holds true in the empirical data. However, there are a few outliers with high probabilities for $AC.AC$ in particular, and a few for $AC.BC$. (Need to check whether $AB.XX$ events are non-trivial here). 
+
+Consequently, the $CAB \rightarrow ACB$ strategic incentive is high. The $BCA \rightarrow CBA$ strategic incentive would only be attenuated by a high likelihood of $BC$ events in the second round; however, this does not seem to be the case and thus the $BCA \rightarrow CBA$ incentive is also very strong. Finally, the $BAC \rightarrow CBA$ incentive is attenuated by both $BC$ \textit{and} $AC$ and occurs much rarer. Note that the mean levels of strategic incentive proportions for $CAB \rightarrow ACB$ and $BCA \rightarrow CBA$ are much lower than for the $B+$ and $C+$ cases -- this is because, in relative terms, the $AC.AB$ event is much less likely than the $BC.XX$ ones.
+
+\subsubsection{B is the attractor (B+)}
+
+This is the old case of B having neutral preferences and A, C voters both choosing B in second preferences.
+
+\begin{figure}[!htb]
+	\centering
+	\includegraphics[width = .45\textwidth]{../output/figures/prediction/pprob_sp_b.pdf}
+	\includegraphics[width = .45\textwidth]{../output/figures/prediction/svinc_sp_b.pdf}
+	\caption{Distribution of pivotal probabilities and proportions of strategic vote incentives for all $B+$ cases.}
+	\label{fig:figure1}
+\end{figure}
+
+As predicted by the theory, the $BC.BA$ pivotal event clearly dominates here, with $BC.BC$ coming second.
+
+Unsurprisingly, this means that the incentive to vote $CBA \rightarrow BCA$ is very high -- in only two cases have less than half of all $CBA$ voters an incentive to follow this insincere vote. However, the proportion of $ACB \rightarrow CAB$ incentives is also very high (in fact, the mean is even higher!). This is because the likelihood of a conflicting $AC$ event in the second round is extremely small (given our labelling of the parties). Graphically, it seems that the majority of our $B+$ cases also have $B$'s second preferences slightly tilt to the right, which (I think) decreases the probability of this vote type "backfiring". Finally, the $ABC \rightarrow CAB$ incentive is, again, somewhat lower, and experiences a lot more variance than the others, because of the additional consideration of the (more likely) $BC$ second-round event. 
+
+Here, the prediction for the crossed out elements does not appear to hold, because in the empirics, the second-round pivotal events appear to be much less likely.
+
+\subsubsection{C is the attractor (C+)}
+
+\begin{figure}[!htb]
+	\centering
+	\includegraphics[width = .45\textwidth]{../output/figures/prediction/pprob_sp_c.pdf}
+	\includegraphics[width = .45\textwidth]{../output/figures/prediction/svinc_sp_c.pdf}
+	\caption{Distribution of pivotal probabilities and proportions of strategic vote incentives for all $C+$ cases.}
+	\label{fig:figure1}
+\end{figure}
+
+Here, the $BC.AC$ event is clearly the dominant one, however, we see a few others ($AC.AC$, $AC.BC$, $BC.BC$) that are also relevant. Consequently, because of the high $BC.AC$ probability, the predicted $BCA \rightarrow CBA$ incentive is also the most prevalent one. There is also some incidence of the $ABC \rightarrow BAC$ incentive, which would only be mitigated by the $AB$ second-round pivotal event (which is quite likely, no?). Surprisingly, $ACB$ voters appear to have some incentive to vote $\rightarrow CAB$. This is probably because of the high probablity of $AC.BC$: here, a sincere vote would help elect the least preferred candidate (no-show). Thus, if C is the attractor, the predictions don't hold as well.
+
+\begin{figure}[!htb]
+	\centering
+	\includegraphics[width = .45\textwidth]{../output/figures/prediction/sp_c_odd.pdf}
+	\caption{Proportion of $ACB$ voters with incentive to vote $CAB$ by the probability of the $AC.BC$ pivotal event relative to $BC.AC$.}
+	\label{fig:figure1}
+\end{figure}
+
+\subsection{Divided Majority}
+
+\subsubsection{A is the repeller (A-)}
+
+\begin{figure}[!htb]
+	\centering
+	\includegraphics[width = .45\textwidth]{../output/figures/prediction/pprob_dm_a.pdf}
+	\includegraphics[width = .45\textwidth]{../output/figures/prediction/svinc_dm_a.pdf}
+	\caption{Distribution of pivotal probabilities and proportions of strategic vote incentives for all $A-$ cases.}
+	\label{fig:figure1}
+\end{figure}
+
+In the cases where $A$ is the repeller, we expect $BC.BC$ to be the dominant first-round pivotal event. This is, indeed, the case; however, on average, the $BC.BA$ event is just as likely. The predicted strategic incentives only affect a fraction of the potential voters. The $ABC \rightarrow BAC$ incentive is virtually non-existent while the $ACB \rightarrow CAB$ incentive affects a sizeable minority on average. The $CBA \rightarrow BCA$ incentive is unexpected and shows up with a lot of variance across the cases: some cases see almost all $CBA$ voters have this incentive whilst others barely feature it at all. (What explains it?)
+
+\subsubsection{B is the repeller (B-)}
+
+\begin{figure}[!htb]
+	\centering
+	\includegraphics[width = .45\textwidth]{../output/figures/prediction/pprob_dm_b.pdf}
+	\includegraphics[width = .45\textwidth]{../output/figures/prediction/svinc_dm_b.pdf}
+	\caption{Distribution of pivotal probabilities and proportions of strategic vote incentives for all $B-$ cases.}
+	\label{fig:figure1}
+\end{figure}
+
+In the cases where $B$ is the repeller, we would expect $BC.AC$ to be the dominant pivotal event. Empirically, it is jointly dominant along with $AC.AC$ (at least in the aggregate). Because of that, the $ABC \rightarrow BAC$ incentive is diminished, while the predicted $BCA \rightarrow CBA$ incentive is very strong. Across the board, there are few other incentives.
+
+\subsubsection{C is the repeller (C-)}
+
+Where $C$ is the repeller, we would expect $BC.BA$ to be the dominant pivotal event. This may be true here, but the pivotal probabilities are very small for all types, with a few extreme outliers that may be driving the results here.
+
+In terms of strategic incentives, we do observe the predicted $CBA \rightarrow BCA$ very strongly; the other two ($ABC \rightarrow CAB$ and $ACB \rightarrow CAB$) also feature, although with more variance. This is expected, as these depend more on the pivotal probability of $BC.BA$, which, as just explained, is not always dominant. (There is also the possibility that the variance is caused by underlying variance in the second-round $AC$ pivotal probability.)
+
+\begin{figure}[!htb]
+	\centering
+	\includegraphics[width = .45\textwidth]{../output/figures/prediction/pprob_dm_c.pdf}
+	\includegraphics[width = .45\textwidth]{../output/figures/prediction/svinc_dm_c.pdf}
+	\caption{Distribution of pivotal probabilities and proportions of strategic vote incentives for all $C-$ cases.}
+	\label{fig:figure1}
+\end{figure}
+
 
 \section{Results: Incentives}
+
+Next, we want to see what the distribution of likely voter preferences and ballot profiles means for the resulting strategic incentives, and differences between RCV and plurality. In Figure~\ref{fig:sv_prop}, each thin line describes the proportion of respondents with a positive strategic incentive for a given ballot, within a CSES case, at different levels of information.\footnote{Note that the existence of positive strategic incentives is non-exclusive; a voter may have a positive incentive to put both their second and their third preference first. The optimal ballot ordering will be the one for which the strategic incentive is greatest. (Need to check how code handles these situations.)}
 
 \begin{figure}[!h]
 	\centering
@@ -138,18 +261,15 @@ To be included. Boxplots, scatterplots, etc. See \texttt{checking\_cases.pdf}.
 	\label{fig:sv_prop}
 \end{figure}
 
-What can we see here? The plot describes the proportion of voters in each case that, conditional on the level of information, $s$, have a strategic incentive to either rank their second preference first (RCV second) or their third preference first (RCV third), and to vote for their second preference under plurality (Plurality second).
-The aggregate pattern is extremely similar across both cases. At very low levels of information, there are roughly similar proportions of RCV second and plurality second optimal votes (with plurality being slightly higher). There exists virtually no incentive to vote RCV third. This changes as information improves: the plurality incentive stagnates below 0.2 on average, whereas RCV second keeps rising. Crucially, at high levels of information, the incentive to vote RCV third also becomes very large. (how is this related to the theory?)
+Under plurality, there exists only one possible optimal strategic vote: to vote for one's second preference instead in order to avoid a wasted vote. This is only reasonable when one expects one's first preference to come last. In the CSES data, we observe the proportion of voters with a positive strategic incentive under Plurality to be capped at around 20 per cent. The incentive is also hardly sensitive to levels of information, suggesting that, overall, there is a relatively robust set of voters with a strategic incentive that requires very little information altogether under plurality.
 
-The hypothesised reason for this is that in very low information environments, the "strong pushover" (i.e., putting your third preference first on the RCV ballot) may accidentally elect one's third preference. With more precise beliefs, this is unlikely to occur.
+Under RCV, this is a little bit different. We note that the incentive to rank one's second preference first behaves somewhat similar to the strategic incentive under Plurality. However, it is a little bit more sensitive to the levels of information (rising from about 0.1 at $s = 15$ to 0.2 at $s = 90$); furthermore, the variance across cases is also higher. Finally, the incentive to rank one's third preference first increases rapidly as information improves. This type of incentive is motivated by a strong pushover; with better information, the probablity of accidentally electing one's most-disliked choice into office diminishes (This already hints at a coordination problem under RCV.)
 
-\textit{Main takeaways:}
-\begin{itemize}
-\item Overall proportion of strategic voters in high-information environments is higher under RCV than it is under plurality (but this doesn't say anything yet about the magnitude of these incentives!)
-\item "Strong pushover" only occurs at very high levels of information.
-\end{itemize}
+Taking the strategic incentives for second and third together, this supports our theoretical prediction that the incidence of positive strategic incentives under RCV is higher than under Plurality (that is, at realistic (?) levels of information).
 
 \subsection{Direct Comparison of Frequency}
+
+So far, we have been dealing with aggregates. How does the difference between RCV and Plurality play out in each individual case? To examine this, we took the overall proportion of voters with a positive strategic incentive under either system and plotted them against each other in Figure~\ref{fig:sv_dist}. Cases below the 45 degree line have more voters with a positive strategic incentive under plurality; cases above the 45 degree line have more voters with a positive strategic incentive under RCV.
 
 \begin{figure}[!h]
 	\centering
@@ -158,11 +278,31 @@ The hypothesised reason for this is that in very low information environments, t
 	\label{fig:sv_dist}
 \end{figure}
 
+At low levels of information ($s = 15$), the cases are clustered fairly equally around either side of the 45 degree line. However, as beliefs become more precise, strategic votes become much more common under RCV, whilst the proportion under plurality remains capped at around 0.2. We note that there is a substantial proportion of cases that remain below the 45 degree line, even with very precise beliefs. This underlines the importance of empirical results: it is entirely possible to come up with all kinds of theoretical cases that yield different results. With the CSES data, we get a sense of likely preference distributions and ballot profiles, and can thus present results that are more likely to hold in real elections. In this case, while there are a few cases where the proportion of voters with a positive strategic incentive is greater under Plurality, in the majority of cases, RCV offers greater strategic incentives (see Table~\ref{tab:strat_inc}).
+
 Figure~\ref{fig:sv_dist} plots the proportion of "optimal" strategic voters under RCV and Plurality for each case seperately. This further supports the conclusions from the previous section: For the most part, the proportion of strategic voters under plurality remains capped at around $\approx 0.2$. For low levels of $s$, the cases are distributed around very low levels of strategic voting under both electoral systems. However, as information increases, the proportion of voters with a positive incentive under AV increases dramatically.
 
-What explains the odd pattern in the Australian case? Most cases seem to scatter pretty clearly around a proportion of $\approx 0.18$ for plurality. This is a consequence of using the same set of ``voters'' every time: the proportion of Green voters remains fixed; and in most cases in NSW, Greens face a \textit{very} strong incentive to abandon their first preference under plurality. The few outliers to the right of the $0.18$ plurality value are those cases where the Greens are strong enough such that supporters of other parties have an incentive of abandoning those instead. 
+\begin{table}[!htb]
+	\caption{Number of cases where RCV incentive is greater}
+	\label{tab:strat_inc}
+	\centering
 
-Given that an information environment of $s \approx 85$ is feasible (Eggers and Vivyan, 2018), it would seem as if strategic voting under RCV is not just feasible, but should also concern a strong minority of voters. Why, then, is this not something that political debates about RCV have picked up so far? (1) So far, we don't know how large that incentive to vote strategically is. It may be extremely small, and, assuming costs to strategic voting, ultimately not worth it. (2) Parties may have incorporated such strategic considerations in their how-to-vote cards, thus reducing costs for voters. (Can we check this empirically?)
+	\begin{tabular}{lccc}
+	\toprule
+	s & \textbf{RCV $>$ Plur} & \textbf{RCV $<$ Plur} & \textbf{Proportion RCV} \\
+	\cmidrule{2-4}
+	15 & 41 & 119 & 0.256 \\
+	30 & 58 & 102 & 0.362 \\
+	45 & 66 & 94 & 0.412 \\
+	60 & 73 & 87 & 0.456 \\
+	75 & 83 & 77 & 0.519 \\
+	85 & 88 & 72 & 0.550 \\
+	90 & 90 & 70 & 0.563 \\
+	\bottomrule
+	\end{tabular}
+\end{table}
+
+Why, then, is this not something that political debates about RCV have picked up so far? (1) So far, we don't know how large that incentive to vote strategically is. It may be extremely small, and, assuming costs to strategic voting, ultimately not worth it. (2) Parties may have incorporated such strategic considerations in their how-to-vote cards, thus reducing costs for voters. (Can we check this empirically?)
 
 \subsection{QQ-Plots}
 
@@ -173,9 +313,13 @@ Given that an information environment of $s \approx 85$ is feasible (Eggers and 
 	\label{fig:qqplots}
 \end{figure}
 
-So we see that under RCV, incentives to vote strategically exist. But exactly how large are these incentives: do they warrant acting upon? Fortunately, our approach of calculating pivotal probabilities and expected utilities allows us to quantify the exact strategic incentive ($\tau$, see also Eggers and Vivyan 2018). 
+So far, we have shown the following: (1) We can classify most empirical cases into two main categories, and predict fairly well what kind of strategic incentives exist. (2) The incidence of positive strategic incentives is somewhat greater under RCV than it is under Plurality. (Elaborate why this is important to show empirically, not just theoretically). But exactly how large are these incentives: do they warrant acting upon? Fortunately, our approach of calculating pivotal probabilities and expected utilities allows us to quantify the magnitude of the strategic incentive ($\tau$, see also Eggers and Vivyan 2018). 
 
-Figure~\ref{fig:qqplots} compares the distribution of strategic incentives under both plurality and RCV, conditional on $s$, in QQ-Plots. A couple of general observations: (1) The greater $s$, the greater the variance in both $\tau_{RCV}$ and  $\tau_{P}$. This makes sense: when I know very little about the likely electoral outcome, voting sincerely is a less risky strategy, and incentives to vote strategically are smaller. (2) For any level of $s$, \textit{negative} strategic incentives (i.e., situations where the sincere vote is the optimal vote) are relatively more common. (3) Conversely, for any level of $s$, (small and moderate) \textit{positive} strategic incentives are more common under plurality. This is not true of very high levels of $\tau$, which are, again, more common under RCV (see how the aggregate line crosses the 45-degree line in the CSES panel again). (4) The Australian case features smaller incentives to vote strategically overall (?) -- this may have to do with the relative weakness of the Greens. 
+Figure~\ref{fig:qqplots} compares the distribution of strategic incentives under both plurality and RCV, conditional on $s$, in QQ-Plots. 
+
+(Explain how these plots work and how to interpret them. Not all readers may be familiar with them.)
+
+A couple of general observations: (1) The greater $s$, the greater the variance in both $\tau_{RCV}$ and  $\tau_{P}$. This makes sense: when I know very little about the likely electoral outcome, voting sincerely is a less risky strategy, and incentives to vote strategically are smaller. (2) For any level of $s$, \textit{negative} strategic incentives (i.e., situations where the sincere vote is the optimal vote) are relatively more common. (3) Conversely, for any level of $s$, (small and moderate) \textit{positive} strategic incentives are more common under plurality. This is not true of very high levels of $\tau$, which are, again, more common under RCV (see how the aggregate line crosses the 45-degree line in the CSES panel again). (4) The Australian case features smaller incentives to vote strategically overall (?) -- this may have to do with the relative weakness of the Greens. 
 
 The main takeaway here is that strategic voting under RCV, for the most part, brings smaller benefits compared to a sincere vote. There are, however, a few situations at the extreme end where there is a very high incentive under RCV.
 

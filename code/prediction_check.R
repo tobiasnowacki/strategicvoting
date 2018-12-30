@@ -14,6 +14,7 @@ library(gtools)
 library(ggtern)
 library(stargazer)
 library(tidyr)
+library(rworldmap)
 
 source(here("utils/functions.r"))
 source(here("utils", "av_pivotal_probs_analytical_general_v2.r"))
@@ -75,6 +76,14 @@ for(i in 1:length(big_list_na_omit)){
 	results[[i]] <- list(this_list$v_vec, pprobs, sv_obj, trans_matrix, class)
 }
 
+# Mapping cases
+cntry <- sapply(names(big_list_na_omit), function(x) substr(x, 1, 3))
+cntry_list <- as.data.frame(table(cntry))
+map_df <- joinCountryData2Map(cntry_list, joinCode = "ISO3", nameJoinColumn = "cntry")
+pdf(here("../output/figures/case_map.pdf"))
+mapCountryData(map_df, nameColumnToPlot = "Freq", catMethod = "categorical", mapTitle = "Number of cases by country")
+dev.off()
+
 # Classification
 
 # Create matrix of v_vecs
@@ -112,8 +121,9 @@ mean(unlist(lapply(big_list_na_omit, function(x) nrow(x$U))))
 sd(unlist(lapply(big_list_na_omit, function(x) nrow(x$U))))
 min(unlist(lapply(big_list_na_omit, function(x) nrow(x$U))))
 max(unlist(lapply(big_list_na_omit, function(x) nrow(x$U))))
+table(v_vec_df$type)
 
-# First preference distribution
+# First preference distribution (handled better in replication_cses.r)
 v_vec_df$def_party <- NA
 v_vec_df$def_party[v_vec_df$type %in% c("SP(A)", "DM(A)")] <- "A"
 v_vec_df$def_party[v_vec_df$type %in% c("SP(B)", "DM(B)")] <- "B"
@@ -130,11 +140,6 @@ ggtern(v_vec_df, aes(ABC + ACB, BAC + BCA, CAB + CBA)) +
 	labs(x = "A", y = "B", z = "C", colour = "Defining Party") +
 	theme(legend.position = "bottom")
 ggsave(here("../output/figures/cses_fp.pdf"), width = 6, height = 3)
-
-
-# Second preference distribution
-# Need to decide how to best visualise
-
 
 
 # Check "dominance" of predicted event.
@@ -226,6 +231,73 @@ ggplot(df_long[df_long$type == "SP(C)", ]) +
 								 "white", "white", "white", "white"),
 						guide = FALSE)
 ggsave(here("../output/figures/prediction/svinc_sp_c.pdf"), , height = 4, width = 4)
+
+# Plotting strategic votes -- DIVIDED MAJORITY CASES
+# Pivotal probabilities
+
+ggplot(prob_df_long[prob_df_long$type == "DM(A)" & !(prob_df_long$event %in% c("AB", "AC", "BC")), ]) +
+	geom_boxplot(aes(x = event, y = prob)) +
+	theme_bw() +
+	theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
+	labs(x = "Event", y = "Pr(Event)", caption = "A-")
+ggsave(here("../output/figures/prediction/pprob_dm_a.pdf"), height = 4, width = 4)
+
+ggplot(prob_df_long[prob_df_long$type == "DM(B)" & !(prob_df_long$event %in% c("AB", "AC", "BC")), ]) +
+	geom_boxplot(aes(x = event, y = prob)) +
+	theme_bw() +
+	theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
+	labs(x = "Event", y = "Pr(Event)", caption = "B-")
+ggsave(here("../output/figures/prediction/pprob_dm_B.pdf"), height = 4, width = 4)
+
+ggplot(prob_df_long[prob_df_long$type == "DM(C)" & !(prob_df_long$event %in% c("AB", "AC", "BC")), ]) +
+	geom_boxplot(aes(x = event, y = prob)) +
+	theme_bw() +
+	theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
+	labs(x = "Event", y = "Pr(Event)", caption = "C-")
+ggsave(here("../output/figures/prediction/pprob_dm_c.pdf"), height = 4, width = 4)
+
+# Strategic incentives
+
+ggplot(df_long[df_long$type == "DM(A)", ]) +
+	geom_boxplot(aes(x = svtype, y = prop, fill = svtype)) +
+	theme_bw() +
+	theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
+	labs(x = "Incentive Type", y = "Proportion of all voters",
+		caption = "A-") +
+	scale_fill_manual(values = c("dark grey", "white", "white", "dark grey",
+								 "white", "white", "white", "white",
+								 "white", "white", "white", "white"),
+						guide = FALSE)
+ggsave(here("../output/figures/prediction/svinc_dm_a.pdf"), height = 4, width = 4)
+
+ggplot(df_long[df_long$type == "DM(B)", ]) +
+	geom_boxplot(aes(x = svtype, y = prop, fill = svtype)) +
+	theme_bw() +
+	theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
+	labs(x = "Incentive Type", y = "Proportion of all voters",
+		caption = "B-") +
+	scale_fill_manual(values = c("grey", "white", "grey", "white",
+								 "white", "white", "white", "grey",
+								 "white", "white", "white", "white"),
+						guide = FALSE)
+ggsave(here("../output/figures/prediction/svinc_dm_b.pdf"), height = 4, width = 4)
+
+ggplot(df_long[df_long$type == "DM(C)", ]) +
+	geom_boxplot(aes(x = svtype, y = prop, fill = svtype)) +
+	theme_bw() +
+	theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
+	labs(x = "Incentive Type", y = "Proportion of all voters",
+		caption = "C-") +
+	scale_fill_manual(values = c("white", "grey", "white", "grey",
+								 "white", "white", "white", "white",
+								 "white", "white", "white", "grey"),
+						guide = FALSE)
+ggsave(here("../output/figures/prediction/svinc_dm_c.pdf"), height = 4, width = 4)
+
+
+
+
+
 
 
 # Other
