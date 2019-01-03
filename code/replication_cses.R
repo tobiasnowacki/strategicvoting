@@ -34,6 +34,7 @@ library(ggplot2)
 library(reshape2)
 library(dplyr)
 library(purrr)
+library(tidyr)
 library(ggtern)
 
 # Load CSES data:
@@ -154,9 +155,8 @@ for(i in 1:length(big_list_na_omit)){
 
 ####
 
-save(file = here("../output/sv_list.Rdata"), sv_list)
-# load(here("../output/sv_list.Rdata"))
-
+# save(file = here("../output/sv_list.Rdata"), sv_list)
+load(here("../output/sv_list.Rdata"))
 
 ## Additional analysis off the sv_obj cases
 
@@ -201,13 +201,13 @@ prop_df$inc_plur <- prop_df$plur_second
 cses_inc <- ggplot(prop_df, aes(x = inc_plur, y = inc_rcv)) +
   geom_point(alpha = 0.1) +
   geom_abline(slope = 1, intercept = 0) + 
-  facet_wrap(~ s) +
+  facet_wrap(~ s, ncol = 4) +
   theme_bw() +
   scale_x_continuous(limits = c(0, 0.7), expand = c(0, 0)) +
   scale_y_continuous(limits = c(0, 0.7), expand = c(0, 0)) +
   labs(x = "Proportion of CSES respondents with positive SI under Plurality",
        y = "Proportion of CSES respondents with positive SI under RCV")
-ggsave(here("../output/figures/cses_prop.pdf"), cses_inc, width = 5, height = 5)
+ggsave(here("../output/figures/cses_prop.pdf"), cses_inc, width = 9, height = 6)
 
 # Check proportions
 rcv_big <- sapply(s_list, function(x) 
@@ -262,16 +262,56 @@ cses_qq <- ggplot(qq_mega_df, aes(x = x, y = y)) +
   geom_line(data = qq_agg_df, aes(x = x, y = y), colour = "red", lwd = 2) + 
   geom_abline(intercept = 0, slope = 1, linetype = "dotted", colour = "blue") +
   theme_bw()  + 
-  facet_wrap(vars(s)) +
+  facet_wrap(vars(s), ncol= 4) +
   xlim(-30, 30) + ylim(-30, 30)
-ggsave(here("../output/figures/cses_qq.pdf"), cses_qq, width = 6, height = 6)
+ggsave(here("../output/figures/cses_qq.pdf"), cses_qq, width = 9, height = 6)
 
 
 # (4) Voting paradoxes
 
-# Look at AUS case for successful code. Functions should work either way
+# Condorcet Winner
+  # Calculate
+  cw_win_rcv <- list()
+  cw_win_plur <- list()
+  
+  for(i in 1:length(sv_list)){
+    print(i)
+    v_zero <- gen_v_zero(sv_list[[i]]$sin_rcv[sv_list[[i]]$s == 85])
+    v_opt_rcv <- gen_v_zero(sv_list[[i]]$opt_rcv[sv_list[[i]]$s == 85])[[1]]
+    v_opt_plur <- gen_v_zero(sv_list[[i]]$opt_plur[sv_list[[i]]$s == 85])[[2]]
+    cw_win_rcv[[i]] <- evaluate_success_of_CW_given_U_and_V.mat(U = big_list_na_omit[[i]]$U, V.mat = v_opt_rcv, V0 = v_zero[[1]], lambdas = c(.1, .2, .3, .4, .5), big_list_na_omit[[i]]$weights, rule = "AV", m = 300, M = 1000)
+    cw_win_plur[[i]] <- evaluate_success_of_CW_given_U_and_V.mat(U = big_list_na_omit[[i]]$U, V.mat = v_opt_plur, V0 = v_zero[[2]], lambdas = c(.1, .2, .3, .4, .5), big_list_na_omit[[i]]$weights, rule = "plurality", m = 300, M = 1000)
+  }
+  
+  # Plot
+  cw_df_rcv <- as.data.frame(do.call(rbind, cw_win_rcv))
+  cw_df_plur <- as.data.frame(do.call(rbind, cw_win_plur))
 
-s <- 85
+  cw_df_rcv$case <- names(big_list_na_omit)
+  cw_df_plur$case <- names(big_list_na_omit)
+  names(cw_df_rcv)[1:5] <- c("0.1", "0.2", "0.3", "0.4", "0.5")
+  names(cw_df_plur)[1:5] <- c("0.1", "0.2", "0.3", "0.4", "0.5")
+  
+  cw_df_rcv <- melt(cw_df_rcv, 6)
+  cw_df_rcv$type <- "RCV"
+  cw_df_plur <- melt(cw_df_plur, 6)
+  cw_df_plur$type <- "Plurality"
+  cw_df <- rbind(cw_df_rcv, cw_df_plur)
+  
+  cw_df_agg <- cw_df %>% group_by(type, variable) %>% summarise(mean(value))
+  names(cw_df_agg)[3] <- "value"
+
+  ggplot(cw_df, aes(variable, value)) +
+    geom_line(aes(group = interaction(case, type), colour = type), alpha = 0.2) +
+    geom_line(data = cw_df_agg, aes(group = type, colour = type), lwd = 2) +
+    labs(x = "lambda", y = "Pr(Condorcet Winner NOT elected)") +
+    theme_bw()
+  ggsave(here("../output/figures/condorcet_probs.pdf"), width = 6, height = 6)  
+  
+# Incidence of voting paradoxes
+
+s <- 85 # Set level at which to evaluate
+
 paradox_df <- matrix(NA, ncol = 3, nrow = length(big_list_na_omit))
 for(i in 1:length(big_list_na_omit)){
   print(i)
@@ -287,14 +327,6 @@ for(i in 1:length(big_list_na_omit)){
   wasted <- par_plur$wasted / par_plur$total
   paradox_df[i, ] <- c(no_show, nonmon, wasted)
 }
-
-test <- sv(big_list_na_omit[[1]]$U, big_list_na_omit[[1]]$weights, s = 85)
-plurality_wasted_vote_from_sv_object(test)
-v_vec <- big_list_na_omit[[1]]$v_vec
-v_vec_plur <- c(v_vec[1] + v_vec[2], v_vec[3] + v_vec[4], v_vec[5] + v_vec[6])
-test_props <- plurality.pivotal.probabilities(v_vec_plur, 85)
-wasted_vote(sv_list[[1]][sv_list[[1]]$s == 85,], test_props, big_list_na_omit[[1]]$weights)
-
 
 paradox_df <- as.data.frame(paradox_df)
 names(paradox_df) <- c("no_show", "nonmon", "wasted")
@@ -314,8 +346,7 @@ ggsave(here("../output/figures/paradoxes_cses.pdf"), height = 4, width = 4)
 
 # (5) Interdependence
 
-# Isolate DF for just one instance of s
-s <- 85
+s <- 85 # Set level at which to evaluate
 sv_list_fixed_s <- lapply(sv_list, function(x) x[x$s == s, ])
 
 lambda_list <- as.list(seq(0, 0.5, 0.05))
