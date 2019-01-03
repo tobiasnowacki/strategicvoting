@@ -521,3 +521,16 @@ classify.vec = function(v.vec, the.floor = .6, neutral.max = .1){
   }
   "O"
 }
+
+# Functions for Condorcet winner
+
+gen_v_zero <- function(sin_rcv){
+  v_zero_mat_rcv <- matrix(0, nrow = length(sin_rcv), ncol = 6)
+  v_zero_mat_plur <- matrix(0, nrow = length(sin_rcv), ncol = 3)
+  sin_plur <- sin_vote_plur_transform(sin_rcv)
+  for(i in 1:length(sin_rcv)){
+    v_zero_mat_rcv[i, sin_rcv[i]] <- 1
+    v_zero_mat_plur[i, sin_plur[i]] <- 1
+  }
+  return(list(v_zero_mat_rcv, v_zero_mat_plur))
+}

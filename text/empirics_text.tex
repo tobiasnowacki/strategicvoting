@@ -269,18 +269,16 @@ Taking the strategic incentives for second and third together, this supports our
 
 \subsection{Direct Comparison of Frequency}
 
-So far, we have been dealing with aggregates. How does the difference between RCV and Plurality play out in each individual case? To examine this, we took the overall proportion of voters with a positive strategic incentive under either system and plotted them against each other in Figure~\ref{fig:sv_dist}. Cases below the 45 degree line have more voters with a positive strategic incentive under plurality; cases above the 45 degree line have more voters with a positive strategic incentive under RCV.
+So far, we have been dealing with aggregates. How does the difference between RCV and Plurality play out in individual cases? To examine this, we took the overall proportion of voters with a positive strategic incentive under either system and plotted them against each other in Figure~\ref{fig:sv_dist}. Cases below the 45 degree line have more voters with a positive strategic incentive under plurality; cases above the 45 degree line have more voters with a positive strategic incentive under RCV.
 
 \begin{figure}[!h]
 	\centering
-	\includegraphics[width = .6 \textwidth]{"../output/figures/cses_prop"}
+	\includegraphics[width = .8 \textwidth]{"../output/figures/cses_prop"}
 	\caption{Proportion of voters with non-sincere optimal vote, by level of information. Left panel: NSW. Right panel: CSES}
 	\label{fig:sv_dist}
 \end{figure}
 
-At low levels of information ($s = 15$), the cases are clustered fairly equally around either side of the 45 degree line. However, as beliefs become more precise, strategic votes become much more common under RCV, whilst the proportion under plurality remains capped at around 0.2. We note that there is a substantial proportion of cases that remain below the 45 degree line, even with very precise beliefs. This underlines the importance of empirical results: it is entirely possible to come up with all kinds of theoretical cases that yield different results. With the CSES data, we get a sense of likely preference distributions and ballot profiles, and can thus present results that are more likely to hold in real elections. In this case, while there are a few cases where the proportion of voters with a positive strategic incentive is greater under Plurality, in the majority of cases, RCV offers greater strategic incentives (see Table~\ref{tab:strat_inc}).
-
-Figure~\ref{fig:sv_dist} plots the proportion of "optimal" strategic voters under RCV and Plurality for each case seperately. This further supports the conclusions from the previous section: For the most part, the proportion of strategic voters under plurality remains capped at around $\approx 0.2$. For low levels of $s$, the cases are distributed around very low levels of strategic voting under both electoral systems. However, as information increases, the proportion of voters with a positive incentive under AV increases dramatically.
+At low levels of information ($s = 15$), the cases are clustered fairly equally around either side of the 45 degree line. However, as beliefs become more precise, strategic votes become much more common under RCV, whilst the proportion under Plurality remains capped at around 0.2. Table~\ref{tab:strat_inc} summarises the number  of cases with greater incentive proportions under either Plurality or RCV. With precise beliefs ($s \geq 75$), a small majority of cases has features larger incentive proportions under RCV, even though there is still a substantial minority for which the opposite is the case. This underlines the importance of empirical results. It is entirely possible to come up with all kinds of theoretical cases that yield different results. With the CSES data, we get a sense of likely preference distributions and ballot profiles, and can thus gain a sense of what kind of results is likely to be observed in real-world situations. In this case, while there are a few cases where the proportion of voters with a positive strategic incentive is greater under Plurality, in the majority of cases, RCV offers greater strategic incentives.
 
 \begin{table}[!htb]
 	\caption{Number of cases where RCV incentive is greater}
@@ -302,65 +300,103 @@ Figure~\ref{fig:sv_dist} plots the proportion of "optimal" strategic voters unde
 	\end{tabular}
 \end{table}
 
-Why, then, is this not something that political debates about RCV have picked up so far? (1) So far, we don't know how large that incentive to vote strategically is. It may be extremely small, and, assuming costs to strategic voting, ultimately not worth it. (2) Parties may have incorporated such strategic considerations in their how-to-vote cards, thus reducing costs for voters. (Can we check this empirically?)
+These results suggest that positive strategic incentives under RCV do exist. Why is this not something that political debates about RCV have picked up so far? So far, we don't know how large that incentive to vote strategically is. It may be extremely small, and, assuming costs to strategic voting, ultimately not worth it. Alternatively, parties may have incorporated such strategic considerations in their how-to-vote cards, thus reducing costs for voters.
+Another consideration is that the cases where RCV is used in real-world elections happen to be the ones at the bottom end of the distribution, that is, where the strategic incentive under RCV remains weak.
 
 \subsection{QQ-Plots}
 
 \begin{figure}[!h]
 	\centering
-	\includegraphics[width = .6 \textwidth]{"../output/figures/cses_qq"}
-	\caption{QQ-Plot of strategic incentives, $\tau$, under Plurality (x) and RCV (y). Left panel: NSW. Right panel: CSES.}
+	\includegraphics[width = .8 \textwidth]{"../output/figures/cses_qq"}
+	\caption{QQ-Plot of strategic incentives, $\tau$, under Plurality (x) and RCV (y).}
 	\label{fig:qqplots}
 \end{figure}
 
-So far, we have shown the following: (1) We can classify most empirical cases into two main categories, and predict fairly well what kind of strategic incentives exist. (2) The incidence of positive strategic incentives is somewhat greater under RCV than it is under Plurality. (Elaborate why this is important to show empirically, not just theoretically). But exactly how large are these incentives: do they warrant acting upon? Fortunately, our approach of calculating pivotal probabilities and expected utilities allows us to quantify the magnitude of the strategic incentive ($\tau$, see also Eggers and Vivyan 2018). 
+So far, we have shown the following: (1) We can classify most empirical cases into two main categories, and predict fairly well what kind of strategic incentives exist. (2) With precise but realistic beliefs, the incidence of positive strategic incentives is somewhat greater under RCV than it is under Plurality. This subsection is concerned with the magnitude of these incentives: do they warrant acting upon? Fortunately, our approach of calculating pivotal probabilities and expected utilities allows us to quantify the magnitude of the strategic incentive ($\tau$, see also Eggers and Vivyan 2018). 
 
-Figure~\ref{fig:qqplots} compares the distribution of strategic incentives under both plurality and RCV, conditional on $s$, in QQ-Plots. 
+Within each CSES case, we calculate the strategic incentive $\tau$ for each respondent under either electoral system.\footnote{Reminder that $\tau$ is just the difference in expected utility between the optimal ballot choice and the sincere ballot choice.} Where $\tau > 0$, the respondent could improve their expected utility by voting non-sincerely.
 
-(Explain how these plots work and how to interpret them. Not all readers may be familiar with them.)
+Figure~\ref{fig:qqplots} uses QQ-Plots to compare the distribution of $\tau$ under the two electoral systems. A QQ-Plot plots the quantiles of either distribution against each other - if the two distributions are the same, we should observe a straight line. Clearly, this is not the case. The individual cases are somewhat bimodal in their distribution: some feature distributions where the positive incentives are greater in magnitude under RCV than under Plurality, whilst for others, the opposite is the case. (This bimodal nature is also something that we can observe in the simpler scatterplots in Figure~\ref{fig:sv_dist}). What we observe in the aggregate (thick red line) is that there is a skew in favour of plurality at positive values and a skew towards RCV at negative values. This suggests that there is a greater proportion of cases under RCV where there is a heavy penalty to voting non-sincerely (i.e., large negative $\tau$), while, when there is a positive strategic incentive, this tends to be larger under Plurality.\footnote{With very precise beliefs there are a few cases where there are a few very large positive incentives under RCV that skew the QQ-Plot back across the 45 degree-line. However, including these as a substantive result would extrapolate too much from the data.} 
 
-A couple of general observations: (1) The greater $s$, the greater the variance in both $\tau_{RCV}$ and  $\tau_{P}$. This makes sense: when I know very little about the likely electoral outcome, voting sincerely is a less risky strategy, and incentives to vote strategically are smaller. (2) For any level of $s$, \textit{negative} strategic incentives (i.e., situations where the sincere vote is the optimal vote) are relatively more common. (3) Conversely, for any level of $s$, (small and moderate) \textit{positive} strategic incentives are more common under plurality. This is not true of very high levels of $\tau$, which are, again, more common under RCV (see how the aggregate line crosses the 45-degree line in the CSES panel again). (4) The Australian case features smaller incentives to vote strategically overall (?) -- this may have to do with the relative weakness of the Greens. 
+Note also that the greater $s$, the greater the variance in both $\tau_{RCV}$ and  $\tau_{P}$. This makes sense: when I know very little about the likely electoral outcome, voting sincerely is a less risky strategy, and incentives to vote strategically are smaller. 
 
-The main takeaway here is that strategic voting under RCV, for the most part, brings smaller benefits compared to a sincere vote. There are, however, a few situations at the extreme end where there is a very high incentive under RCV.
+The main takeaway here is that strategic voting under RCV, for the most part, brings smaller benefits compared to a sincere vote. (Are we really able to claim that? It depends.) There are, however, a few situations at the extreme end where there is a very high incentive under RCV.
 
-What this means is that if we assume strategic voting to be costly (relative to a sincere vote), then we would observe much less of it in RCV. This is equivalent to calculating $\hat{\tau} \equiv \tau - c$, where $c$ is a constant cost. Under RCV, this would shift a much greater part of the distribution into the negative domain, thus attenuating any strategic incentive.
+What this means is that if we assume strategic voting to be costly (relative to a sincere vote), then we would observe much less of it in RCV. This is equivalent to calculating $\hat{\tau} \equiv \tau - c$, where $c$ is a constant cost. Under RCV, this would shift a much greater part of the distribution into the negative domain, thus attenuating any strategic incentive. (Of course, we are unable to show that this is the real reason why strategic voting under RCV is not something that people are interested in.)
 
 \section{Results: Electoral System Performance}
+
+The above sections looked at the incidence and magnitude of strategic voting incentives for individual voters (though the results were presented in an aggregated form). We can also compare the performance of the two electoral systems by looking at results at the case-level: we check the proportion of times that the Condorcet Winner is elected, and the probability of encountering a voting paradox in each case.
+
+\textit{This entire section needs a re-haul re: summarising results, and an introduction to notation (what is lambda?)}
+
+\subsection{Condorcet Winner}
+
+First, we examine the probability of the Condorcet Winner winning in each CSES case.\footnote{To keep things condensed, we restrict the analysis to the situation where $s = 85$.} We do so by running the following steps with each case, both for RCV and for Plurality: First, we re-sample the set of voters with their preferences (where the sampling probability corresponds to respondents' survey weights). We then let a proportion of $\lambda \in (0, 1)$ voters within that survey vote optimally, and $(1 - \lambda)$ sincerely.\footnote{Assignment of voter ``type'' is random.} Based on these vote choices, we check whether the Condorcet Winner is elected or not. We repeat these steps 1,000 times for each case to obtain an estimate for the probability of the Condorcet Winner being elected. \emph{(Do we need to check asymptotics of sample size and iteration size?)}
+
+\begin{figure}[tb]
+	\centering
+	\includegraphics[width = .6 \textwidth]{"../output/figures/condorcet_probs"}
+	\caption{Probability of Condorcet Winner being elected, conditional on $\lambda$}
+	\label{fig:condorcet}
+\end{figure}
+
+Figure~\ref{fig:condorcet} plots the CW probability for each case under both electoral systems at a range of values for $\lambda$, as well as the average across all 160 cases(thick line). Across the entire range, RCV performs much better than plurality. This is especially true at low proportions of strategic voters, where, in the vast majority of cases, the Condorcet Winner under RCV is elected with a probability close to 1. (Note that there are some deviant cases, however, for which the probability drops to almost zero at high $\lambda$.) Under Plurality, the results exhibit a lot more variance. On average, the Condorcet Winner has a lower probability of being elected (around 80 per cent). The results under plurality are much more robust to the choice of $\lambda$. This makes sense, since we have seen earlier that the maximum proportion of voters under plurality with a positive strategic incentive is $\approx 0.2$.
+
 \subsection{Incidence of Voting Paradoxes}
 
-\begin{figure}[!h]
+Next, we examine the probability of voting paradoxes occuring in each case. For each case, we calculate the probability of a respondent wasting their vote if they are voting sincerely rather than optimally. Two major voting paradoxes that can haunt RCV are no-show (by voting for my preferred choice I make someone else better off; see no-show strategic incentive) and non-monotonicity. (\emph{Explain how we calculate these?})
+
+\begin{figure}[!htb]
 	\centering
 	\includegraphics[width = .6 \textwidth]{"../output/figures/paradoxes_cses"}
-	\caption{Probability of voting paradoxes under RCV over probability of wasted vote under plurality. Left panel: NSW. Right panel: CSES}
+	\caption{Probability of voting paradoxes under RCV over probability of wasted vote under plurality.}
 	\label{fig:paradox}
 \end{figure}
 
-Figure~\ref{fig:paradox} plots the probability of different voting paradoxes under RCV over the probability of wasting one's vote under plurality. This is conditional on $s = 85$. In both cases, there is a higher chance of the non-monotonicity paradox occuring than there is of the the no-show paradox occuring. However, in either situation this is overshadowed by the much higher probablity of casting a wasted vote under plurality: the entire sample fits to the right of the 45-degree line. What this suggests is that, no matter what the strategic voting incentives, RCV is much better at avoiding tricky electoral situations.
+Figure~\ref{fig:paradox} plots the probability of different voting paradoxes under RCV over the probability of wasting one's vote under plurality, conditional on $s = 85$. Conditional on RCV being the electoral system, there is a higher chance of the non-monotonicity paradox occuring than there is of the the no-show paradox occuring. However, in either situation this is overshadowed by the much higher probablity of casting a wasted vote under plurality: the entire sample fits to the right of the 45-degree line. What this suggests is that, no matter what the strategic voting incentives, RCV is much better at avoiding the incidence of voting paradoxes that we find objectionable or unfair.
 
-\textit{(Need to check why in the Australian case Pr(Wasted Vote) begins at $\approx 0.2$)}
-
-Also note that the LOESS in the Australian case probably suffers from overfitting - one or two observations towards the high end of Pr(Wasted Vote) pull the non-mon curve downwards.
 
 \subsection{Interdependence} \label{interdep}
+
+Finally, we check how robust the strategic incentives are to changes in others' strategic behaviour. Under plurality, these incentives should for the most part be complementary: when others decide to vote strategically, too, this should not affect my incentives negatively (quite the contrary). This is because the dominant incentive under Plurality is that of 3rd-party voters abandoning their sincere preference and flocking to one of the two viable candidates instead. The greater $\lambda$, the more support will the third candidate lose, and the greater does the incentive to abandon her altogether become.
+
+Under RCV, in contrast, this is not true. Some of the incentives are strategic complements, or have non-monotonic properties. Under strong pushover, voters strategically put their last preference first on the ballot to elect their first preference. Now, if everyone were to follow through on this incentive, the third preference would end up being the one elected. Thus, we would expect strategic coordination under RCV to be far more complicated and costly.
+
+Empirically, we vary the proportion of strategic Level-1 voters ($\lambda$) and check the strategic incentives for each voter in each case if they were the only Level-2 strategic voter.\footnote{Level 1 and Level 2 refer to the level of strategic anticipation. A Level-1 voter assumes that everyone else votes sincerely; a Level-2 voter assumes that voters either vote sincerely or are Level-1, and makes their optimal choice based on that.}
+
+\textbf{Simulation set-up}. Summarise how exactly the simulation is run. In contrast to the Condorcet Winner simulation, we don't randomise the voters who are Level-1; instead, we assume that the Level-1 strategicness is uniformly distributed across all voters (need to elaborate...)
+
+\textbf{Results.} 
+
+Figure~\ref{fig:interdep_l0} shows the proportion of the electorate for which their level-2 strategic vote is different from their sincere vote (under both RCV and Plurality). We see that the proportion is slightly higher under RCV at low levels of $\lambda$, and is then roughly equal at higher levels (in the aggregate, at least). The proportion is close to 0.2, which, for Plurality, again, can be explained theoretically: the proportion corresponds to the proportion of Level-1 positive strategic incentives (i.e., third-party voters who should stop wasting their vote). This is further supported by Figure~\ref{fig:interdep_l1}, where we see that very few voters under Plurality experience a difference between their Level-1 and Level-2 strategic vote.
+
+Things look a little bit different for RCV. The initial drop in Figure~\ref{fig:interdep_l0} could be attributed to the aforementioned strategic complementarity of some incentives - as others act on them, my own incentive disappears lest I accidentally push the least-favoured candidate into office. Similarly, in Figure~\ref{fig:interdep_l1}, we see the proportion of voters with a difference between their optimal Level-1 and Level-2 rise with higher $\lambda$. Again, this may be because the people who face a Level-1 positive strategic incentive (thinking they are the only ones who vote strategically) may realise that, if others do so too, their incentive changes once again.
+
+\emph{Think about whether all this can be explained graphically with an example.}
 
 \begin{figure}[!h]
 	\centering
 	\includegraphics[width = .6 \textwidth]{"../output/figures/cses_l0"}
-	\caption{Proportion of voters whose Level-2 strategic vote differs from their sincere vote, conditional on proportion of Level 2 strategic voters in population ($\lambda$). Left panel: NSW. Right panel: CSES.}
-	\label{fig:figure1}
+	\caption{Proportion of voters whose Level-2 strategic vote differs from their sincere vote, conditional on proportion of Level 2 strategic voters in population ($\lambda$). }
+	\label{fig:interdep_l0}
 \end{figure}
 
 \begin{figure}[!h]
 	\centering
 	\includegraphics[width = .6 \textwidth]{"../output/figures/cses_l1"}
-	\caption{Proportion of voters whose Level-2 strategic vote differs from their Level-1 strategic vote, conditional on proportion of Level 2 strategic voters in population ($\lambda$). Left panel: NSW. Right panel: CSES.}
-	\label{fig:figure1}
+	\caption{Proportion of voters whose Level-2 strategic vote differs from their Level-1 strategic vote, conditional on proportion of Level 2 strategic voters in population ($\lambda$). }
+	\label{fig:interdep_l1}
 \end{figure}
 
-Need to provide interpretation still.
-
-\subsection{Condorcet Winner}
-
 \section{Conclusion}
+
+Three main parts in results:
+
+\begin{enumerate}
+\item We show that we can classify most cases based on attractor/repellor pattern, and that this classification is a reasonable (if not perfect) predictor for the types of strategic incentives that we observe in real-world cases.
+\item We show that across the likely real-world cases, there exist two main aggregate patterns: either there is a slightly bigger incentive to vote strategically under plurality, or strategic voting is much more useful under RCV (two clusters of lines in QQ-Plots, for example). Our previous way of summary was to say: (a) strategic incentives are slightly more prevalent under RCV, but they are also smaller in magnitude (looking at $\tau$)
+\item Finally, we look at the macro-level and at how good each electoral system is at dealing with voting paradoxes and interdependence. Here, we find RCV to be better performing, too. (Another theory for why strategic voting in RCV is not really a thing, based off these results, is that coordination problems are large: incentives flip quickly as $\lambda$ rises.)
+\end{enumerate}
 
 \end{document}
