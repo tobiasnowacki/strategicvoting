@@ -304,7 +304,7 @@ ggsave(here("../output/figures/cses_qq.pdf"), cses_qq, width = 9, height = 6)
   ggplot(cw_df, aes(variable, value)) +
     geom_line(aes(group = interaction(case, type), colour = type), alpha = 0.2) +
     geom_line(data = cw_df_agg, aes(group = type, colour = type), lwd = 2) +
-    labs(x = "lambda", y = "Pr(Condorcet Winner NOT elected)") +
+    labs(x = "lambda", y = "Pr(Condorcet Winner elected)") +
     theme_bw()
   ggsave(here("../output/figures/condorcet_probs.pdf"), width = 6, height = 6)  
   
