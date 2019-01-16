@@ -226,7 +226,7 @@ cses_inc_type <- ggplot(prop_df[prop_df$s == 85, ], aes(x = inc_plur, y = inc_rc
   scale_y_continuous(limits = c(0, 0.7), expand = c(0, 0)) +
   labs(x = "Proportion of CSES respondents with positive SI under Plurality",
        y = "Proportion of CSES respondents with positive SI under RCV")
-ggsave(here("..output/figures/cses_prop_type.pdf"), cses_inc_type, width = 9, height = 6)
+ggsave(here("../output/figures/cses_prop_type.pdf"), cses_inc_type, width = 9, height = 6)
 
 
 # Check proportions
