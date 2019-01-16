@@ -109,6 +109,9 @@ ggplot(second_prefs, aes(mAB, mCB)) +
   geom_point() +
   geom_smooth(method = "loess")
   theme_bw()
+
+# Get classification 
+class_vec <- apply(v_vec_df, 1, classify.vec)
   
 # How else to summarise? Fit line (mAB/mCB) and describe cases by residuals.
 
@@ -167,6 +170,7 @@ for(i in 1:length(sv_list)){
   prop_list[[i]] <- sv_prop(sv_list[[i]], big_list_na_omit[[i]]$weights)
   df <- as.data.frame(prop_list[[i]])
   df$case <- as.character(names(big_list_na_omit)[[i]])
+  df$class <- class_vec[i]
   df$s <- as.numeric(s_list)
   n <- apply(df[, 1:3], 1, function(x) sum(x))
   df[, 1:5] <- df[, 1:5] / sum(big_list_na_omit[[i]]$weights)
@@ -174,7 +178,7 @@ for(i in 1:length(sv_list)){
 }
 prop_df <- do.call(rbind, prop_list)
 names(prop_df)[1:5] <- c("rcv_first", "rcv_second", "rcv_third", "plur_first", "plur_second")
-prop_df_long <- melt(prop_df[, c(2, 3, 5, 6, 7)], id.vars = c("case", "s"))
+prop_df_long <- melt(prop_df[, c(2, 3, 5, 6, 7, 8)], id.vars = c("case", "s", "class"))
 prop_df_agg <- as.data.frame(prop_df_long %>% 
                                group_by(variable, s) %>% 
                                summarize(mean(value)))
@@ -198,8 +202,12 @@ ggsave(here("../output/figures/cses_freq.pdf"), cses_prop, height = 5, width = 4
 prop_df$inc_rcv <- prop_df$rcv_second + prop_df$rcv_third
 prop_df$inc_plur <- prop_df$plur_second
 
+prop_df$type <- NA
+prop_df$type[grep("DM", prop_df$class)] <- "DM"
+prop_df$type[grep("SP", prop_df$class)] <- "SP"
+
 cses_inc <- ggplot(prop_df, aes(x = inc_plur, y = inc_rcv)) +
-  geom_point(alpha = 0.1) +
+  geom_point(alpha = 0.2) +
   geom_abline(slope = 1, intercept = 0) + 
   facet_wrap(~ s, ncol = 4) +
   theme_bw() +
@@ -209,12 +217,25 @@ cses_inc <- ggplot(prop_df, aes(x = inc_plur, y = inc_rcv)) +
        y = "Proportion of CSES respondents with positive SI under RCV")
 ggsave(here("../output/figures/cses_prop.pdf"), cses_inc, width = 9, height = 6)
 
+cses_inc_type <- ggplot(prop_df[prop_df$s == 85, ], aes(x = inc_plur, y = inc_rcv)) +
+  geom_point(alpha = 0.5) +
+  geom_abline(slope = 1, intercept = 0) + 
+  facet_wrap(~ class, ncol = 4) +
+  theme_bw() +
+  scale_x_continuous(limits = c(0, 0.7), expand = c(0, 0)) +
+  scale_y_continuous(limits = c(0, 0.7), expand = c(0, 0)) +
+  labs(x = "Proportion of CSES respondents with positive SI under Plurality",
+       y = "Proportion of CSES respondents with positive SI under RCV")
+ggsave(here("..output/figures/cses_prop_type.pdf"), cses_inc_type, width = 9, height = 6)
+
+
 # Check proportions
 rcv_big <- sapply(s_list, function(x) 
   sum(prop_df$inc_rcv[prop_df$s == x] > prop_df$inc_plur[prop_df$s == x]))
 rcv_big
 160 - rcv_big
 rcv_big/ 160
+
 
 # Check alternative method of computing incentive proportions
 # sv_prop_alt <- function(tau_obj, weights, s = 60){
@@ -278,7 +299,7 @@ ggsave(here("../output/figures/cses_qq.pdf"), cses_qq, width = 9, height = 6)
     print(i)
     v_zero <- gen_v_zero(sv_list[[i]]$sin_rcv[sv_list[[i]]$s == 85])
     v_opt_rcv <- gen_v_zero(sv_list[[i]]$opt_rcv[sv_list[[i]]$s == 85])[[1]]
-    v_opt_plur <- gen_v_zero(sv_list[[i]]$opt_plur[sv_list[[i]]$s == 85])[[2]]
+    v_opt_plur <- gen_v_zero_plur(sv_list[[i]]$opt_plur[sv_list[[i]]$s == 85])
     cw_win_rcv[[i]] <- evaluate_success_of_CW_given_U_and_V.mat(U = big_list_na_omit[[i]]$U, V.mat = v_opt_rcv, V0 = v_zero[[1]], lambdas = c(.1, .2, .3, .4, .5), big_list_na_omit[[i]]$weights, rule = "AV", m = 300, M = 1000)
     cw_win_plur[[i]] <- evaluate_success_of_CW_given_U_and_V.mat(U = big_list_na_omit[[i]]$U, V.mat = v_opt_plur, V0 = v_zero[[2]], lambdas = c(.1, .2, .3, .4, .5), big_list_na_omit[[i]]$weights, rule = "plurality", m = 300, M = 1000)
   }

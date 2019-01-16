@@ -525,6 +525,7 @@ classify.vec = function(v.vec, the.floor = .6, neutral.max = .1){
 # Functions for Condorcet winner
 
 gen_v_zero <- function(sin_rcv){
+# takes RCV (6 factors) vector as input
   v_zero_mat_rcv <- matrix(0, nrow = length(sin_rcv), ncol = 6)
   v_zero_mat_plur <- matrix(0, nrow = length(sin_rcv), ncol = 3)
   sin_plur <- sin_vote_plur_transform(sin_rcv)
@@ -533,4 +534,13 @@ gen_v_zero <- function(sin_rcv){
     v_zero_mat_plur[i, sin_plur[i]] <- 1
   }
   return(list(v_zero_mat_rcv, v_zero_mat_plur))
+}
+
+gen_v_zero_plur <- function(sin_plur){
+# Takes plurality vector (3 factors) as input
+	v_zero_mat_plur <- matrix(0, nrow = length(sin_plur), ncol = 3)
+	for(i in 1:length(sin_plur)){
+		v_zero_mat_plur[i, sin_plur[i]] <- 1
+	}
+	return(v_zero_mat_plur)
 }
