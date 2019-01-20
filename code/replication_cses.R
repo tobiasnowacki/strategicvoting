@@ -6,7 +6,7 @@
 ## Author:
 ##################################################
 
-### 
+###
 ### Dependencies
 ###
 
@@ -36,6 +36,9 @@ library(dplyr)
 library(purrr)
 library(tidyr)
 library(ggtern)
+library(lmtest)
+library(sandwich)
+library(plm)
 
 # Load CSES data:
 load(here("../output/cses_big_list_2.RData"))
@@ -76,6 +79,9 @@ names(big_list)[[145]]
 big_list_na_omit[[39]] <- NULL
 big_list_na_omit[[144]] <- NULL
 
+# Import VAP data
+vap <- read.csv(here("../data/case_vap.csv"), sep = "")
+
 # Loop that creates the tau objects
 # uses my own function -- see below for faster implementation
 # sv_list <- list()
@@ -107,12 +113,12 @@ second_prefs <- data.frame(mAB = v_vec_df[, 1] / (v_vec_df[, 1] + v_vec_df[, 2])
 
 ggplot(second_prefs, aes(mAB, mCB)) +
   geom_point() +
-  geom_smooth(method = "loess")
+  geom_smooth(method = "loess") +
   theme_bw()
 
-# Get classification 
+# Get classification
 class_vec <- apply(v_vec_df, 1, classify.vec)
-  
+
 # How else to summarise? Fit line (mAB/mCB) and describe cases by residuals.
 
 ###
@@ -127,6 +133,12 @@ for(i in 1:length(big_list_na_omit)){
   df_list <- lapply(s_list, function(x) convert_andy_to_sv_item_two(this_list$U, this_list$weights, x, this_list$v_vec))
   df <- as.data.frame(do.call(rbind, df_list))
   df$case <- names(big_list_na_omit)[[i]]
+  df$weight <- big_list_na_omit[[i]]$weights
+  df$country <- substr(df$case, 1, 3)
+  df$weight_sum <- sum(big_list_na_omit[[i]]$weights)
+  df$VAP <- vap$VAP[vap$cntry == df$country[1]]
+  df$m <- vap$Freq[vap$cntry == df$country[1]]
+  df$weight_rep <- df$weight * (df$VAP / (df$weight_sum * df$m))
   #df <- apply(df, 2, as.numeric)
   sv_list[[i]] <- df
 }
@@ -137,7 +149,7 @@ for(i in 1:length(big_list_na_omit)){
 # test_toby <- return_sv_tau(c(big_list_na_omit[[109]]$v_vec, 0, 0, 0), big_list_na_omit[[109]]$U, list(60))
 # test_andy <- sv(U = big_list_na_omit[[109]]$U, weights = big_list_na_omit[[109]]$weights, s = 60, rule = "AV")
 # # OK, what I need to do is to run the entire loop with Andy's function and check the entire DF for discrepancies.
-# 
+#
 # andy_list <- list()
 # andy_list_prop <- list()
 # for(i in 1:length(big_list)){
@@ -147,19 +159,21 @@ for(i in 1:length(big_list_na_omit)){
 #   sv_obj_plur <- sv(U = this_list$U, weights = this_list$weights, s = 60)
 #   andy_list[[i]] <- sv_obj
 #   prop_av <- sum(sv_obj$weights[!is.na(sv_obj$tau) & sv_obj$tau > 0]) / sum(sv_obj$weights[!is.na(sv_obj$tau)])
-#   prop_plur <- sum(sv_obj_plur$weights[!is.na(sv_obj_plur$tau) & sv_obj_plur$tau > 0]) / sum(sv_obj_plur$weights[!is.na(sv_obj$tau)]) 
+#   prop_plur <- sum(sv_obj_plur$weights[!is.na(sv_obj_plur$tau) & sv_obj_plur$tau > 0]) / sum(sv_obj_plur$weights[!is.na(sv_obj$tau)])
 #   andy_list_prop[[i]] <- c(prop_av, prop_plur)
 # }
-# 
+#
 # andy_list_prop_df <- do.call(rbind, andy_list_prop)
-# 
+#
 # # compare:
 # andy_list_prop_df == prop_df[prop_df$s == 60, c(8, 9)]
 
 ####
 
 # save(file = here("../output/sv_list.Rdata"), sv_list)
-load(here("../output/sv_list.Rdata"))
+# load(here("../output/sv_list.Rdata"))
+
+# names(big_list)
 
 ## Additional analysis off the sv_obj cases
 
@@ -179,22 +193,22 @@ for(i in 1:length(sv_list)){
 prop_df <- do.call(rbind, prop_list)
 names(prop_df)[1:5] <- c("rcv_first", "rcv_second", "rcv_third", "plur_first", "plur_second")
 prop_df_long <- melt(prop_df[, c(2, 3, 5, 6, 7, 8)], id.vars = c("case", "s", "class"))
-prop_df_agg <- as.data.frame(prop_df_long %>% 
-                               group_by(variable, s) %>% 
+prop_df_agg <- as.data.frame(prop_df_long %>%
+                               group_by(variable, s) %>%
                                summarize(mean(value)))
 names(prop_df_agg)[3] <- "value"
 
 cses_prop <- ggplot(prop_df_long, aes(x = s, y = value)) +
   geom_line(aes(colour = variable, group = interaction(case, variable)), alpha = 0.05) +
   geom_line(data = prop_df_agg, aes(colour = variable, group = variable, x = s, y = value),
-            size = 2) + 
-  labs(x = "Information (s)", 
+            size = 2) +
+  labs(x = "Information (s)",
        y = "Proportion of voters in CSES (case) casting ballot type",
        colour = "Ballot order") +
   theme_bw() +
-  # scale_color_manual(values = c("lime green", "blue", "red")) + 
+  # scale_color_manual(values = c("lime green", "blue", "red")) +
   scale_x_continuous(expand = c(0, 0)) +
-  scale_y_continuous(expand = c(0.1, 0), limits = c(0, 0.5)) + 
+  scale_y_continuous(expand = c(0.1, 0), limits = c(0, 0.5)) +
   theme(legend.position = "bottom", legend.direction = "vertical")
 ggsave(here("../output/figures/cses_freq.pdf"), cses_prop, height = 5, width = 4)
 
@@ -208,7 +222,7 @@ prop_df$type[grep("SP", prop_df$class)] <- "SP"
 
 cses_inc <- ggplot(prop_df, aes(x = inc_plur, y = inc_rcv)) +
   geom_point(alpha = 0.2) +
-  geom_abline(slope = 1, intercept = 0) + 
+  geom_abline(slope = 1, intercept = 0) +
   facet_wrap(~ s, ncol = 4) +
   theme_bw() +
   scale_x_continuous(limits = c(0, 0.7), expand = c(0, 0)) +
@@ -219,7 +233,7 @@ ggsave(here("../output/figures/cses_prop.pdf"), cses_inc, width = 9, height = 6)
 
 cses_inc_type <- ggplot(prop_df[prop_df$s == 85, ], aes(x = inc_plur, y = inc_rcv)) +
   geom_point(alpha = 0.5) +
-  geom_abline(slope = 1, intercept = 0) + 
+  geom_abline(slope = 1, intercept = 0) +
   facet_wrap(~ class, ncol = 4) +
   theme_bw() +
   scale_x_continuous(limits = c(0, 0.7), expand = c(0, 0)) +
@@ -230,12 +244,74 @@ ggsave(here("../output/figures/cses_prop_type.pdf"), cses_inc_type, width = 9, h
 
 
 # Check proportions
-rcv_big <- sapply(s_list, function(x) 
+rcv_big <- sapply(s_list, function(x)
   sum(prop_df$inc_rcv[prop_df$s == x] > prop_df$inc_plur[prop_df$s == x]))
 rcv_big
 160 - rcv_big
 rcv_big/ 160
 
+
+# 2(b) Produce key figure.
+
+
+# Assemble DF (from all lists)
+big_sv_df <- do.call(rbind, sv_list)
+big_sv_df <- big_sv_df[big_sv_df$s == 85, ]
+
+tau_df <- big_sv_df[, c(3, 4, 8, 14)]
+tau_df$respondent <- 1:nrow(tau_df)
+tau_df <- gather(tau_df, type, tau, 1:2)
+# Strictly speaking redunant since we could use factor variable
+tau_df$system <- 0
+tau_df$system[tau_df$type == "tau_rcv"] <- 1
+
+epsilon <- 0.01
+tau_df$above_epsilon <- tau_df$tau > epsilon 
+
+mod1 <- lm("above_epsilon ~ system", data = tau_df, weights = tau_df$weight_rep)
+vcov <- vcovHC(mod1, type = "HC0", cluster = "respondent")
+x <- coeftest(mod1, vcov = vcov)
+
+rcv_diff <- function(tau_df, epsilon){
+  tau_df$above_epsilon <- tau_df$tau > epsilon 
+  model <- lm("above_epsilon ~ system", data = tau_df, weights = tau_df$weight_rep)
+  result <- coeftest(model, vcov = vcovHC(mod1, type = "HC0", cluster = "respondent"))
+  return(c(result[1, 1], result[1, 2], result[2, 1], result[2, 2]))
+}
+
+epsilon_list <- list(0.00000001, 0.0000001, 0.000001, 0.00001, 0.0001, 0.0005, 0.001, 0.01, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1, 1.5, 2)
+epsilon_results <- t(sapply(epsilon_list, function(x) rcv_diff(tau_df, x)))
+epsilon_results <- as.data.frame(epsilon_results)
+names(epsilon_results) <- c("beta_zero", "se_zero", "beta_one", "se_one")
+epsilon_results$epsilon <- unlist(epsilon_list)
+
+epsilon_true_scale <- ggplot(epsilon_results, aes(x = epsilon, y = beta_one)) +
+  geom_point() +
+  geom_errorbar(aes(ymin = beta_one - 1.96 * se_one, ymax = beta_one + 1.96 * se_one)) +
+  geom_hline(yintercept = 0, lty = "dotted") +
+  theme_bw() +
+  theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank()) +
+  labs(x = expression(epsilon), y = expression(paste(beta[1], ": Difference in proportion of ", tau > epsilon, " between RCV and Plurality")))
+ggsave("../output/figures/epsilon_true_scale.pdf", epsilon_true_scale)
+
+epsilon_factor_scale <- ggplot(epsilon_results, aes(x = as.factor(epsilon), y = beta_one)) +
+  geom_point() +
+  geom_errorbar(aes(ymin = beta_one - 1.96 * se_one, ymax = beta_one + 1.96 * se_one)) +
+  geom_hline(yintercept = 0, lty = "dotted") +
+  theme_bw() +
+  theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank()) +
+  labs(x = expression(epsilon), y = expression(paste(beta[1], ": Difference in proportion of ", tau > epsilon, " between RCV and Plurality")))
+ggsave("../output/figures/epsilon_factor_scale.pdf", epsilon_factor_scale)
+
+epsilon_proportions <- ggplot(epsilon_results, aes(x = epsilon)) +
+  geom_line(aes(y = beta_zero)) + 
+  geom_line(aes(y = beta_zero + beta_one), lty = "dotted") +
+  theme_bw() +
+  theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank()) +
+  labs(x = expression(epsilon), y = expression(paste("Proportion of voters with ", tau > epsilon)))
+ggsave("../output/figures/epsilon_proportions.pdf", epsilon_proportions)
+
+# Run regression
 
 # Check alternative method of computing incentive proportions
 # sv_prop_alt <- function(tau_obj, weights, s = 60){
@@ -244,7 +320,7 @@ rcv_big/ 160
 #   inc_plur <- sum(weights[tau_obj$tau_plur > 0]) / sum(weights)
 #   return(c(inc_rcv, inc_plur))
 # }
-# 
+#
 # prop_list_alt <- list()
 # for(i in 1:length(sv_list)){
 #   prop_list_alt[[i]] <- sv_prop_alt(sv_list[[i]], big_list_na_omit[[i]]$weights, 60)
@@ -252,7 +328,7 @@ rcv_big/ 160
 # prop_df_alt <- as.data.frame(do.call(rbind, prop_list_alt))
 # ggplot(prop_df_alt, aes(V2, V1)) +
 #   geom_point() +
-#   geom_abline(slope = 1, intercept = 0) + 
+#   geom_abline(slope = 1, intercept = 0) +
 #   theme_bw() +
 #   scale_x_continuous(limits = c(0, 0.7), expand = c(0, 0)) +
 #   scale_y_continuous(limits = c(0, 0.7), expand = c(0, 0))
@@ -280,9 +356,9 @@ qq_agg <- lapply(as.list(names(qq_mega_by_s)), function(s) {
 qq_agg_df <- as.data.frame(do.call(rbind, qq_agg))
 cses_qq <- ggplot(qq_mega_df, aes(x = x, y = y)) +
   geom_line(aes(x = x, y = y, group = case), alpha = 0.1) +
-  geom_line(data = qq_agg_df, aes(x = x, y = y), colour = "red", lwd = 2) + 
+  geom_line(data = qq_agg_df, aes(x = x, y = y), colour = "red", lwd = 2) +
   geom_abline(intercept = 0, slope = 1, linetype = "dotted", colour = "blue") +
-  theme_bw()  + 
+  theme_bw()  +
   facet_wrap(vars(s), ncol= 4) +
   xlim(-30, 30) + ylim(-30, 30)
 ggsave(here("../output/figures/cses_qq.pdf"), cses_qq, width = 9, height = 6)
@@ -294,7 +370,7 @@ ggsave(here("../output/figures/cses_qq.pdf"), cses_qq, width = 9, height = 6)
   # Calculate
   cw_win_rcv <- list()
   cw_win_plur <- list()
-  
+
   for(i in 1:length(sv_list)){
     print(i)
     v_zero <- gen_v_zero(sv_list[[i]]$sin_rcv[sv_list[[i]]$s == 85])
@@ -303,7 +379,7 @@ ggsave(here("../output/figures/cses_qq.pdf"), cses_qq, width = 9, height = 6)
     cw_win_rcv[[i]] <- evaluate_success_of_CW_given_U_and_V.mat(U = big_list_na_omit[[i]]$U, V.mat = v_opt_rcv, V0 = v_zero[[1]], lambdas = c(.1, .2, .3, .4, .5), big_list_na_omit[[i]]$weights, rule = "AV", m = 300, M = 1000)
     cw_win_plur[[i]] <- evaluate_success_of_CW_given_U_and_V.mat(U = big_list_na_omit[[i]]$U, V.mat = v_opt_plur, V0 = v_zero[[2]], lambdas = c(.1, .2, .3, .4, .5), big_list_na_omit[[i]]$weights, rule = "plurality", m = 300, M = 1000)
   }
-  
+
   # Plot
   cw_df_rcv <- as.data.frame(do.call(rbind, cw_win_rcv))
   cw_df_plur <- as.data.frame(do.call(rbind, cw_win_plur))
@@ -312,13 +388,13 @@ ggsave(here("../output/figures/cses_qq.pdf"), cses_qq, width = 9, height = 6)
   cw_df_plur$case <- names(big_list_na_omit)
   names(cw_df_rcv)[1:5] <- c("0.1", "0.2", "0.3", "0.4", "0.5")
   names(cw_df_plur)[1:5] <- c("0.1", "0.2", "0.3", "0.4", "0.5")
-  
+
   cw_df_rcv <- melt(cw_df_rcv, 6)
   cw_df_rcv$type <- "RCV"
   cw_df_plur <- melt(cw_df_plur, 6)
   cw_df_plur$type <- "Plurality"
   cw_df <- rbind(cw_df_rcv, cw_df_plur)
-  
+
   cw_df_agg <- cw_df %>% group_by(type, variable) %>% summarise(mean(value))
   names(cw_df_agg)[3] <- "value"
 
@@ -327,8 +403,8 @@ ggsave(here("../output/figures/cses_qq.pdf"), cses_qq, width = 9, height = 6)
     geom_line(data = cw_df_agg, aes(group = type, colour = type), lwd = 2) +
     labs(x = "lambda", y = "Pr(Condorcet Winner elected)") +
     theme_bw()
-  ggsave(here("../output/figures/condorcet_probs.pdf"), width = 6, height = 6)  
-  
+  ggsave(here("../output/figures/condorcet_probs.pdf"), width = 6, height = 6)
+
 # Incidence of voting paradoxes
 
 s <- 85 # Set level at which to evaluate
@@ -342,7 +418,7 @@ for(i in 1:length(big_list_na_omit)){
   v_vec_plur <- c(v_vec[1] + v_vec[2], v_vec[3] + v_vec[4], v_vec[5] + v_vec[6])
   pprobs_plur <- plurality.pivotal.probabilities(v_vec_plur, s)
   par_plur <- wasted_vote(sv_list[[i]][sv_list[[i]]$s == s, ], pprobs_plur, big_list_na_omit[[i]]$weights)
-  
+
   no_show <- par_rcv$no_show / par_rcv$total
   nonmon <- (par_rcv$nonmon1 + par_rcv$nonmon2) / par_rcv$total
   wasted <- par_plur$wasted / par_plur$total
