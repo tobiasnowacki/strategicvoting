@@ -258,24 +258,24 @@ rcv_big/ 160
 big_sv_df <- do.call(rbind, sv_list)
 big_sv_df <- big_sv_df[big_sv_df$s == 85, ]
 
-tau_df <- big_sv_df[, c(3, 4, 8, 14)]
+tau_df <- big_sv_df[, c(3, 4, 10, 16)] # Needs fixing since tilde columns added
 tau_df$respondent <- 1:nrow(tau_df)
 tau_df <- gather(tau_df, type, tau, 1:2)
 # Strictly speaking redunant since we could use factor variable
 tau_df$system <- 0
 tau_df$system[tau_df$type == "tau_rcv"] <- 1
 
-epsilon <- 0.01
-tau_df$above_epsilon <- tau_df$tau > epsilon 
+# epsilon <- 0.01
+# tau_df$above_epsilon <- tau_df$tau > epsilon 
 
-mod1 <- lm("above_epsilon ~ system", data = tau_df, weights = tau_df$weight_rep)
-vcov <- vcovHC(mod1, type = "HC0", cluster = "respondent")
-x <- coeftest(mod1, vcov = vcov)
+# mod1 <- lm("above_epsilon ~ system", data = tau_df, weights = tau_df$weight_rep)
+# vcov <- vcovHC(mod1, type = "HC0", cluster = "respondent")
+# x <- coeftest(mod1, vcov = vcov)
 
 rcv_diff <- function(tau_df, epsilon){
   tau_df$above_epsilon <- tau_df$tau > epsilon 
   model <- lm("above_epsilon ~ system", data = tau_df, weights = tau_df$weight_rep)
-  result <- coeftest(model, vcov = vcovHC(mod1, type = "HC0", cluster = "respondent"))
+  result <- coeftest(model, vcov = vcovHC(model, type = "HC0", cluster = "respondent"))
   return(c(result[1, 1], result[1, 2], result[2, 1], result[2, 2]))
 }
 
@@ -292,7 +292,7 @@ epsilon_true_scale <- ggplot(epsilon_results, aes(x = epsilon, y = beta_one)) +
   theme_bw() +
   theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank()) +
   labs(x = expression(epsilon), y = expression(paste(beta[1], ": Difference in proportion of ", tau > epsilon, " between RCV and Plurality")))
-ggsave("../output/figures/epsilon_true_scale.pdf", epsilon_true_scale)
+ggsave("../output/figures/epsilon_true_scale.pdf", epsilon_true_scale, width = 6, height = 4)
 
 epsilon_factor_scale <- ggplot(epsilon_results, aes(x = as.factor(epsilon), y = beta_one)) +
   geom_point() +
@@ -301,7 +301,7 @@ epsilon_factor_scale <- ggplot(epsilon_results, aes(x = as.factor(epsilon), y = 
   theme_bw() +
   theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank()) +
   labs(x = expression(epsilon), y = expression(paste(beta[1], ": Difference in proportion of ", tau > epsilon, " between RCV and Plurality")))
-ggsave("../output/figures/epsilon_factor_scale.pdf", epsilon_factor_scale)
+ggsave("../output/figures/epsilon_factor_scale.pdf", epsilon_factor_scale, width = 6, height = 4)
 
 epsilon_proportions <- ggplot(epsilon_results, aes(x = epsilon)) +
   geom_line(aes(y = beta_zero)) + 
@@ -309,7 +309,43 @@ epsilon_proportions <- ggplot(epsilon_results, aes(x = epsilon)) +
   theme_bw() +
   theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank()) +
   labs(x = expression(epsilon), y = expression(paste("Proportion of voters with ", tau > epsilon)))
-ggsave("../output/figures/epsilon_proportions.pdf", epsilon_proportions)
+ggsave("../output/figures/epsilon_proportions.pdf", epsilon_proportions, width = 6, height = 4)
+
+## Do the same with tau tilde.
+
+tau_tilde_df <- big_sv_df %>% select(tau_tilde_rcv, tau_tilde_plur, case, weight_rep)
+tau_tilde_df$respondent <- 1:nrow(tau_tilde_df)
+tau_tilde_df <- gather(tau_df, type, tau, 1:2)
+# Strictly speaking redunant since we could use factor variable
+tau_tilde_df$system <- 0
+tau_tilde_df$system[tau_tilde_df$type == "tau_tilde_rcv"] <- 1
+
+epsilon_tilde_results <- t(sapply(epsilon_list, function(x) rcv_diff(tau_tilde_df, x)))
+epsilon_tilde_results <- as.data.frame(epsilon_tilde_results)
+names(epsilon_tilde_results) <- c("beta_zero", "se_zero", "beta_one", "se_one")
+epsilon_tilde_results$epsilon <- unlist(epsilon_list)
+
+epsilon_tilde_true_scale <- ggplot(epsilon_tilde_results, aes(x = epsilon, y = beta_one)) +
+  geom_point() +
+  geom_errorbar(aes(ymin = beta_one - 1.96 * se_one, ymax = beta_one + 1.96 * se_one)) +
+  geom_hline(yintercept = 0, lty = "dotted") +
+  theme_bw() +
+  theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank()) +
+  labs(x = expression(epsilon), y = expression(paste(beta[1], ": Difference in proportion of ", tilde(tau) > epsilon, " between RCV and Plurality")))
+ggsave("../output/figures/epsilon_tilde_true_scale.pdf", epsilon_tilde_true_scale, width = 6, height = 4)
+
+epsilon_tilde_factor_scale <- ggplot(epsilon_tilde_results, aes(x = as.factor(epsilon), y = beta_one)) +
+  geom_point() +
+  geom_errorbar(aes(ymin = beta_one - 1.96 * se_one, ymax = beta_one + 1.96 * se_one)) +
+  geom_hline(yintercept = 0, lty = "dotted") +
+  theme_bw() +
+  theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank()) +
+  labs(x = expression(epsilon), y = expression(paste(beta[1], ": Difference in proportion of ", tilde(tau) > epsilon, " between RCV and Plurality")))
+ggsave("../output/figures/epsilon_tilde_factor_scale.pdf", epsilon_tilde_factor_scale, width = 6, height = 4)
+
+
+
+
 
 # Run regression
 
