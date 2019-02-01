@@ -11,26 +11,6 @@
 \usepackage{setspace}
 \usepackage{todonotes}
 
-% For sans-serif (\sffamily) captions and headings:
-	\usepackage[sf,pagestyles]{titlesec} % make section headings \sffamily
-	% make headers \sffamily
-	\newpagestyle{main}[\sffamily]{
-	    \sethead{\thepage}{}{\sectiontitle}
-	    }
-	\pagestyle{main}
-	\usepackage{titling}
-	% make titling elements \sffamily
-	\pretitle{\begin{center}\sffamily\LARGE}
-	\preauthor{\begin{center}
-	            \large\sffamily \lineskip 0.5em%
-	            \begin{tabular}[t]{c}}
-	\predate{\begin{center}\sffamily\large}
-	\usepackage{abstract}
-	% make abstract title \sffamily
-	\renewcommand\abstractnamefont{\sffamily}
-	\usepackage{caption} 
-	\captionsetup{font=sf, labelfont = bf}
-
 % Define symbols
 \DeclareRobustCommand{\bbone}{\text{\usefont{U}{bbold}{m}{n}1}}
 \DeclareMathOperator{\EX}{\mathbb{E}} % expected value
@@ -123,7 +103,7 @@ Figure~\ref{fig:sv_dist} plots all CSES cases according to their proportion of v
 	\label{fig:sv_dist}
 \end{figure}
 
-What is immediately striking in Figure~\ref{fig:sv_dist} is that the proportion under plurality seems capped at about 0.2, independent of belief precision. These cases may constitute a `worst-case' scenario for voters who have the third-placed party as their first preference: they are numerous enough to make up a fifth of the population, but still few enough that, acting optimally, they should abandon their first preference and flock to one of the two main parties instead.\footnote{Of course, this also depends on the distribution of preference intensity. A voter with the utility vector $(10, 2, 1)$ will need a much more 'hopeless' scenario than one who is almost indifferent between first and second preference (e.g., $(10, 9, 1)$).} (At expected vote shares $> 0.2$, the three parties would be reasonably close to each other and it would be better for party supporters to stick to their first preference.)
+What is immediately striking in Figure~\ref{fig:sv_dist} is that the proportion under plurality seems capped at about 0.2, independent of belief precision. These cases may constitute a `worst-case' scenario for voters who have the third-placed party as their first preference: they are numerous enough to make up a fifth of the population, but are still few enough that, acting optimally, they should abandon their first preference and flock to one of the two main parties instead.\footnote{Of course, this also depends on the distribution of preference intensity. A voter with the utility vector $(10, 2, 1)$ will need a much more 'hopeless' scenario than one who is almost indifferent between first and second preference (e.g., $(10, 9, 1)$).} (At expected vote shares $> 0.2$, the three parties would be reasonably close to each other and it would be better for party supporters to stick to their first preference.)
 
 The other notable trend in Figure~\ref{fig:sv_dist} is that as $s$ increases, the proportion of voters with positive strategic incentives under IRV rises in some, but not all cases. With reasonably precise beliefs ($s > 75$), there is a subgroup of cases that exhibits very high prevalence of strategic incentives under IRV with around (and sometimes even more than) half of the voters. Equally, there is a cluster of cases where the overall incentives under IRV do not change much, these cases remain distributed tightly along the 45-degree line. (For a summary, see Table~\ref{tab:strat_inc})
 
@@ -147,7 +127,7 @@ The other notable trend in Figure~\ref{fig:sv_dist} is that as $s$ increases, th
 	\end{tabular}
 \end{table}
 
-This result emphasises the importance of modelling realistic preferences and beliefs to check for meaningful results on strategic incentives. While we cannot conclude that the prevalence of strategic incentives under IRV will always be higher (such a claim would be theoretically impossible), we can cite this result in support of the claim that the \emph{expected} prevalence of strategic incentives will be higher under IRV (given our assumptions about likely preference profiles.)
+This result emphasises the importance of modelling realistic preferences and beliefs to check for meaningful results on strategic incentives. While we cannot conclude that the prevalence of strategic incentives under IRV will \emph{always} be higher (such a claim would be theoretically impossible), this result supports the claim that the \emph{expected} prevalence of strategic incentives will be higher under IRV (given our assumptions about likely preference profiles.)
 
 \subsection{Magnitude of Strategic Incentives}
 
@@ -168,6 +148,12 @@ One way to think about the importance of this result is to interpret $\varepsilo
 
 \subsection{Condorcet Winner}
 
+A simple way to evaluate the aggregate performance of the two electoral systems is to check how often, given the distribution of true preferences, the Condorcet Winner is elected if a proportion $\lambda$ of the population votes strategically. 
+
+To that end, we compute...
+
+Figure~\ref{fig:sv_condor} summarises the result.
+
 \begin{figure}[!h]
 	\centering
 	\includegraphics[width = .8 \textwidth]{"../output/figures/condorcet_probs"}
@@ -175,7 +161,7 @@ One way to think about the importance of this result is to interpret $\varepsilo
 	\label{fig:sv_condor}
 \end{figure}
 
-Show that the Condorcet Winner is more likely to be elected under IRV, unless we have a high proportion of $\lambda$.
+
 
 
 \section{Results: Interdependence of Strategic Behaviour}
