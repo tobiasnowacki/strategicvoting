@@ -50,7 +50,25 @@ font_import()
 fonttable()
 # font_import(paths = "~/.local/share/fonts/", prompt = F)
 
+# Specify ggplot2 theme
 
+theme_sv <- function(){
+  theme_bw(base_size=11, base_family="Roboto Light") %+replace%
+  theme(
+    panel.grid.major =  element_line(
+      colour = "grey50", 
+      size = 0.2,
+      linetype = "dotted"),
+    panel.grid.minor = element_blank(),
+    panel.background = element_rect(fill = "grey97"),
+    plot.margin = unit(c(0.2, 1, 0.2, 1), "cm"),
+    legend.margin = margin(0, 0, 0, 0),
+    legend.title = element_text(size = 10, family = "Roboto Medium", face = "bold"),
+    strip.background = element_rect(fill= NULL, colour = "white", linetype = NULL), 
+    strip.text = element_text(colour = 'grey50', size = 9, vjust = 0.5, family = "Roboto Medium")
+  )
+}
+  
 remove_nas <- function(x){
   mat <- cbind(x$U, x$weights)
   mat <- na.omit(mat)
@@ -212,25 +230,12 @@ cses_prop <- ggplot(prop_df_long, aes(x = s, y = value)) +
   labs(x = "Information (s)",
        y = "Proportion of voters in CSES (case) casting ballot type",
        colour = "Ballot order") +
-  theme_bw() +
-  theme(
-    text = element_text(family = "Roboto-Light", colour = "grey20"),
-    strip.background = element_blank(),
-    strip.text = element_text(hjust = 0),
-    panel.grid.major =  element_line(
-      colour = "grey50", 
-      size = 0.2,
-      linetype = "dotted"),
-    panel.grid.minor = element_blank(),
-    panel.background = element_rect(fill = "grey97"),
-    plot.margin = unit(c(0, 1, 0, 1), "cm"),
-    legend.margin = margin(0, 0, 0, 0),
-    legend.title = element_text(size = 10, family = "Roboto-Bold")) + 
+  theme_sv() + 
   scale_color_brewer(palette = "Set2") +
   scale_x_continuous(expand = c(0, 0)) +
   scale_y_continuous(expand = c(0.1, 0), limits = c(0, 0.5)) +
   theme(legend.position = "bottom", legend.direction = "horizontal")
-ggsave(here("../output/figures/cses_freq.pdf"), cses_prop, height = 5, width = 4)
+ggsave(here("../output/figures/cses_freq.pdf"), cses_prop, height = 4, width = 5, device = cairo_pdf)
 
 # (2) Distribution of incentives (in scatterplot)
 prop_df$inc_rcv <- prop_df$rcv_second + prop_df$rcv_third
@@ -241,26 +246,26 @@ prop_df$type[grep("DM", prop_df$class)] <- "DM"
 prop_df$type[grep("SP", prop_df$class)] <- "SP"
 
 cses_inc <- ggplot(prop_df, aes(x = inc_plur, y = inc_rcv)) +
-  geom_point(alpha = 0.2) +
+  geom_point(alpha = 0.2, color = "red") +
   geom_abline(slope = 1, intercept = 0) +
   facet_wrap(~ s, ncol = 4) +
-  theme_bw() +
-  scale_x_continuous(limits = c(0, 0.7), expand = c(0, 0)) +
-  scale_y_continuous(limits = c(0, 0.7), expand = c(0, 0)) +
-  labs(x = "Proportion of CSES respondents with positive SI under Plurality",
-       y = "Proportion of CSES respondents with positive SI under RCV")
-ggsave(here("../output/figures/cses_prop.pdf"), cses_inc, width = 9, height = 6)
+  theme_sv() +
+  scale_x_continuous(limits = c(0, 0.5), expand = c(0, 0)) +
+  scale_y_continuous(limits = c(0, 0.5), expand = c(0, 0)) +
+  labs(x = "Pr(tau_P > 0)",
+       y = "Pr(tau_I > 0)")
+ggsave(here("../output/figures/cses_prop.pdf"), cses_inc, width = 9, height = 5, device = cairo_pdf)
 
 cses_inc_type <- ggplot(prop_df[prop_df$s == 85, ], aes(x = inc_plur, y = inc_rcv)) +
   geom_point(alpha = 0.5) +
   geom_abline(slope = 1, intercept = 0) +
-  facet_wrap(~ class, ncol = 4) +
-  theme_bw() +
-  scale_x_continuous(limits = c(0, 0.7), expand = c(0, 0)) +
-  scale_y_continuous(limits = c(0, 0.7), expand = c(0, 0)) +
+  facet_wrap(~ class, ncol = 7) +
+  theme_sv() +
+  scale_x_continuous(limits = c(0, 0.5), expand = c(0, 0)) +
+  scale_y_continuous(limits = c(0, 0.5), expand = c(0, 0)) +
   labs(x = "Proportion of CSES respondents with positive SI under Plurality",
        y = "Proportion of CSES respondents with positive SI under RCV")
-ggsave(here("../output/figures/cses_prop_type.pdf"), cses_inc_type, width = 9, height = 6)
+ggsave(here("../output/figures/cses_prop_type.pdf"), cses_inc_type, width = 9, height = 5)
 
 
 # Check proportions
@@ -309,21 +314,7 @@ epsilon_true_scale <- ggplot(epsilon_results, aes(x = epsilon, y = beta_one)) +
   geom_point() +
   geom_errorbar(aes(ymin = beta_one - 1.96 * se_one, ymax = beta_one + 1.96 * se_one)) +
   geom_hline(yintercept = 0, lty = "dotted") +
-  theme_bw() +
-  theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank()) +
-  theme(
-    text = element_text(family = "Roboto-Light", colour = "grey20"),
-    strip.background = element_blank(),
-    strip.text = element_text(hjust = 0),
-    panel.grid.major =  element_line(
-      colour = "grey50", 
-      size = 0.2,
-      linetype = "dotted"),
-    panel.grid.minor = element_blank(),
-    panel.background = element_rect(fill = "grey97"),
-    plot.margin = unit(c(0.2, 1, 0.2, 1), "cm"),
-    legend.margin = margin(0, 0, 0, 0),
-    legend.title = element_text(size = 10, family = "Roboto-Bold")) + 
+  theme_sv() + 
   labs(x = expression(epsilon), y = expression(paste(beta[1], ": Difference in proportion of ", tau > epsilon, " between RCV and Plurality")))
 ggsave("../output/figures/epsilon_true_scale.pdf", epsilon_true_scale, width = 6, height = 4)
 
@@ -331,10 +322,9 @@ epsilon_factor_scale <- ggplot(epsilon_results, aes(x = as.factor(epsilon), y = 
   geom_point() +
   geom_errorbar(aes(ymin = beta_one - 1.96 * se_one, ymax = beta_one + 1.96 * se_one)) +
   geom_hline(yintercept = 0, lty = "dotted") +
-  theme_bw() +
-  theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank()) +
+  theme_sv()+
   labs(x = expression(epsilon), y = expression(paste(beta[1], ": Difference in proportion of ", tau > epsilon, " between RCV and Plurality")))
-ggsave("../output/figures/epsilon_factor_scale.pdf", epsilon_factor_scale, width = 6, height = 4)
+ggsave("../output/figures/epsilon_factor_scale.pdf", epsilon_factor_scale, width = 6, height = 4, device = cairo_pdf)
 
 epsilon_proportions <- ggplot(epsilon_results, aes(x = epsilon)) +
   geom_line(aes(y = beta_zero)) + 
@@ -385,7 +375,7 @@ names(summary_df_rcv) <- c("case", "mag", "prop", "sd", "size")
 summary_df_plur <- summary_df[, c(1, 3, 5, 7, 8)]
 names(summary_df_plur) <- c("case", "mag", "prop", "sd", "size")
 summary_df <- rbind(summary_df_rcv, summary_df_plur)
-summary_df$type <- rep(c("IRV", "Plurality"), each = 160)
+summary_df$type <- rep(c("rcv", "Plurality"), each = 160)
 
 summary_plot <- ggplot(summary_df, aes(prop, mag)) +
   geom_errorbar(aes(ymin = mag - 1.96 * sd, ymax = mag + 1.96 * sd, colour = type), alpha = 0.1, lwd = 1.5) +
@@ -492,7 +482,7 @@ ggsave(here("../output/figures/cses_qq.pdf"), cses_qq, width = 9, height = 6)
   names(cw_df_plur)[1:5] <- c("0.1", "0.2", "0.3", "0.4", "0.5")
 
   cw_df_rcv <- melt(cw_df_rcv, 6)
-  cw_df_rcv$type <- "RCV"
+  cw_df_rcv$type <- "rcv"
   cw_df_plur <- melt(cw_df_plur, 6)
   cw_df_plur$type <- "Plurality"
   cw_df <- rbind(cw_df_rcv, cw_df_plur)
@@ -500,12 +490,13 @@ ggsave(here("../output/figures/cses_qq.pdf"), cses_qq, width = 9, height = 6)
   cw_df_agg <- cw_df %>% group_by(type, variable) %>% summarise(mean(value))
   names(cw_df_agg)[3] <- "value"
 
-  ggplot(cw_df, aes(variable, value)) +
-    geom_line(aes(group = interaction(case, type), colour = type), alpha = 0.2) +
+  cond <- ggplot(cw_df, aes(variable, value)) +
+    geom_line(aes(group = interaction(case, type), colour = type), alpha = 0.1) +
     geom_line(data = cw_df_agg, aes(group = type, colour = type), lwd = 2) +
     labs(x = "lambda", y = "Pr(Condorcet Winner elected)") +
-    theme_bw()
-  ggsave(here("../output/figures/condorcet_probs.pdf"), width = 6, height = 6)
+    scale_colour_brewer(palette = "Set2") +
+    theme_sv()
+  ggsave(here("../output/figures/condorcet_probs.pdf"), width = 6, height = 4, device = cairo_pdf)
 
 # Incidence of voting paradoxes
 
@@ -562,21 +553,23 @@ for(i in 1:length(big_list_na_omit)){
 
 inter_df <- do.call(rbind, inter_list)
 
+pal2 <- brewer.pal(n = 3, name = "Set2")
+
 inter_df_agg <- as.data.frame(inter_df %>% group_by(lambda) %>% summarize(mean(L1RCV), mean(L1PLUR), mean(L0RCV), mean(L0PLUR)))
 names(inter_df_agg) <- c("lambda", "l1rcv", "l1plur", "l0rcv", "l0plur")
 
 l1_plot <- ggplot(inter_df, aes(x = lambda, group = case)) +
-  geom_line(aes(y = L1RCV), colour = "blue", alpha = 0.05) +
-  geom_line(aes(y = L1PLUR), colour = "orange", alpha = 0.05) +
-  geom_line(data = inter_df_agg, aes(y = l1rcv), colour = "blue", lwd = 2) +
-  geom_line(data = inter_df_agg, aes(y = l1plur), colour = "orange", lwd = 2) +
-  theme_bw()
+  geom_line(aes(y = L1RCV), colour = pal2[1], alpha = 0.05) +
+  geom_line(aes(y = L1PLUR), colour = pal2[2], alpha = 0.05) +
+  geom_line(data = inter_df_agg, aes(y = l1rcv), colour = pal2[1], lwd = 2) +
+  geom_line(data = inter_df_agg, aes(y = l1plur), colour = pal2[2], lwd = 2) +
+  theme_sv()
 ggsave(here("../output/figures/cses_l1.pdf"), l1_plot, width = 5, height = 5)
 
 l0_plot <- ggplot(inter_df, aes(x = lambda, group = case)) +
-  geom_line(aes(y = L0RCV), colour = "blue", alpha = 0.05) +
-  geom_line(aes(y = L0PLUR), colour = "orange", alpha = 0.05) +
-  geom_line(data = inter_df_agg, aes(y = l0rcv), colour = "blue", lwd = 2) +
-  geom_line(data = inter_df_agg, aes(y = l0plur), colour = "orange", lwd = 2) +
-  theme_bw()
+  geom_line(aes(y = L0RCV), colour = pal2[1], alpha = 0.05) +
+  geom_line(aes(y = L0PLUR), colour = pal2[2], alpha = 0.05) +
+  geom_line(data = inter_df_agg, aes(y = l0rcv), colour = pal2[1], lwd = 2) +
+  geom_line(data = inter_df_agg, aes(y = l0plur), colour = pal2[2], lwd = 2) +
+  theme_sv()
 ggsave(here("../output/figures/cses_l0.pdf"), l0_plot, width = 5, height = 5)
