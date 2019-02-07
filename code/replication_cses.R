@@ -558,18 +558,26 @@ pal2 <- brewer.pal(n = 3, name = "Set2")
 inter_df_agg <- as.data.frame(inter_df %>% group_by(lambda) %>% summarize(mean(L1RCV), mean(L1PLUR), mean(L0RCV), mean(L0PLUR)))
 names(inter_df_agg) <- c("lambda", "l1rcv", "l1plur", "l0rcv", "l0plur")
 
-l1_plot <- ggplot(inter_df, aes(x = lambda, group = case)) +
-  geom_line(aes(y = L1RCV), colour = pal2[1], alpha = 0.05) +
-  geom_line(aes(y = L1PLUR), colour = pal2[2], alpha = 0.05) +
-  geom_line(data = inter_df_agg, aes(y = l1rcv), colour = pal2[1], lwd = 2) +
-  geom_line(data = inter_df_agg, aes(y = l1plur), colour = pal2[2], lwd = 2) +
-  theme_sv()
-ggsave(here("../output/figures/cses_l1.pdf"), l1_plot, width = 5, height = 5)
+l1_plot <- ggplot(inter_df, aes(x = lambda)) +
+  geom_line(aes(y = L1RCV, group = case, colour = "IRV"), alpha = 0.05) +
+  geom_line(aes(y = L1PLUR, group = case, colour = "Plurality") , alpha = 0.05) +
+  geom_line(data = inter_df_agg, aes(y = l1rcv, colour = "IRV"), lwd = 2) +
+  geom_line(data = inter_df_agg, aes(y = l1plur, colour = "Plurality"), lwd = 2) +
+  theme_sv() +
+  theme(legend.position = "bottom", legend.direction = "horizontal") + 
+  xlim(0, 0.5) +
+  scale_x_continuous(expand = c(0, 0)) +
+  scale_colour_manual(values = c(pal2[1], pal2[2]), labels = c("IRV", "Plurality"))
+ggsave(here("../output/figures/cses_l1.pdf"), l1_plot, width = 5, height = 4, device = cairo_pdf)
 
-l0_plot <- ggplot(inter_df, aes(x = lambda, group = case)) +
-  geom_line(aes(y = L0RCV), colour = pal2[1], alpha = 0.05) +
-  geom_line(aes(y = L0PLUR), colour = pal2[2], alpha = 0.05) +
-  geom_line(data = inter_df_agg, aes(y = l0rcv), colour = pal2[1], lwd = 2) +
-  geom_line(data = inter_df_agg, aes(y = l0plur), colour = pal2[2], lwd = 2) +
-  theme_sv()
-ggsave(here("../output/figures/cses_l0.pdf"), l0_plot, width = 5, height = 5)
+l0_plot <- ggplot(inter_df, aes(x = lambda)) +
+  geom_line(aes(y = L0RCV, group = case, colour = "IRV"), alpha = 0.05) +
+  geom_line(aes(y = L0PLUR, group = case, colour = "Plurality") , alpha = 0.05) +
+  geom_line(data = inter_df_agg, aes(y = l0rcv, colour = "IRV"), lwd = 2) +
+  geom_line(data = inter_df_agg, aes(y = l0plur, colour = "Plurality"), lwd = 2) +
+  theme_sv() +
+  theme(legend.position = "bottom", legend.direction = "horizontal") + 
+  xlim(0, 0.5) +
+  scale_x_continuous(expand = c(0, 0)) +
+  scale_colour_manual(values = c(pal2[1], pal2[2]), labels = c("IRV", "Plurality"))
+ggsave(here("../output/figures/cses_l0.pdf"), l0_plot, width = 5, height = 4, device = cairo_pdf)
