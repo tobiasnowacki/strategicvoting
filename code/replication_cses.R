@@ -130,16 +130,16 @@ for(i in 1:length(big_list_na_omit)){
 simplex_df <- as.data.frame(simplex_df)
 names(simplex_df) <- c("A", "B", "C")
 
-ggtern(simplex_df, aes(A, B, C)) +
-  geom_point()
+# ggtern(simplex_df, aes(A, B, C)) +
+#   geom_point()
 
 # Distribution of second preferences
 second_prefs <- data.frame(mAB = v_vec_df[, 1] / (v_vec_df[, 1] + v_vec_df[, 2]), mBA = v_vec_df[, 3] / (v_vec_df[, 3] + v_vec_df[, 4]), mCB = v_vec_df[, 6] / (v_vec_df[, 5] + v_vec_df[, 6]))
 
-ggplot(second_prefs, aes(mAB, mCB)) +
-  geom_point() +
-  geom_smooth(method = "loess") +
-  theme_bw()
+# ggplot(second_prefs, aes(mAB, mCB)) +
+#   geom_point() +
+#   geom_smooth(method = "loess") +
+#   theme_bw()
 
 # Get classification
 class_vec <- apply(v_vec_df, 1, classify.vec)
@@ -290,16 +290,13 @@ tau_df <- gather(tau_df, type, tau, 1:2)
 tau_df$system <- 0
 tau_df$system[tau_df$type == "tau_rcv"] <- 1
 
-# epsilon <- 0.01
-# tau_df$above_epsilon <- tau_df$tau > epsilon 
+tau_df$system_plur <- 1 - tau_df$system
 
-# mod1 <- lm("above_epsilon ~ system", data = tau_df, weights = tau_df$weight_rep)
-# vcov <- vcovHC(mod1, type = "HC0", cluster = "respondent")
-# x <- coeftest(mod1, vcov = vcov)
+# Changing model specification to get estimates for both RCV and plurality
 
 rcv_diff <- function(tau_df, epsilon){
   tau_df$above_epsilon <- tau_df$tau > epsilon 
-  model <- lm("above_epsilon ~ system", data = tau_df, weights = tau_df$weight_rep)
+  model <- lm("above_epsilon ~ system + system_plur - 1", data = tau_df, weights = tau_df$weight_rep)
   result <- coeftest(model, vcov = vcovHC(model, type = "HC0", cluster = "respondent"))
   return(c(result[1, 1], result[1, 2], result[2, 1], result[2, 2]))
 }
@@ -307,6 +304,9 @@ rcv_diff <- function(tau_df, epsilon){
 epsilon_list <- list(0.00000001, 0.0000001, 0.000001, 0.00001, 0.0001, 0.0005, 0.001, 0.01, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1, 1.5, 2)
 epsilon_results <- t(sapply(epsilon_list, function(x) rcv_diff(tau_df, x)))
 epsilon_results <- as.data.frame(epsilon_results)
+
+# To-Do: tidy data and rekindle plot such that it shows absolute proportions for both RCV and Plurality
+
 names(epsilon_results) <- c("beta_zero", "se_zero", "beta_one", "se_one")
 epsilon_results$epsilon <- unlist(epsilon_list)
 
