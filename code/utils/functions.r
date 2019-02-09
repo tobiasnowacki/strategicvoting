@@ -548,3 +548,19 @@ gen_v_zero_plur <- function(sin_plur){
 	}
 	return(v_zero_mat_plur)
 }
+
+remove_nas <- function(x){
+  mat <- cbind(x$U, x$weights)
+  mat <- na.omit(mat)
+  return(list(U = mat[, 1:3], weights = as.numeric(mat[, 4])))
+}
+
+create_v_vec <- function(x){
+  x$U <- x$U + runif(nrow(x$U) * ncol(x$U), min = 0, max = 0.001)
+  sin_vote <- as.numeric(apply(x$U, 1, function(x) sin_vote_scalar(x)))
+  num_list <- c(1:6)
+  sin_df <- (sapply(num_list, function(x) as.numeric(sin_vote == x)))
+  sin_df <- sin_df * x$weights
+  sin_vec <- colSums(sin_df)
+  return(sin_vec / sum(sin_vec))
+}
