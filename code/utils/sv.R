@@ -97,13 +97,20 @@ evaluate_success_of_CW_given_U_and_V.mat = function(U, V.mat, V0 = NULL, lambdas
     }
   }
   
-  out = c()
-  for(lambda in lambdas){
-    strategic.vps.mat = victory.probs.from.sims(lambda.v.vec.mats[[paste0("lambda_", lambda)]], rule = rule, return.matrix = T)
-    out = c(out, sum(strategic.vps.mat*cw.mat))
+  out = list()
+  for(lam in 1:length(lambdas)){
+    strategic.vps.mat = victory.probs.from.sims(lambda.v.vec.mats[[lam]], rule = rule, return.matrix = T)
+    cw.winner <- c(as.numeric(apply(strategic.vps.mat * cw.mat, 1, function(x) 1 %in% x)))
+    mu <- mean(cw.winner)
+    out[[lam]] <- c(mu)
   }
-  names(out) = paste0("lambda_", lambdas)
-  out/M
+  out <- do.call(rbind, out)
+  # out[, 4] <- lambdas
+  return(cbind(out, lambdas))
+}
+
+boot_mean <- function(x, d, w){
+  weighted.mean(x[d], w[d])
 }
 
 no_show_non_mon_from_sv_object = function(sv.obj){

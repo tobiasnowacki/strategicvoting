@@ -540,6 +540,16 @@ gen_v_zero <- function(sin_rcv){
   return(list(v_zero_mat_rcv, v_zero_mat_plur))
 }
 
+gen_v_zero_rcv <- function(sin_rcv){
+# takes RCV (6 factors) vector as input
+  v_zero_mat_rcv <- matrix(0, nrow = length(sin_rcv), ncol = 6)
+  sin_plur <- sin_vote_plur_transform(sin_rcv)
+  for(i in 1:length(sin_rcv)){
+    v_zero_mat_rcv[i, sin_rcv[i]] <- 1
+    }
+  return(v_zero_mat_rcv)
+}
+
 gen_v_zero_plur <- function(sin_plur){
 # Takes plurality vector (3 factors) as input
 	v_zero_mat_plur <- matrix(0, nrow = length(sin_plur), ncol = 3)
@@ -547,6 +557,26 @@ gen_v_zero_plur <- function(sin_plur){
 		v_zero_mat_plur[i, sin_plur[i]] <- 1
 	}
 	return(v_zero_mat_plur)
+}
+
+cw_prop <- function(U, v_mat, v_zero, lambda, weights, size = 300, iterations = 1000, rule = "AV"){
+	main_df <- t(replicate(iterations, {cw_prop_one(U, v_mat, v_zero, lambda, weights, size)})
+	return(main_df))
+	cw_mat <- main_df[, 1:3]
+	v_vec_mat <- main_df[, -c(1:3)]
+	winners <- victory.probs.from.sims(v_vec_mat, rule = rule, return.matrix = T)
+}
+
+cw_prop_one <- function(U, v_mat, v_zero, lambda, weights, size = 300){
+	samp_ind <- sample(1:nrow(U), size = size, replace = T, prob = weights)
+	samp_u <- U[samp_ind, ]
+	cw_one <- condorcet.winner(samp_u, weights = weights[samp_ind])
+	strat_ind <- c(rep(FALSE, floor((1 - lambda) * size)), rep(TRUE, ceiling(lambda * size)))
+	strat_ind <- sample(strat_ind)
+	new_vote_mat <- v_zero[samp_ind,]
+	new_vote_mat[strat_ind, ] <- v_mat[samp_ind, ][strat_ind, ]
+	new_v_vec <- ballot.props.from.vote.mat.and.weights(new_vote_mat, weights[samp_ind])
+	return(c(cw_one, new_v_vec))
 }
 
 remove_nas <- function(x){
