@@ -13,7 +13,7 @@
 library(here)
 
 # Load packages
-requiredPackages <- c("ggplot2", "ggtern", "dplyr", "purrr", "tidyr", "lmtest", "sandwich", "plm", "extrafont", "RColorBrewer")
+requiredPackages <- c("ggplot2", "ggtern", "dplyr", "purrr", "tidyr", "lmtest", "sandwich", "plm", "extrafont", "RColorBrewer", "boot")
 ipak <- function(pkg){
         new.pkg <- pkg[!(pkg %in% installed.packages()[, "Package"])]
         if (length(new.pkg))
@@ -80,6 +80,7 @@ big_list_na_omit[[144]] <- NULL
 
 # Create main sv_list object (this could be done much more elegantly with a function)
 sv_list <- list()
+country_weight <- c()
 for(i in 1:length(big_list_na_omit)){
   print(i)
   this_list <- big_list_na_omit[[i]]
@@ -93,6 +94,7 @@ for(i in 1:length(big_list_na_omit)){
   df$m <- vap$Freq[vap$cntry == df$country[1]]
   df$weight_rep <- df$weight * (df$VAP / (df$weight_sum * df$m))
   #df <- apply(df, 2, as.numeric)
+  country_weight[i] <- df$VAP[1] / df$m[1]
   sv_list[[i]] <- df
 }
 
@@ -163,7 +165,20 @@ ggplot(prev_results, aes(x = s)) +
 	labs(x = "s", y = expression(paste("Pr(", tau > 0, " | s)")))
 ggsave(here("../output/figures_paper/prevalence_reg.pdf"), width = 6, height = 4, device = cairo_pdf)
 
-# Scatterplot?
+# Scatterplot
+
+# ...
+
+# Difference between prevalences by case and s
+scatter <- prev_df %>% group_by(s, case, type) %>% summarise(prop = sum(as.numeric(positive) * weight_rep) / sum(weight_rep)) 
+diffs <- scatter %>% group_by(s, case) %>% summarise(diff = prop[2] - prop[1])
+
+prev_box <- ggplot(diffs, aes(x = as.factor(s), y = diff)) +
+  geom_boxplot(aes(y = diff), width = 0.4) +
+  geom_hline(yintercept = 0, lty = "dotted") +
+  theme_sv() +
+  labs(x = "s", y = "Pr(tau_irv > 0) - Pr(tau_plur > 0)")
+ggsave("../output/figures_paper/prev_box.pdf", width = 5, height = 4, device = cairo_pdf)
 
 ##
 ## MAGNITUDE
@@ -185,7 +200,7 @@ rcv_diff <- function(df, epsilon, s){
   return(data.frame(coef = result[1:2, 1], se = result[1:2, 2], type = c("Plurality", "IRV"), s = s, epsilon = epsilon))
 }
 
-epsilon_list <- list(0.00000001, 0.0000001, 0.000001, 0.00001, 0.0001, 0.0005, 0.001, 0.01, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1, 1.5, 2)
+epsilon_list <- list(0, 0.00000001, 0.0000001, 0.000001, 0.00001, 0.0001, 0.0005, 0.001, 0.01, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1, 1.5, 2)
 epsilon_results_1 <- lapply(epsilon_list, function(x) rcv_diff(mag_df[mag_df$s == 25, ], x, 25))
 epsilon_results_1 <- do.call(rbind, epsilon_results_1)
 epsilon_results_2 <- lapply(epsilon_list, function(x) rcv_diff(mag_df[mag_df$s == 85, ], x, 85))
@@ -193,12 +208,60 @@ epsilon_results_2 <- do.call(rbind, epsilon_results_2)
 epsilon_results <- rbind(epsilon_results_1, epsilon_results_2)
 
 # Plot results
-epsilon_true_scale <- ggplot(epsilon_results, aes(x = as.factor(epsilon), colour = type)) +
+epsilon_factor_scale <- ggplot(epsilon_results, aes(x = as.factor(epsilon), colour = type)) +
 	geom_point(aes(y = coef)) +
 	geom_linerange(aes(
 		ymin = coef - 1.96 * se, 
 		ymax = coef + 1.96 * se), 
 		lwd = 2, alpha = 0.3) +
 	theme_sv() +
+  theme(legend.position = "bottom", legend.direction = "horizontal", axis.text.x = element_text(angle = 45, hjust = 1, size = 8)) +
 	facet_wrap(. ~ s) +
 	labs(x = "Cost threshold, c", y = "Proportion")
+ggsave("../output/figures_paper/epsilon_factor_scale_props.pdf", width = 7, height = 4, device = cairo_pdf)
+
+##
+## CONDORCET WINNER
+##
+
+cw_win_rcv <- list()
+cw_win_plur <- list()
+
+for(i in 1:length(sv_list)){
+  print(i)
+  v_zero <- gen_v_zero(sv_list[[i]]$sin_rcv[sv_list[[i]]$s == 85])
+  v_opt_rcv <- gen_v_zero(sv_list[[i]]$opt_rcv[sv_list[[i]]$s == 85])[[1]]
+  v_opt_plur <- gen_v_zero_plur(sv_list[[i]]$opt_plur[sv_list[[i]]$s == 85])
+  cw_win_rcv[[i]] <- cbind(evaluate_success_of_CW_given_U_and_V.mat(U = big_list_na_omit[[i]]$U, V.mat = v_opt_rcv, V0 = v_zero[[1]], lambdas = c(.1, .2, .3, .4, .5), big_list_na_omit[[i]]$weights, rule = "AV", m = 500, M = 1000), names(big_list_na_omit)[[i]])
+  cw_win_plur[[i]] <- cbind(evaluate_success_of_CW_given_U_and_V.mat(U = big_list_na_omit[[i]]$U, V.mat = v_opt_plur, V0 = v_zero[[2]], lambdas = c(.1, .2, .3, .4, .5), big_list_na_omit[[i]]$weights, rule = "plurality", m = 500, M = 1000), names(big_list_na_omit)[[i]])
+}
+
+# All of the below could be done much more nicely with a clean function!
+cw_rcv_df <- as.data.frame(do.call(rbind, cw_win_rcv))
+cw_rcv_df[, 1:2] <- apply(cw_rcv_df[, 1:2], 2, as.numeric)
+cw_rcv_df$cweight <- rep(country_weight, each = 5)
+
+cw_rcv <- as.data.frame(t(sapply(c(0.1, 0.2, 0.3, 0.4, 0.5), function(x) {
+  z <- (boot(cw_rcv_df[cw_rcv_df$lambdas == x, c(1, 4)], boot_wmean, 1000) %>% boot.ci(type = "perc"))
+  ci <- z[[4]][4:5]
+  return(c(z[2], ci))
+})))
+cw_rcv$type <- "IRV"
+cw_rcv$lambda <- c(0.1, 0.2, 0.3, 0.4, 0.5)
+
+cw_plur_df <- as.data.frame(do.call(rbind, cw_win_plur))
+cw_plur_df[, 1:2] <- apply(cw_plur_df[, 1:2], 2, as.numeric)
+cw_plur_df$cweight <- rep(country_weight, each = 5)
+
+cw_plur <- as.data.frame(t(sapply(c(0.1, 0.2, 0.3, 0.4, 0.5), function(x) {
+  z <- (boot(cw_plur_df[cw_plur_df$lambdas == x, c(1, 4)], boot_wmean, 1000) %>% boot.ci(type = "perc"))
+  ci <- z[[4]][4:5]
+  return(c(z[2], ci))
+})))
+cw_plur$type <- "Plurality"
+cw_plur$lambda <- c(0.1, 0.2, 0.3, 0.4, 0.5)
+
+cw_df <- rbind(cw_rcv, cw_plur)
+names(cw_df)[1:3] <- c("mu", "lower", "upper")
+
+# Plot
