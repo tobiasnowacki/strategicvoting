@@ -172,13 +172,24 @@ ggsave(here("../output/figures_paper/prevalence_reg.pdf"), width = 6, height = 4
 # Difference between prevalences by case and s
 scatter <- prev_df %>% group_by(s, case, type) %>% summarise(prop = sum(as.numeric(positive) * weight_rep) / sum(weight_rep)) 
 diffs <- scatter %>% group_by(s, case) %>% summarise(diff = prop[2] - prop[1])
+diffs$weights <- rep(country_weight / sum(country_weight), 6)
+
+diff_quants <- diffs %>% group_by(s) %>% summarise(mu = weighted.mean(diff, weights))
 
 prev_box <- ggplot(diffs, aes(x = as.factor(s), y = diff)) +
-  geom_boxplot(aes(y = diff), width = 0.4) +
+  geom_boxplot(aes(y = diff, weight = weights), width = 0.4) +
   geom_hline(yintercept = 0, lty = "dotted") +
   theme_sv() +
   labs(x = "s", y = "Pr(tau_irv > 0) - Pr(tau_plur > 0)")
 ggsave("../output/figures_paper/prev_box.pdf", width = 5, height = 4, device = cairo_pdf)
+
+prev_dens <- ggplot(diffs, aes(x = diff)) +
+  geom_density(aes(weight = weights), fill = "grey50") +
+  geom_vline(data = diff_quants, aes(xintercept = mu), lty = "dashed") +
+  facet_wrap(. ~ s, nrow = 6) +
+  theme_sv() +
+  labs(x = "s", y = "Pr(tau_irv > 0) - Pr(tau_plur > 0)")
+ggsave("../output/figures_paper/prev_dens.pdf", width = 5, height = 6, device = cairo_pdf)
 
 ##
 ## MAGNITUDE
@@ -262,6 +273,15 @@ cw_plur$type <- "Plurality"
 cw_plur$lambda <- c(0.1, 0.2, 0.3, 0.4, 0.5)
 
 cw_df <- rbind(cw_rcv, cw_plur)
+cw_df[, 1:3] <- apply(cw_df[, 1:3], 2, as.numeric)
 names(cw_df)[1:3] <- c("mu", "lower", "upper")
 
 # Plot
+ggplot(cw_df, aes(x = as.factor(lambda), color = type)) +
+  geom_point(aes(y = mu), position = position_dodge(0.2)) +
+  geom_linerange(aes(ymin = lower, ymax = upper), lwd = 2, alpha = 0.3, position = position_dodge(0.2)) +
+  theme_sv() + 
+  ylim(0.5, 1) +
+  labs(x = "lambda", y = "Pr(Condorcet Winner elected)") +
+  theme(legend.position = "bottom", legend.direction = "horizontal")
+ggsave("../output/figures_paper/cw_agg.pdf", width = 5, height = 4, device = cairo_pdf)

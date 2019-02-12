@@ -109,8 +109,8 @@ evaluate_success_of_CW_given_U_and_V.mat = function(U, V.mat, V0 = NULL, lambdas
   return(cbind(out, lambdas))
 }
 
-boot_mean <- function(x, d, w){
-  weighted.mean(x[d], w[d])
+boot_wmean <- function(x, d){
+  weighted.mean(x[d, 1], x[d, 2])
 }
 
 no_show_non_mon_from_sv_object = function(sv.obj){
