@@ -560,11 +560,11 @@ gen_v_zero_plur <- function(sin_plur){
 }
 
 cw_prop <- function(U, v_mat, v_zero, lambda, weights, size = 300, iterations = 1000, rule = "AV"){
-	main_df <- t(replicate(iterations, {cw_prop_one(U, v_mat, v_zero, lambda, weights, size)})
-	return(main_df))
+	main_df <- t(replicate(iterations, {cw_prop_one(U, v_mat, v_zero, lambda, weights, size)}))
 	cw_mat <- main_df[, 1:3]
 	v_vec_mat <- main_df[, -c(1:3)]
-	winners <- victory.probs.from.sims(v_vec_mat, rule = rule, return.matrix = T)
+	winners_mat <- victory.probs.from.sims(v_vec_mat, rule = rule, return.matrix = T)
+	return(sum(winners_mat * cw_mat) / iterations)
 }
 
 cw_prop_one <- function(U, v_mat, v_zero, lambda, weights, size = 300){
