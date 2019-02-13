@@ -594,3 +594,37 @@ create_v_vec <- function(x){
   sin_vec <- colSums(sin_df)
   return(sin_vec / sum(sin_vec))
 }
+
+return_cw_df <- function(cw_win_rcv, cw_win_plur, lambdas, country_weight){
+cw_rcv_df <- as.data.frame(do.call(rbind, cw_win_rcv))
+cw_rcv_df[, 1:2] <- apply(cw_rcv_df[, 1:2], 2, as.numeric)
+cw_rcv_df$cweight <- rep(country_weight, each = 5)
+
+cw_rcv <- as.data.frame(t(sapply(lambdas, function(x) {
+  z <- (boot(cw_rcv_df[cw_rcv_df$lambdas == x, c(1, 4)], boot_wmean, 1000) %>% boot.ci(type = "perc"))
+  ci <- z[[4]][4:5]
+  return(c(z[2], ci))
+})))
+cw_rcv$type <- "IRV"
+cw_rcv$lambda <- lambdas
+
+cw_plur_df <- as.data.frame(do.call(rbind, cw_win_plur))
+cw_plur_df[, 1:2] <- apply(cw_plur_df[, 1:2], 2, as.numeric)
+cw_plur_df$cweight <- rep(country_weight, each = 5)
+
+cw_plur <- as.data.frame(t(sapply(lambdas, function(x) {
+  z <- (boot(cw_plur_df[cw_plur_df$lambdas == x, c(1, 4)], boot_wmean, 1000) %>% boot.ci(type = "perc"))
+  ci <- z[[4]][4:5]
+  return(c(z[2], ci))
+})))
+cw_plur$type <- "Plurality"
+cw_plur$lambda <- lambdas
+
+cw_df <- rbind(cw_rcv, cw_plur)
+cw_df[, 1:3] <- apply(cw_df[, 1:3], 2, as.numeric)
+names(cw_df)[1:3] <- c("mu", "lower", "upper")
+}
+
+boot_wmean <- function(x, d){
+  weighted.mean(x[d, 1], x[d, 2])
+}
