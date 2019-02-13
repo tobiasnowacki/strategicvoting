@@ -247,34 +247,20 @@ for(i in 1:length(sv_list)){
   cw_win_plur[[i]] <- cbind(evaluate_success_of_CW_given_U_and_V.mat(U = big_list_na_omit[[i]]$U, V.mat = v_opt_plur, V0 = v_zero[[2]], lambdas = c(.1, .2, .3, .4, .5), big_list_na_omit[[i]]$weights, rule = "plurality", m = 500, M = 1000), names(big_list_na_omit)[[i]])
 }
 
-# All of the below could be done much more nicely with a clean function!
-cw_rcv_df <- as.data.frame(do.call(rbind, cw_win_rcv))
-cw_rcv_df[, 1:2] <- apply(cw_rcv_df[, 1:2], 2, as.numeric)
-cw_rcv_df$cweight <- rep(country_weight, each = 5)
+cw_df <- return_cw_df(cw_win_rcv, cw_win_plur, c(0.1, 0.2, 0.3, 0.4, 0.5), country_weight)
 
-cw_rcv <- as.data.frame(t(sapply(c(0.1, 0.2, 0.3, 0.4, 0.5), function(x) {
-  z <- (boot(cw_rcv_df[cw_rcv_df$lambdas == x, c(1, 4)], boot_wmean, 1000) %>% boot.ci(type = "perc"))
-  ci <- z[[4]][4:5]
-  return(c(z[2], ci))
-})))
-cw_rcv$type <- "IRV"
-cw_rcv$lambda <- c(0.1, 0.2, 0.3, 0.4, 0.5)
+for(i in 1:length(sv_list)){
+  print(i)
+  v_zero <- gen_v_zero(sv_list[[i]]$sin_rcv[sv_list[[i]]$s == 25])
+  v_opt_rcv <- gen_v_zero(sv_list[[i]]$opt_rcv[sv_list[[i]]$s == 25])[[1]]
+  v_opt_plur <- gen_v_zero_plur(sv_list[[i]]$opt_plur[sv_list[[i]]$s == 25])
+  cw_win_rcv_25[[i]] <- cbind(evaluate_success_of_CW_given_U_and_V.mat(U = big_list_na_omit[[i]]$U, V.mat = v_opt_rcv, V0 = v_zero[[1]], lambdas = c(.1, .2, .3, .4, .5), big_list_na_omit[[i]]$weights, rule = "AV", m = 500, M = 1000), names(big_list_na_omit)[[i]])
+  cw_win_plur_25[[i]] <- cbind(evaluate_success_of_CW_given_U_and_V.mat(U = big_list_na_omit[[i]]$U, V.mat = v_opt_plur, V0 = v_zero[[2]], lambdas = c(.1, .2, .3, .4, .5), big_list_na_omit[[i]]$weights, rule = "plurality", m = 500, M = 1000), names(big_list_na_omit)[[i]])
+}
 
-cw_plur_df <- as.data.frame(do.call(rbind, cw_win_plur))
-cw_plur_df[, 1:2] <- apply(cw_plur_df[, 1:2], 2, as.numeric)
-cw_plur_df$cweight <- rep(country_weight, each = 5)
+cw_df_25 <- return_cw_df(cw_win_rcv_25, cw_win_plur_25, c(0.1, 0.2, 0.3, 0.4, 0.5), country_weight)
 
-cw_plur <- as.data.frame(t(sapply(c(0.1, 0.2, 0.3, 0.4, 0.5), function(x) {
-  z <- (boot(cw_plur_df[cw_plur_df$lambdas == x, c(1, 4)], boot_wmean, 1000) %>% boot.ci(type = "perc"))
-  ci <- z[[4]][4:5]
-  return(c(z[2], ci))
-})))
-cw_plur$type <- "Plurality"
-cw_plur$lambda <- c(0.1, 0.2, 0.3, 0.4, 0.5)
-
-cw_df <- rbind(cw_rcv, cw_plur)
-cw_df[, 1:3] <- apply(cw_df[, 1:3], 2, as.numeric)
-names(cw_df)[1:3] <- c("mu", "lower", "upper")
+# Need to repeat this exercise for s = 25.
 
 # Plot
 ggplot(cw_df, aes(x = as.factor(lambda), color = type)) +
@@ -285,3 +271,53 @@ ggplot(cw_df, aes(x = as.factor(lambda), color = type)) +
   labs(x = "lambda", y = "Pr(Condorcet Winner elected)") +
   theme(legend.position = "bottom", legend.direction = "horizontal")
 ggsave("../output/figures_paper/cw_agg.pdf", width = 5, height = 4, device = cairo_pdf)
+
+##
+## INTERDEPENDENCE
+##
+
+s <- 85 # Set level at which to evaluate
+sv_list_fixed_s <- lapply(sv_list, function(x) x[x$s == s, ])
+
+lambda_list <- as.list(seq(0, 0.5, 0.05))
+
+inter_list <- list()
+for(i in 1:length(big_list_na_omit)){
+  print(i)
+  df <- big_list_na_omit[[i]]
+  sv_item <- sv_list_fixed_s[[i]]
+  out <- level_two_props_cses(c(df$v_vec, 0, 0, 0), lambda_list, df$U, sv_item, s, df$weights)
+  out$case <- names(big_list_na_omit)[[i]]
+  inter_list[[i]] <- out
+}
+
+inter_df <- do.call(rbind, inter_list)
+
+pal2 <- brewer.pal(n = 3, name = "Set2")
+
+inter_df_agg <- inter_df %>% group_by(lambda) %>% summarize(boot(L1RCV, mean, 1000))
+names(inter_df_agg) <- c("lambda", "l1rcv", "l1plur", "l0rcv", "l0plur")
+
+l1_plot <- ggplot(inter_df, aes(x = lambda)) +
+  geom_line(aes(y = L1RCV, group = case, colour = "IRV"), alpha = 0.05) +
+  geom_line(aes(y = L1PLUR, group = case, colour = "Plurality") , alpha = 0.05) +
+  geom_line(data = inter_df_agg, aes(y = l1rcv, colour = "IRV"), lwd = 2) +
+  geom_line(data = inter_df_agg, aes(y = l1plur, colour = "Plurality"), lwd = 2) +
+  theme_sv() +
+  theme(legend.position = "bottom", legend.direction = "horizontal") + 
+  xlim(0, 0.5) +
+  scale_x_continuous(expand = c(0, 0)) +
+  scale_colour_manual(values = c(pal2[1], pal2[2]), labels = c("IRV", "Plurality"))
+ggsave(here("../output/figures/cses_l1.pdf"), l1_plot, width = 5, height = 4, device = cairo_pdf)
+
+l0_plot <- ggplot(inter_df, aes(x = lambda)) +
+  geom_line(aes(y = L0RCV, group = case, colour = "IRV"), alpha = 0.05) +
+  geom_line(aes(y = L0PLUR, group = case, colour = "Plurality") , alpha = 0.05) +
+  geom_line(data = inter_df_agg, aes(y = l0rcv, colour = "IRV"), lwd = 2) +
+  geom_line(data = inter_df_agg, aes(y = l0plur, colour = "Plurality"), lwd = 2) +
+  theme_sv() +
+  theme(legend.position = "bottom", legend.direction = "horizontal") + 
+  xlim(0, 0.5) +
+  scale_x_continuous(expand = c(0, 0)) +
+  scale_colour_manual(values = c(pal2[1], pal2[2]), labels = c("IRV", "Plurality"))
+ggsave(here("../output/figures/cses_l0.pdf"), l0_plot, width = 5, height = 4, device = cairo_pdf)
