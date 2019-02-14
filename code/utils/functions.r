@@ -623,6 +623,7 @@ cw_plur$lambda <- lambdas
 cw_df <- rbind(cw_rcv, cw_plur)
 cw_df[, 1:3] <- apply(cw_df[, 1:3], 2, as.numeric)
 names(cw_df)[1:3] <- c("mu", "lower", "upper")
+return(cw_df)
 }
 
 boot_wmean <- function(x, d){

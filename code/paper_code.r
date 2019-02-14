@@ -123,7 +123,16 @@ second_prefs <- data.frame(mAB = v_vec_df[, 1] / (v_vec_df[, 1] + v_vec_df[, 2])
 
 # Get classification
 class_vec <- apply(v_vec_df, 1, classify.vec)
+neutral <- sapply(class_vec, function(x) grepl("N", x))
+dm <- sapply(class_vec, function(x) grepl("DM", x))
+sp <- sapply(class_vec, function(x) grepl("SP", x))
 
+big_sv_df$neutral <- 0
+big_sv_df$neutral[big_sv_df$case %in% names(big_list_na_omit)[neutral]] <- 1
+
+big_sv_df$dm <- as.numeric(big_sv_df$case %in% names(big_list_na_omit)[dm])
+big_sv_df$sp <- as.numeric(big_sv_df$case %in% names(big_list_na_omit)[sp])
+big_sv_df$default <- 1
 ##
 ## PREVALENCE
 ##
@@ -133,13 +142,13 @@ big_sv_df$pos_rcv <- big_sv_df$tau_rcv > 0
 big_sv_df$pos_plur <- big_sv_df$tau_plur > 0
 
 # Create tidy dataframe for regression
-prev_df <- big_sv_df[, c("s", "case", "weight_rep", "pos_rcv", "pos_plur")]
+prev_df <- big_sv_df[, c("s", "case", "weight_rep", "pos_rcv", "pos_plur", "neutral", "sp", "dm", "default")]
 prev_df$respondent <- 1:nrow(prev_df)
 prev_df <- gather(prev_df, key = "type", value = "positive", 4:5)
 
 # Run regression(s) and store results
-prev_estimates <- function(s){
-	prev_mod <- lm("positive ~ as.factor(type) - 1", weights = weight_rep, prev_df[prev_df$s == s, ])
+prev_estimates <- function(s, cond = "default", val = 1){
+	prev_mod <- lm("positive ~ as.factor(type) - 1", weights = weight_rep, prev_df[prev_df$s == s & prev_df[, cond] == val, ])
 	prev_coef <- coeftest(prev_mod, vcov = vcovHC(prev_mod, "HC0", cluster = "respondent"))
 	return(data.frame(
 		coef = c(prev_coef[1, 1], prev_coef[2, 1]), 
@@ -162,8 +171,29 @@ ggplot(prev_results, aes(x = s)) +
 	theme_sv() + 
 	ylim(0, 0.28) +
 	scale_x_continuous(breaks = unlist(s_list)) +
-	labs(x = "s", y = expression(paste("Pr(", tau > 0, " | s)")))
+	labs(x = "Precision of Beliefs", y = expression(paste("Pr(", tau > 0, " | s)")))
 ggsave(here("../output/figures_paper/prevalence_reg.pdf"), width = 6, height = 4, device = cairo_pdf)
+
+# Do the same thing for neutral v. non-neutral
+prev_results_n <- lapply(s_list, function(x) prev_estimates(x, "neutral", 1)) %>% do.call(rbind, .)
+prev_results_n$class <- "neutral"
+prev_results_not_n <- lapply(s_list, function(x) prev_estimates(x, "neutral", 0)) %>% do.call(rbind, .)
+prev_results_not_n$class <- "not neutral"
+prev_results_by_n <- rbind(prev_results_n, prev_results_not_n)
+
+ggplot(prev_results_by_n, aes(x = s)) + 
+  geom_point(aes(y = coef, color = type)) +
+  geom_linerange(aes(
+    ymin = coef - 1.96 * se, 
+    ymax = coef + 1.96 * se, 
+    color = type), 
+    lwd = 2, alpha = 0.3) +
+  theme_sv() + 
+  ylim(0, 0.28) +
+  facet_wrap(. ~ class) + 
+  scale_x_continuous(breaks = unlist(s_list)) +
+  labs(x = "Precision of Beliefs", y = expression(paste("Pr(", tau > 0, " | s)")))
+ggsave(here("..output/figures_paper/prevalence_by_neutral.pdf", width = 6, height = 4, device = cairo_pdf))
 
 # Scatterplot
 
@@ -190,6 +220,69 @@ prev_dens <- ggplot(diffs, aes(x = diff)) +
   theme_sv() +
   labs(x = "s", y = "Pr(tau_irv > 0) - Pr(tau_plur > 0)")
 ggsave("../output/figures_paper/prev_dens.pdf", width = 5, height = 6, device = cairo_pdf)
+
+##
+## EXPECTED BENEFIT (I can write a function to make this smoother)
+## (Right now it's just a lot of copy-paste from prevalence section)
+
+big_sv_df$exben_rcv <- 0
+big_sv_df$exben_rcv[big_sv_df$tau_rcv > 0] <- big_sv_df$tau_rcv[big_sv_df$tau_rcv > 0]
+big_sv_df$exben_plur <- 0
+big_sv_df$exben_plur[big_sv_df$tau_plur > 0] <- big_sv_df$tau_plur[big_sv_df$tau_plur > 0]
+
+exben_df <- big_sv_df[, c("s", "case", "weight_rep", "exben_rcv", "exben_plur", "neutral", "dm", "sp", "default")]
+exben_df$respondent <- 1:nrow(exben_df)
+exben_df <- gather(exben_df, key = "type", value = "exben", 4:5)
+
+exben_estimates <- function(s, cond = "default", val = 1){
+  exben_mod <- lm("exben ~ as.factor(type) - 1", weights = weight_rep, exben_df[exben_df$s == s & exben_df[, cond] == val, ])
+  exben_coef <- coeftest(exben_mod, vcov = vcovHC(exben_mod, "HC0", cluster = "respondent"))
+  return(data.frame(
+    coef = c(exben_coef[1, 1], exben_coef[2, 1]), 
+    se = c(exben_coef[1, 2], exben_coef[2, 2]),
+    type = c("Plurality", "IRV"), 
+    s = s
+    ))
+}
+exben_results <- lapply(s_list, function(x) exben_estimates(x))
+exben_results <- do.call(rbind, exben_results)
+
+# Plot this thing
+ggplot(exben_results, aes(x = s)) + 
+  geom_point(aes(y = coef, color = type)) +
+  geom_linerange(aes(
+    ymin = coef - 1.96 * se, 
+    ymax = coef + 1.96 * se, 
+    color = type), 
+    lwd = 2, alpha = 0.3) +
+  theme_sv() + 
+  ylim(0, 0.28) +
+  scale_x_continuous(breaks = unlist(s_list)) +
+  labs(x = "Precision of Beliefs", y = "Expected Benefit")
+ggsave(here("../output/figures_paper/ex_ben.pdf"), width = 6, height = 4, device = cairo_pdf)
+
+exben_results_n <- lapply(s_list, function(x) exben_estimates(x, "neutral", 1)) %>% do.call(rbind, .)
+exben_results_n$class <- "neutral"
+exben_results_not_n <- lapply(s_list, function(x) exben_estimates(x, "neutral", 0)) %>% do.call(rbind, .)
+exben_results_not_n$class <- "not neutral"
+
+exben_results_by_n <- rbind(exben_results_n, exben_results_not_n)
+
+ggplot(exben_results_by_n, aes(x = s)) + 
+  geom_point(aes(y = coef, color = type)) +
+  geom_linerange(aes(
+    ymin = coef - 1.96 * se, 
+    ymax = coef + 1.96 * se, 
+    color = type), 
+    lwd = 2, alpha = 0.3) +
+  theme_sv() + 
+  ylim(0, 0.28) +
+  facet_wrap(. ~ class) + 
+  scale_x_continuous(breaks = unlist(s_list)) +
+  labs(x = "Precision of Beliefs", y = "Expected Benefit")
+ggsave(here("../output/figures_paper/ex_ben_by_neutral.pdf"), width = 6, height = 4, device = cairo_pdf)
+
+# Do the same thing for neutral v. non-neutral preferences
 
 ##
 ## MAGNITUDE
@@ -228,7 +321,7 @@ epsilon_factor_scale <- ggplot(epsilon_results, aes(x = as.factor(epsilon), colo
 	theme_sv() +
   theme(legend.position = "bottom", legend.direction = "horizontal", axis.text.x = element_text(angle = 45, hjust = 1, size = 8)) +
 	facet_wrap(. ~ s) +
-	labs(x = "Cost threshold, c", y = "Proportion")
+	labs(x = "Cost threshold", y = "Pr(Incentive > Threshold)")
 ggsave("../output/figures_paper/epsilon_factor_scale_props.pdf", width = 7, height = 4, device = cairo_pdf)
 
 ##
@@ -249,6 +342,9 @@ for(i in 1:length(sv_list)){
 
 cw_df <- return_cw_df(cw_win_rcv, cw_win_plur, c(0.1, 0.2, 0.3, 0.4, 0.5), country_weight)
 
+cw_win_rcv_25 <- list()
+cw_win_plur_25 <- list()
+
 for(i in 1:length(sv_list)){
   print(i)
   v_zero <- gen_v_zero(sv_list[[i]]$sin_rcv[sv_list[[i]]$s == 25])
@@ -260,7 +356,19 @@ for(i in 1:length(sv_list)){
 
 cw_df_25 <- return_cw_df(cw_win_rcv_25, cw_win_plur_25, c(0.1, 0.2, 0.3, 0.4, 0.5), country_weight)
 
-# Need to repeat this exercise for s = 25.
+cw_joint <- rbind(cw_df, cw_df_25)
+cw_joint$s <- rep(c(85, 25), each = 10)
+
+ggplot(cw_joint, aes(x = as.factor(lambda), color = type)) +
+  geom_point(aes(y = mu), position = position_dodge(0.2)) +
+  geom_linerange(aes(ymin = lower, ymax = upper), lwd = 2, alpha = 0.3, position = position_dodge(0.2)) +
+  theme_sv() + 
+  ylim(0.5, 1) +
+  labs(x = "Proportion of strategic voters", y = "Pr(Condorcet Winner elected)") +
+  facet_wrap(.~ s) +
+  theme(legend.position = "bottom", legend.direction = "horizontal")
+ggsave("../output/figures_paper/cw_agg_two_s.pdf", width = 5, height = 4, device = cairo_pdf)
+
 
 # Plot
 ggplot(cw_df, aes(x = as.factor(lambda), color = type)) +
@@ -268,7 +376,7 @@ ggplot(cw_df, aes(x = as.factor(lambda), color = type)) +
   geom_linerange(aes(ymin = lower, ymax = upper), lwd = 2, alpha = 0.3, position = position_dodge(0.2)) +
   theme_sv() + 
   ylim(0.5, 1) +
-  labs(x = "lambda", y = "Pr(Condorcet Winner elected)") +
+  labs(x = "Proportion of strategic voters", y = "Pr(Condorcet Winner elected)") +
   theme(legend.position = "bottom", legend.direction = "horizontal")
 ggsave("../output/figures_paper/cw_agg.pdf", width = 5, height = 4, device = cairo_pdf)
 
@@ -292,32 +400,37 @@ for(i in 1:length(big_list_na_omit)){
 }
 
 inter_df <- do.call(rbind, inter_list)
+inter_df$cntryweight <- rep(country_weight, each = 11)
 
-pal2 <- brewer.pal(n = 3, name = "Set2")
+boot_wmean_2 <- function(x, weight = weights, d){
+  weighted.mean(x[d], weight[d])
+}
 
-inter_df_agg <- inter_df %>% group_by(lambda) %>% summarize(boot(L1RCV, mean, 1000))
-names(inter_df_agg) <- c("lambda", "l1rcv", "l1plur", "l0rcv", "l0plur")
+get_boot_ci <- function(var){
+  out <- tapply(as.numeric(inter_df[[var]]), inter_df$lambda, function(x) {
+  z <- boot(x, boot_wmean_2, 1000, weight = country_weight) 
+  z_mu <- mean(z$t)
+  ci <- boot.ci(z, type = "perc")
+  return(c(z_mu, ci[[4]][4:5]))
+})
+  out <- as.data.frame(do.call(rbind, out))
+  names(out) <- c("mu", "lower", "upper")
+  out$lambda <- seq(0, 0.5, 0.05)
+  return(out)
+}
 
-l1_plot <- ggplot(inter_df, aes(x = lambda)) +
-  geom_line(aes(y = L1RCV, group = case, colour = "IRV"), alpha = 0.05) +
-  geom_line(aes(y = L1PLUR, group = case, colour = "Plurality") , alpha = 0.05) +
-  geom_line(data = inter_df_agg, aes(y = l1rcv, colour = "IRV"), lwd = 2) +
-  geom_line(data = inter_df_agg, aes(y = l1plur, colour = "Plurality"), lwd = 2) +
+inter_agg <- lapply(list("L1RCV", "L0RCV", "L1PLUR", "L0PLUR"), get_boot_ci)
+inter_agg <- do.call(rbind, inter_agg)
+inter_agg$system <- rep(c("IRV", "Plurality"), each = 22)
+inter_agg$type <- rep(c("L2 versus L1", "L2 versus L0"), each = 11, times = 2)
+
+inter_plot <- ggplot(inter_agg, aes(x = lambda, y = mu, color = system)) +
+  geom_point() +
+  geom_linerange(aes(ymin = lower, ymax = upper), lwd = 2, alpha = 0.5) +
+  facet_wrap(. ~ type) +
   theme_sv() +
-  theme(legend.position = "bottom", legend.direction = "horizontal") + 
-  xlim(0, 0.5) +
-  scale_x_continuous(expand = c(0, 0)) +
-  scale_colour_manual(values = c(pal2[1], pal2[2]), labels = c("IRV", "Plurality"))
-ggsave(here("../output/figures/cses_l1.pdf"), l1_plot, width = 5, height = 4, device = cairo_pdf)
+  theme(legend.position = "bottom", legend.direction = "horizontal") +
+  labs(x = "Proportion of strategic voters" y = "Proportion with different optimal vote")
+ggsave("../output/figures_paper/inter.pdf", width = 7, height = 5, inter_plot, device = cairo_pdf)
 
-l0_plot <- ggplot(inter_df, aes(x = lambda)) +
-  geom_line(aes(y = L0RCV, group = case, colour = "IRV"), alpha = 0.05) +
-  geom_line(aes(y = L0PLUR, group = case, colour = "Plurality") , alpha = 0.05) +
-  geom_line(data = inter_df_agg, aes(y = l0rcv, colour = "IRV"), lwd = 2) +
-  geom_line(data = inter_df_agg, aes(y = l0plur, colour = "Plurality"), lwd = 2) +
-  theme_sv() +
-  theme(legend.position = "bottom", legend.direction = "horizontal") + 
-  xlim(0, 0.5) +
-  scale_x_continuous(expand = c(0, 0)) +
-  scale_colour_manual(values = c(pal2[1], pal2[2]), labels = c("IRV", "Plurality"))
-ggsave(here("../output/figures/cses_l0.pdf"), l0_plot, width = 5, height = 4, device = cairo_pdf)
+
