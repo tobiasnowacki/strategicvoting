@@ -193,7 +193,7 @@ ggplot(prev_results_by_n, aes(x = s)) +
   facet_wrap(. ~ class) + 
   scale_x_continuous(breaks = unlist(s_list)) +
   labs(x = "Precision of Beliefs", y = expression(paste("Pr(", tau > 0, " | s)")))
-ggsave(here("..output/figures_paper/prevalence_by_neutral.pdf", width = 6, height = 4, device = cairo_pdf))
+ggsave(here("../output/figures_paper/prevalence_by_n.pdf"), width = 6, height = 4, device = cairo_pdf)
 
 # Scatterplot
 
@@ -430,7 +430,7 @@ inter_plot <- ggplot(inter_agg, aes(x = lambda, y = mu, color = system)) +
   facet_wrap(. ~ type) +
   theme_sv() +
   theme(legend.position = "bottom", legend.direction = "horizontal") +
-  labs(x = "Proportion of strategic voters" y = "Proportion with different optimal vote")
+  labs(x = "Proportion of strategic voters", y = "Proportion with different optimal vote")
 ggsave("../output/figures_paper/inter.pdf", width = 7, height = 5, inter_plot, device = cairo_pdf)
 
 
