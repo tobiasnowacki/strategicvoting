@@ -109,10 +109,6 @@ evaluate_success_of_CW_given_U_and_V.mat = function(U, V.mat, V0 = NULL, lambdas
   return(cbind(out, lambdas))
 }
 
-boot_wmean <- function(x, d){
-  weighted.mean(x[d, 1], x[d, 2])
-}
-
 no_show_non_mon_from_sv_object = function(sv.obj){
   ns.mat = cbind(rep(sv.obj$piv.probs$AB.CB, nrow(sv.obj$V0)), sv.obj$piv.probs$AC.BC, sv.obj$piv.probs$AB.AC, sv.obj$piv.probs$BC.AC, sv.obj$piv.probs$AC.AB, sv.obj$piv.probs$BC.BA)  
   ns.prob.vec = apply(ns.mat*sv.obj$V0, 1, sum, na.rm = T)
