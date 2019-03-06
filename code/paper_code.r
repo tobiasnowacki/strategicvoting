@@ -2,7 +2,7 @@
 ## Project: Strategic Voting in IRV
 ## Script purpose: Analysing CSES data
 ## Date: 08/02/2019
-## Author: 
+## Author:
 ##################################################
 
 ##
@@ -41,7 +41,7 @@ theme_sv <- function(){
   theme_bw(base_size=11, base_family="Roboto Light") %+replace%
   theme(
     panel.grid.major =  element_line(
-      colour = "grey50", 
+      colour = "grey50",
       size = 0.2,
       linetype = "dotted"),
     panel.grid.minor = element_blank(),
@@ -49,7 +49,7 @@ theme_sv <- function(){
     plot.margin = unit(c(0.2, 1, 0.2, 1), "cm"),
     legend.margin = margin(0, 0, 0, 0),
     legend.title = element_text(size = 10, family = "Roboto Medium", face = "bold"),
-    strip.background = element_rect(fill= NULL, colour = "white", linetype = NULL), 
+    strip.background = element_rect(fill= NULL, colour = "white", linetype = NULL),
     strip.text = element_text(colour = 'grey50', size = 9, vjust = 0.5, family = "Roboto Medium")
   )
 }
@@ -101,6 +101,7 @@ for(i in 1:length(big_list_na_omit)){
 # Put everything together into one big DF
 big_sv_df <- do.call(rbind, sv_list)
 
+
 ##
 ## DESCRIPTIVE
 ##
@@ -118,7 +119,7 @@ for(i in 1:length(big_list_na_omit)){
 simplex_df <- as.data.frame(simplex_df)
 names(simplex_df) <- c("A", "B", "C")
 
-# Check second preferences	
+# Check second preferences
 second_prefs <- data.frame(mAB = v_vec_df[, 1] / (v_vec_df[, 1] + v_vec_df[, 2]), mBA = v_vec_df[, 3] / (v_vec_df[, 3] + v_vec_df[, 4]), mCB = v_vec_df[, 6] / (v_vec_df[, 5] + v_vec_df[, 6]))
 
 # Get classification
@@ -151,9 +152,9 @@ prev_estimates <- function(s, cond = "default", val = 1){
 	prev_mod <- lm("positive ~ as.factor(type) - 1", weights = weight_rep, prev_df[prev_df$s == s & prev_df[, cond] == val, ])
 	prev_coef <- coeftest(prev_mod, vcov = vcovHC(prev_mod, "HC0", cluster = "respondent"))
 	return(data.frame(
-		coef = c(prev_coef[1, 1], prev_coef[2, 1]), 
+		coef = c(prev_coef[1, 1], prev_coef[2, 1]),
 		se = c(prev_coef[1, 2], prev_coef[2, 2]),
-		type = c("Plurality", "IRV"), 
+		type = c("Plurality", "IRV"),
 		s = s
 		))
 }
@@ -161,14 +162,14 @@ prev_results <- lapply(s_list, function(x) prev_estimates(x))
 prev_results <- do.call(rbind, prev_results)
 
 # Plot this thing
-ggplot(prev_results, aes(x = s)) + 
+ggplot(prev_results, aes(x = s)) +
 	geom_point(aes(y = coef, color = type)) +
 	geom_linerange(aes(
-		ymin = coef - 1.96 * se, 
-		ymax = coef + 1.96 * se, 
-		color = type), 
+		ymin = coef - 1.96 * se,
+		ymax = coef + 1.96 * se,
+		color = type),
 		lwd = 2, alpha = 0.3) +
-	theme_sv() + 
+	theme_sv() +
 	ylim(0, 0.28) +
 	scale_x_continuous(breaks = unlist(s_list)) +
 	labs(x = "Precision of Beliefs", y = expression(paste("Pr(", tau > 0, " | s)")))
@@ -181,16 +182,16 @@ prev_results_not_n <- lapply(s_list, function(x) prev_estimates(x, "neutral", 0)
 prev_results_not_n$class <- "not neutral"
 prev_results_by_n <- rbind(prev_results_n, prev_results_not_n)
 
-ggplot(prev_results_by_n, aes(x = s)) + 
+ggplot(prev_results_by_n, aes(x = s)) +
   geom_point(aes(y = coef, color = type)) +
   geom_linerange(aes(
-    ymin = coef - 1.96 * se, 
-    ymax = coef + 1.96 * se, 
-    color = type), 
+    ymin = coef - 1.96 * se,
+    ymax = coef + 1.96 * se,
+    color = type),
     lwd = 2, alpha = 0.3) +
-  theme_sv() + 
+  theme_sv() +
   ylim(0, 0.28) +
-  facet_wrap(. ~ class) + 
+  facet_wrap(. ~ class) +
   scale_x_continuous(breaks = unlist(s_list)) +
   labs(x = "Precision of Beliefs", y = expression(paste("Pr(", tau > 0, " | s)")))
 ggsave(here("../output/figures_paper/prevalence_by_n.pdf"), width = 6, height = 4, device = cairo_pdf)
@@ -200,7 +201,7 @@ ggsave(here("../output/figures_paper/prevalence_by_n.pdf"), width = 6, height = 
 # ...
 
 # Difference between prevalences by case and s
-scatter <- prev_df %>% group_by(s, case, type) %>% summarise(prop = sum(as.numeric(positive) * weight_rep) / sum(weight_rep)) 
+scatter <- prev_df %>% group_by(s, case, type) %>% summarise(prop = sum(as.numeric(positive) * weight_rep) / sum(weight_rep))
 diffs <- scatter %>% group_by(s, case) %>% summarise(diff = prop[2] - prop[1])
 diffs$weights <- rep(country_weight / sum(country_weight), 6)
 
@@ -238,9 +239,9 @@ exben_estimates <- function(s, cond = "default", val = 1){
   exben_mod <- lm("exben ~ as.factor(type) - 1", weights = weight_rep, exben_df[exben_df$s == s & exben_df[, cond] == val, ])
   exben_coef <- coeftest(exben_mod, vcov = vcovHC(exben_mod, "HC0", cluster = "respondent"))
   return(data.frame(
-    coef = c(exben_coef[1, 1], exben_coef[2, 1]), 
+    coef = c(exben_coef[1, 1], exben_coef[2, 1]),
     se = c(exben_coef[1, 2], exben_coef[2, 2]),
-    type = c("Plurality", "IRV"), 
+    type = c("Plurality", "IRV"),
     s = s
     ))
 }
@@ -248,14 +249,14 @@ exben_results <- lapply(s_list, function(x) exben_estimates(x))
 exben_results <- do.call(rbind, exben_results)
 
 # Plot this thing
-ggplot(exben_results, aes(x = s)) + 
+ggplot(exben_results, aes(x = s)) +
   geom_point(aes(y = coef, color = type)) +
   geom_linerange(aes(
-    ymin = coef - 1.96 * se, 
-    ymax = coef + 1.96 * se, 
-    color = type), 
+    ymin = coef - 1.96 * se,
+    ymax = coef + 1.96 * se,
+    color = type),
     lwd = 2, alpha = 0.3) +
-  theme_sv() + 
+  theme_sv() +
   ylim(0, 0.28) +
   scale_x_continuous(breaks = unlist(s_list)) +
   labs(x = "Precision of Beliefs", y = "Expected Benefit")
@@ -268,16 +269,16 @@ exben_results_not_n$class <- "not neutral"
 
 exben_results_by_n <- rbind(exben_results_n, exben_results_not_n)
 
-ggplot(exben_results_by_n, aes(x = s)) + 
+ggplot(exben_results_by_n, aes(x = s)) +
   geom_point(aes(y = coef, color = type)) +
   geom_linerange(aes(
-    ymin = coef - 1.96 * se, 
-    ymax = coef + 1.96 * se, 
-    color = type), 
+    ymin = coef - 1.96 * se,
+    ymax = coef + 1.96 * se,
+    color = type),
     lwd = 2, alpha = 0.3) +
-  theme_sv() + 
+  theme_sv() +
   ylim(0, 0.28) +
-  facet_wrap(. ~ class) + 
+  facet_wrap(. ~ class) +
   scale_x_continuous(breaks = unlist(s_list)) +
   labs(x = "Precision of Beliefs", y = "Expected Benefit")
 ggsave(here("../output/figures_paper/ex_ben_by_neutral.pdf"), width = 6, height = 4, device = cairo_pdf)
@@ -296,7 +297,7 @@ mag_df <- gather(mag_df, type, tau, 1:2)
 # Run regression(s) and store results
 # Need to change function such that df is seen as variable!
 rcv_diff <- function(df, epsilon, s){
-  df[, "above_epsilon"] <- df[, "tau"] > epsilon 
+  df[, "above_epsilon"] <- df[, "tau"] > epsilon
   weighting <- df[, "weight_rep"]
   # return(length(df[, "weight_rep"]))
   model <- lm("above_epsilon ~ as.factor(type) - 1", data = df, weights = mag_df[mag_df$s == s, "weight_rep"])
@@ -315,8 +316,8 @@ epsilon_results <- rbind(epsilon_results_1, epsilon_results_2)
 epsilon_factor_scale <- ggplot(epsilon_results, aes(x = as.factor(epsilon), colour = type)) +
 	geom_point(aes(y = coef)) +
 	geom_linerange(aes(
-		ymin = coef - 1.96 * se, 
-		ymax = coef + 1.96 * se), 
+		ymin = coef - 1.96 * se,
+		ymax = coef + 1.96 * se),
 		lwd = 2, alpha = 0.3) +
 	theme_sv() +
   theme(legend.position = "bottom", legend.direction = "horizontal", axis.text.x = element_text(angle = 45, hjust = 1, size = 8)) +
@@ -362,7 +363,7 @@ cw_joint$s <- rep(c(85, 25), each = 10)
 ggplot(cw_joint, aes(x = as.factor(lambda), color = type)) +
   geom_point(aes(y = mu), position = position_dodge(0.2)) +
   geom_linerange(aes(ymin = lower, ymax = upper), lwd = 2, alpha = 0.3, position = position_dodge(0.2)) +
-  theme_sv() + 
+  theme_sv() +
   ylim(0.5, 1) +
   labs(x = "Proportion of strategic voters", y = "Pr(Condorcet Winner elected)") +
   facet_wrap(.~ s) +
@@ -374,7 +375,7 @@ ggsave("../output/figures_paper/cw_agg_two_s.pdf", width = 5, height = 4, device
 ggplot(cw_df, aes(x = as.factor(lambda), color = type)) +
   geom_point(aes(y = mu), position = position_dodge(0.2)) +
   geom_linerange(aes(ymin = lower, ymax = upper), lwd = 2, alpha = 0.3, position = position_dodge(0.2)) +
-  theme_sv() + 
+  theme_sv() +
   ylim(0.5, 1) +
   labs(x = "Proportion of strategic voters", y = "Pr(Condorcet Winner elected)") +
   theme(legend.position = "bottom", legend.direction = "horizontal")
@@ -408,7 +409,7 @@ boot_wmean_2 <- function(x, weight = weights, d){
 
 get_boot_ci <- function(var){
   out <- tapply(as.numeric(inter_df[[var]]), inter_df$lambda, function(x) {
-  z <- boot(x, boot_wmean_2, 1000, weight = country_weight) 
+  z <- boot(x, boot_wmean_2, 1000, weight = country_weight)
   z_mu <- mean(z$t)
   ci <- boot.ci(z, type = "perc")
   return(c(z_mu, ci[[4]][4:5]))
@@ -433,4 +434,78 @@ inter_plot <- ggplot(inter_agg, aes(x = lambda, y = mu, color = system)) +
   labs(x = "Proportion of strategic voters", y = "Proportion with different optimal vote")
 ggsave("../output/figures_paper/inter.pdf", width = 7, height = 5, inter_plot, device = cairo_pdf)
 
+##
+## MULTIPLE ITERATIONS
+##
 
+# Write general function that takes original big_list item, no. of iterations, lambda, s
+# returns: list of v_vec_strat after every iteration
+# DF of strategic incentives after k iterations
+return_iterations <- function(object, lambda, k, s){
+  obj <- object
+  v_vec <- obj$v_vec
+  v_vec_rcv <- list(v_vec)
+  v_vec_plur <- list(v_vec)
+  for(i in 1:(k+1)){
+    item_rcv <- convert_andy_to_sv_item_two(obj$U, obj$weights, 85, v_vec_rcv[[i]])
+    v_vec_rcv[[i + 1]] <- lambda * as.numeric(table(factor(item$opt_rcv, 1:6))/nrow(item_rcv)) + (1 - lambda) * v_vec_rcv[[i]]
+  }
+  # Do the same for plurality
+  for(i in 1:(k+1)){
+    item_plur <- convert_andy_to_sv_item_two(obj$U, obj$weights, 85, v_vec_plur[[i]])
+    vec_temp <- rep(as.numeric(table(factor(item_plur$opt_plur, 1:3))/nrow(item_plur)), each = 2) /2
+    v_vec_plur[[i + 1]] <- lambda * vec_temp + (1 - lambda) * v_vec_plur[[i]]
+  }
+  return(list(v_vec_rcv, v_vec_plur, item_rcv, item_plur))
+}
+
+# Loop the same thing over all cases. (I'm sure there's a more elegant way...)
+sv_iter_rcv <- list()
+sv_iter_plur <- list()
+for(j in 1:length(big_list_na_omit)){
+    print(j)
+    out <- return_iterations(big_list_na_omit[[j]], 0.1, 20, 85)
+
+    df_rcv <- out[[3]]
+    df_rcv$case <- names(big_list_na_omit)[[j]]
+    df_rcv$weight <- big_list_na_omit[[j]]$weights
+    df_rcv$country <- substr(df_rcv$case, 1, 3)
+    df_rcv$weight_sum <- sum(big_list_na_omit[[j]]$weights)
+    df_rcv$VAP <- vap$VAP[vap$cntry == df_rcv$country[1]]
+    df_rcv$m <- vap$Freq[vap$cntry == df_rcv$country[1]]
+    df_rcv$weight_rep <- df_rcv$weight * (df_rcv$VAP / (df_rcv$weight_sum * df_rcv$m))
+    sv_iter_rcv[[j]] <- df_rcv
+    sv_iter_plur[[j]] <- out[[4]]
+
+    df_plur <- out[[4]]
+    df_plur$case <- names(big_list_na_omit)[[j]]
+    df_plur$weight <- big_list_na_omit[[j]]$weights
+    df_plur$country <- substr(df_plur$case, 1, 3)
+    df_plur$weight_sum <- sum(big_list_na_omit[[j]]$weights)
+    df_plur$VAP <- vap$VAP[vap$cntry == df_plur$country[1]]
+    df_plur$m <- vap$Freq[vap$cntry == df_plur$country[1]]
+    df_plur$weight_rep <- df_plur$weight * (df_plur$VAP / (df_plur$weight_sum * df_plur$m))
+    sv_iter_plur[[j]] <- df_plur
+}
+sv_iter_rcv_df <- do.call(rbind, sv_iter_rcv)
+sv_iter_plur_df <- do.call(rbind, sv_iter_plur)
+
+# Analysis of the resulting L20 incentives
+## Difference between RCV and Plurality
+head(sv_iter_plur_df)
+sv_iter_rcv_df$pos <- sv_iter_rcv_df$tau_rcv > 0
+sv_iter_plur_df$pos <- sv_iter_plur_df$tau_plur > 0
+
+weighted.mean(sv_iter_rcv_df$tau_rcv > 0, weights = sv_iter_rcv_df$weight_rep)
+weighted.mean(sv_iter_plur_df$tau_plur > 0, weights = sv_iter_plur_df$weight_rep)
+
+weighted.mean(sv_iter_rcv_df$tau_rcv[sv_iter_rcv_df$pos == TRUE], weights = sv_iter_rcv_df$weight_rep[sv_iter_rcv_df$pos == TRUE])
+
+pdf("iterated_magnitude.pdf")
+plot(density(log(sv_iter_rcv_df$tau_rcv[sv_iter_rcv_df$pos == TRUE]), weights = sv_iter_rcv_df$weight_rep[sv_iter_rcv_df$pos == TRUE] / sum(sv_iter_rcv_df$weight_rep[sv_iter_rcv_df$pos == TRUE])),
+xlim = c(-35, 20))
+
+lines(density(log(sv_iter_plur_df$tau_plur[sv_iter_plur_df$pos == TRUE]), weights = sv_iter_plur_df$weight_rep[sv_iter_plur_df$pos == TRUE] / sum(sv_iter_rcv_df$weight_rep[sv_iter_rcv_df$pos == TRUE])), col = "blue")
+
+title("Distribution of ln(E[tau | tau > 0])")
+dev.off()
