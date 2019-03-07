@@ -9,11 +9,8 @@
 ## DEPENDENCIES
 ##
 
-# Set WD etc.
-library(here)
-
 # Load packages
-requiredPackages <- c("ggplot2", "ggtern", "dplyr", "purrr", "tidyr", "lmtest", "sandwich", "plm", "extrafont", "RColorBrewer", "boot")
+requiredPackages <- c("here", "ggplot2", "ggtern", "dplyr", "purrr", "tidyr", "lmtest", "sandwich", "plm", "extrafont", "RColorBrewer", "boot")
 ipak <- function(pkg){
         new.pkg <- pkg[!(pkg %in% installed.packages()[, "Package"])]
         if (length(new.pkg))
@@ -134,6 +131,7 @@ big_sv_df$neutral[big_sv_df$case %in% names(big_list_na_omit)[neutral]] <- 1
 big_sv_df$dm <- as.numeric(big_sv_df$case %in% names(big_list_na_omit)[dm])
 big_sv_df$sp <- as.numeric(big_sv_df$case %in% names(big_list_na_omit)[sp])
 big_sv_df$default <- 1
+
 ##
 ## PREVALENCE
 ##
@@ -496,11 +494,11 @@ head(sv_iter_plur_df)
 sv_iter_rcv_df$pos <- sv_iter_rcv_df$tau_rcv > 0
 sv_iter_plur_df$pos <- sv_iter_plur_df$tau_plur > 0
 
+# Difference in prevalence, pooled and weighted
 weighted.mean(sv_iter_rcv_df$tau_rcv > 0, weights = sv_iter_rcv_df$weight_rep)
 weighted.mean(sv_iter_plur_df$tau_plur > 0, weights = sv_iter_plur_df$weight_rep)
 
-weighted.mean(sv_iter_rcv_df$tau_rcv[sv_iter_rcv_df$pos == TRUE], weights = sv_iter_rcv_df$weight_rep[sv_iter_rcv_df$pos == TRUE])
-
+# Plot distribution of magnitudes
 pdf("iterated_magnitude.pdf")
 plot(density(log(sv_iter_rcv_df$tau_rcv[sv_iter_rcv_df$pos == TRUE]), weights = sv_iter_rcv_df$weight_rep[sv_iter_rcv_df$pos == TRUE] / sum(sv_iter_rcv_df$weight_rep[sv_iter_rcv_df$pos == TRUE])),
 xlim = c(-35, 20))
@@ -509,3 +507,16 @@ lines(density(log(sv_iter_plur_df$tau_plur[sv_iter_plur_df$pos == TRUE]), weight
 
 title("Distribution of ln(E[tau | tau > 0])")
 dev.off()
+
+# What I ideally want is the following output:
+# for each s, prevalence, magnitude and expected benefit after each iteration (with associated standard errors)
+
+# list structure (how output should look like):
+  # s = 25
+  ## cases (1 - 160)
+  ### DF of summary results for each iteration:
+  ###   prevalence, magnitude, expected benefit, v_vec
+  ### full item of first iteration? (to get at distribution of magnitudes)
+  ### full item of last iteration? (to get at distribution of magnitudes)
+  # s = 40
+  ## ...
