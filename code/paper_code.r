@@ -439,77 +439,172 @@ ggsave("../output/figures_paper/inter.pdf", width = 7, height = 5, inter_plot, d
 # Write general function that takes original big_list item, no. of iterations, lambda, s
 # returns: list of v_vec_strat after every iteration
 # DF of strategic incentives after k iterations
-return_iterations <- function(object, lambda, k, s){
-  obj <- object
-  v_vec <- obj$v_vec
-  v_vec_rcv <- list(v_vec)
-  v_vec_plur <- list(v_vec)
-  for(i in 1:(k+1)){
-    item_rcv <- convert_andy_to_sv_item_two(obj$U, obj$weights, 85, v_vec_rcv[[i]])
-    v_vec_rcv[[i + 1]] <- lambda * as.numeric(table(factor(item$opt_rcv, 1:6))/nrow(item_rcv)) + (1 - lambda) * v_vec_rcv[[i]]
-  }
-  # Do the same for plurality
-  for(i in 1:(k+1)){
-    item_plur <- convert_andy_to_sv_item_two(obj$U, obj$weights, 85, v_vec_plur[[i]])
-    vec_temp <- rep(as.numeric(table(factor(item_plur$opt_plur, 1:3))/nrow(item_plur)), each = 2) /2
-    v_vec_plur[[i + 1]] <- lambda * vec_temp + (1 - lambda) * v_vec_plur[[i]]
-  }
-  return(list(v_vec_rcv, v_vec_plur, item_rcv, item_plur))
-}
 
-# Loop the same thing over all cases. (I'm sure there's a more elegant way...)
-sv_iter_rcv <- list()
-sv_iter_plur <- list()
-for(j in 1:length(big_list_na_omit)){
-    print(j)
-    out <- return_iterations(big_list_na_omit[[j]], 0.1, 20, 85)
+# return_iterations <- function(object, lambda, k, s){
+#   obj <- object
+#   v_vec <- obj$v_vec
+#   v_vec_rcv <- list(v_vec)
+#   v_vec_plur <- list(v_vec)
+#   for(i in 1:(k+1)){
+#     item_rcv <- convert_andy_to_sv_item_two(obj$U, obj$weights, 85, v_vec_rcv[[i]])
+#     v_vec_rcv[[i + 1]] <- lambda * as.numeric(table(factor(item$opt_rcv, 1:6))/nrow(item_rcv)) + (1 - lambda) * v_vec_rcv[[i]]
+#   }
+#   # Do the same for plurality
+#   for(i in 1:(k+1)){
+#     item_plur <- convert_andy_to_sv_item_two(obj$U, obj$weights, 85, v_vec_plur[[i]])
+#     vec_temp <- rep(as.numeric(table(factor(item_plur$opt_plur, 1:3))/nrow(item_plur)), each = 2) /2
+#     v_vec_plur[[i + 1]] <- lambda * vec_temp + (1 - lambda) * v_vec_plur[[i]]
+#   }
+#   return(list(v_vec_rcv, v_vec_plur, item_rcv, item_plur))
+# }
 
-    df_rcv <- out[[3]]
-    df_rcv$case <- names(big_list_na_omit)[[j]]
-    df_rcv$weight <- big_list_na_omit[[j]]$weights
-    df_rcv$country <- substr(df_rcv$case, 1, 3)
-    df_rcv$weight_sum <- sum(big_list_na_omit[[j]]$weights)
-    df_rcv$VAP <- vap$VAP[vap$cntry == df_rcv$country[1]]
-    df_rcv$m <- vap$Freq[vap$cntry == df_rcv$country[1]]
-    df_rcv$weight_rep <- df_rcv$weight * (df_rcv$VAP / (df_rcv$weight_sum * df_rcv$m))
-    sv_iter_rcv[[j]] <- df_rcv
-    sv_iter_plur[[j]] <- out[[4]]
+# # Loop the same thing over all cases. (I'm sure there's a more elegant way...)
+# sv_iter_rcv <- list()
+# sv_iter_plur <- list()
+# for(j in 1:length(big_list_na_omit)){
+#     print(j)
+#     out <- return_iterations(big_list_na_omit[[j]], 0.1, 20, 85)
 
-    df_plur <- out[[4]]
-    df_plur$case <- names(big_list_na_omit)[[j]]
-    df_plur$weight <- big_list_na_omit[[j]]$weights
-    df_plur$country <- substr(df_plur$case, 1, 3)
-    df_plur$weight_sum <- sum(big_list_na_omit[[j]]$weights)
-    df_plur$VAP <- vap$VAP[vap$cntry == df_plur$country[1]]
-    df_plur$m <- vap$Freq[vap$cntry == df_plur$country[1]]
-    df_plur$weight_rep <- df_plur$weight * (df_plur$VAP / (df_plur$weight_sum * df_plur$m))
-    sv_iter_plur[[j]] <- df_plur
-}
-sv_iter_rcv_df <- do.call(rbind, sv_iter_rcv)
-sv_iter_plur_df <- do.call(rbind, sv_iter_plur)
+#     df_rcv <- out[[3]]
+#     df_rcv$case <- names(big_list_na_omit)[[j]]
+#     df_rcv$weight <- big_list_na_omit[[j]]$weights
+#     df_rcv$country <- substr(df_rcv$case, 1, 3)
+#     df_rcv$weight_sum <- sum(big_list_na_omit[[j]]$weights)
+#     df_rcv$VAP <- vap$VAP[vap$cntry == df_rcv$country[1]]
+#     df_rcv$m <- vap$Freq[vap$cntry == df_rcv$country[1]]
+#     df_rcv$weight_rep <- df_rcv$weight * (df_rcv$VAP / (df_rcv$weight_sum * df_rcv$m))
+#     sv_iter_rcv[[j]] <- df_rcv
 
-# Analysis of the resulting L20 incentives
-## Difference between RCV and Plurality
-head(sv_iter_plur_df)
-sv_iter_rcv_df$pos <- sv_iter_rcv_df$tau_rcv > 0
-sv_iter_plur_df$pos <- sv_iter_plur_df$tau_plur > 0
+#     # Compute summary statistics
 
-# Difference in prevalence, pooled and weighted
-weighted.mean(sv_iter_rcv_df$tau_rcv > 0, weights = sv_iter_rcv_df$weight_rep)
-weighted.mean(sv_iter_plur_df$tau_plur > 0, weights = sv_iter_plur_df$weight_rep)
+#     df_plur <- out[[4]]
+#     df_plur$case <- names(big_list_na_omit)[[j]]
+#     df_plur$weight <- big_list_na_omit[[j]]$weights
+#     df_plur$country <- substr(df_plur$case, 1, 3)
+#     df_plur$weight_sum <- sum(big_list_na_omit[[j]]$weights)
+#     df_plur$VAP <- vap$VAP[vap$cntry == df_plur$country[1]]
+#     df_plur$m <- vap$Freq[vap$cntry == df_plur$country[1]]
+#     df_plur$weight_rep <- df_plur$weight * (df_plur$VAP / (df_plur$weight_sum * df_plur$m))
+#     sv_iter_plur[[j]] <- df_plur
+# }
+# sv_iter_rcv_df <- do.call(rbind, sv_iter_rcv)
+# sv_iter_plur_df <- do.call(rbind, sv_iter_plur)
 
-# Plot distribution of magnitudes
-pdf("iterated_magnitude.pdf")
-plot(density(log(sv_iter_rcv_df$tau_rcv[sv_iter_rcv_df$pos == TRUE]), weights = sv_iter_rcv_df$weight_rep[sv_iter_rcv_df$pos == TRUE] / sum(sv_iter_rcv_df$weight_rep[sv_iter_rcv_df$pos == TRUE])),
-xlim = c(-35, 20))
+# # Analysis of the resulting L20 incentives
+# ## Difference between RCV and Plurality
+# head(sv_iter_plur_df)
+# sv_iter_rcv_df$pos <- sv_iter_rcv_df$tau_rcv > 0
+# sv_iter_plur_df$pos <- sv_iter_plur_df$tau_plur > 0
 
-lines(density(log(sv_iter_plur_df$tau_plur[sv_iter_plur_df$pos == TRUE]), weights = sv_iter_plur_df$weight_rep[sv_iter_plur_df$pos == TRUE] / sum(sv_iter_rcv_df$weight_rep[sv_iter_rcv_df$pos == TRUE])), col = "blue")
+# # Difference in prevalence, pooled and weighted
+# weighted.mean(sv_iter_rcv_df$tau_rcv > 0, weights = sv_iter_rcv_df$weight_rep)
+# weighted.mean(sv_iter_plur_df$tau_plur > 0, weights = sv_iter_plur_df$weight_rep)
 
-title("Distribution of ln(E[tau | tau > 0])")
-dev.off()
+# # Plot distribution of magnitudes
+# pdf("iterated_magnitude.pdf")
+# plot(density(log(sv_iter_rcv_df$tau_rcv[sv_iter_rcv_df$pos == TRUE]), weights = sv_iter_rcv_df$weight_rep[sv_iter_rcv_df$pos == TRUE] / sum(sv_iter_rcv_df$weight_rep[sv_iter_rcv_df$pos == TRUE])),
+# xlim = c(-35, 20))
+
+# lines(density(log(sv_iter_plur_df$tau_plur[sv_iter_plur_df$pos == TRUE]), weights = sv_iter_plur_df$weight_rep[sv_iter_plur_df$pos == TRUE] / sum(sv_iter_rcv_df$weight_rep[sv_iter_rcv_df$pos == TRUE])), col = "blue")
+
+# title("Distribution of ln(E[tau | tau > 0])")
+# dev.off()
 
 # What I ideally want is the following output:
 # for each s, prevalence, magnitude and expected benefit after each iteration (with associated standard errors)
+
+# Ugly code: improvve functions and write documentation.
+
+iteration_return_summary <- function(object, v_vec, lambda, s){
+  obj <- object
+  tab <- convert_andy_to_sv_item_two(obj$U, obj$weights, 85, v_vec)
+
+  prev_rcv <- weighted.mean(tab$tau_rcv > 0, weights = obj$weights)
+  mag_rcv <- weighted.mean(tab$tau_rcv[tab$tau_rcv > 0], weights = obj$weights)
+  eb_rcv <- prev_rcv * mag_rcv
+  strat_vec_rcv <- as.numeric(table(factor(tab$opt_rcv, 1:6))/nrow(tab))
+  new_vec_rcv <- lambda * strat_vec_rcv + (1 - lambda) * v_vec
+
+  prev_plur <- weighted.mean(tab$tau_plur > 0, weights = obj$weights)
+  mag_plur <- weighted.mean(tab$tau_plur[tab$tau_plur > 0], weights = obj$weights)
+  eb_plur <- prev_plur * mag_plur
+
+  strat_vec_plur <- rep(as.numeric(table(factor(tab$opt_plur, 1:3))/nrow(tab)), each = 2) /2
+  new_vec_plur <- lambda * strat_vec_plur + (1 - lambda) * v_vec
+
+  return(list(rcv_sum = c(prev_rcv, mag_rcv, eb_rcv),
+              rcv_vec = new_vec_rcv,
+              plur_sum = c(prev_plur, mag_plur, eb_plur),
+              plur_vec = new_vec_plur))
+}
+
+iteration_wrapper <- function(object, v_vec, lambda, s, k){
+    rcv_sum_list <- list()
+    rcv_v_vec_list <- list(v_vec)
+    plur_sum_list <- list()
+    plur_v_vec_list <- list(v_vec)
+
+    # RCV loop
+    for (j in 1:k) {
+       out <- iteration_return_summary(object, rcv_v_vec_list[[j]], lambda, s)
+       rcv_sum_list[[j]] <- out$rcv_sum
+       rcv_v_vec_list[[j + 1]] <- out$rcv_vec
+    }
+    rcv_sum <- as.data.frame(do.call(rbind, rcv_sum_list))
+    names(rcv_sum) <- c("Prevalence", "Magnitude", "ExpBenefit")
+    rcv_sum$k <- 1:k
+    rcv_v_vec <- as.data.frame(do.call(rbind, rcv_v_vec_list))
+
+    # Plurality loop
+    for (j in 1:k) {
+       out <- iteration_return_summary(object, plur_v_vec_list[[j]], lambda, s)
+       plur_sum_list[[j]] <- out$plur_sum
+       plur_v_vec_list[[j + 1]] <- out$plur_vec
+    }
+    plur_sum <- as.data.frame(do.call(rbind, plur_sum_list))
+    names(plur_sum) <- c("Prevalence", "Magnitude", "ExpBenefit")
+    plur_sum$k <- 1:k
+    plur_v_vec <- as.data.frame(do.call(rbind, plur_v_vec_list))
+
+    return(list(rcv_sum, rcv_v_vec, plur_sum, plur_v_vec))
+}
+
+
+big_rcv_sum <- list()
+big_plur_sum <- list()
+big_rcv_vec <- list()
+big_plur_vec <- list()
+
+# Repeat loop for multiple values of s (list structure)
+for (case in 1:length(big_list_na_omit)) {
+  print(case)
+  out <- iteration_wrapper(big_list_na_omit[[case]], big_list_na_omit[[case]]$v_vec, 0.2, 85, 20)
+  big_rcv_sum[[case]] <- out[[1]]
+  big_rcv_sum[[case]]$case <- names(big_list_na_omit)[[case]]
+  big_plur_sum[[case]] <- out[[3]]
+  big_plur_sum[[case]]$case <- names(big_list_na_omit)[[case]]
+  big_rcv_vec[[case]] <- out[[2]]
+  big_plur_vec[[case]] <- out[[4]]
+}
+
+big_rcv_sum <- do.call(rbind, big_rcv_sum)
+big_plur_sum <- do.call(rbind, big_plur_sum)
+
+# Aggregate
+
+iteration_return_summary(big_list_na_omit[[124]], as.numeric(big_rcv_vec[[124]][13, ]), 0.2, 85)
+
+eb_rcv_agg <- as.data.frame(big_rcv_sum %>% group_by(k) %>% summarise(avg = weighted.mean(ExpBenefit, weights = country_weight, na.rm = TRUE)))
+eb_plur_agg <- as.data.frame(big_plur_sum %>% group_by(k) %>% summarise(avg = weighted.mean(ExpBenefit, weights = country_weight, na.rm = TRUE)))
+
+ggplot(big_rcv_sum, aes(x = k, y = Prevalence)) + 
+  geom_line(data = big_rcv_sum, aes(x = k, y = Prevalence, group = case), alpha = 0.1, colour = "blue") + 
+  geom_line(data = big_plur_sum, aes(x = k, y = Prevalence, group = case), alpha = 0.1, colour = "orange") + 
+  geom_line(data = eb_rcv_agg, aes(x = k, y = avg), colour = "blue", lwd = 2) + 
+  geom_line(data = eb_plur_agg, aes(x = k, y = avg), colour = "orange", lwd = 2) + 
+  theme_sv()
+ggsave(here("../output/figures/iteration_expected_benefit.pdf"), height = 4, width = 4, device = cairo_pdf)
+
 
 # list structure (how output should look like):
   # s = 25
@@ -520,3 +615,4 @@ dev.off()
   ### full item of last iteration? (to get at distribution of magnitudes)
   # s = 40
   ## ...
+
