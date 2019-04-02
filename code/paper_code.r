@@ -515,6 +515,9 @@ ggsave("../output/figures_paper/inter.pdf", width = 7, height = 5, inter_plot, d
 
 # Ugly code: improvve functions and write documentation.
 
+<<<<<<< HEAD
+### EQUILIBRIUM ANALYSIS
+=======
 iteration_return_summary <- function(object, v_vec, lambda, s){
   obj <- object
   tab <- convert_andy_to_sv_item_two(obj$U, obj$weights, 85, v_vec)
@@ -569,13 +572,45 @@ iteration_wrapper <- function(object, v_vec, lambda, s, k){
     return(list(rcv_sum, rcv_v_vec, plur_sum, plur_v_vec))
 }
 
+>>>>>>> parent of 8bbe77c... iterations plots
 
 big_rcv_sum <- list()
 big_plur_sum <- list()
 big_rcv_vec <- list()
 big_plur_vec <- list()
 
+lambda <- 0.1
+k <- 60
+
 # Repeat loop for multiple values of s (list structure)
+<<<<<<< HEAD
+# Warning, takes a long imte!
+for(prec in 1:length(s_list)){
+  s_val <- s_list[[prec]]
+  print(s_val)
+  rcv_sum <- list()
+  plur_sum <- list()
+  rcv_vec <- list()
+  plur_vec <- list()
+  for (case in 1:length(big_list_na_omit)) {
+    print(case)
+    out <- iteration_wrapper(big_list_na_omit[[case]], big_list_na_omit[[case]]$v_vec, lambda, s_val, k)
+    rcv_sum[[case]] <- out[[1]]
+    rcv_sum[[case]]$case <- names(big_list_na_omit)[[case]]
+    plur_sum[[case]] <- out[[3]]
+    plur_sum[[case]]$case <- names(big_list_na_omit)[[case]]
+    rcv_vec[[case]] <- out[[2]]
+    plur_vec[[case]] <- out[[4]]
+  }
+  rcv_sum <- do.call(rbind, rcv_sum)
+  rcv_sum$s <- s_val
+  plur_sum <- do.call(rbind, plur_sum)
+  plur_sum$s <- s_val
+  big_rcv_sum[[prec]] <- rcv_sum
+  big_rcv_vec[[prec]] <- rcv_vec
+  big_plur_sum[[prec]] <- plur_sum
+  big_plur_vec[[prec]] <- plur_vec
+=======
 for (case in 1:length(big_list_na_omit)) {
   print(case)
   out <- iteration_wrapper(big_list_na_omit[[case]], big_list_na_omit[[case]]$v_vec, 0.2, 85, 20)
@@ -585,6 +620,7 @@ for (case in 1:length(big_list_na_omit)) {
   big_plur_sum[[case]]$case <- names(big_list_na_omit)[[case]]
   big_rcv_vec[[case]] <- out[[2]]
   big_plur_vec[[case]] <- out[[4]]
+>>>>>>> parent of 8bbe77c... iterations plots
 }
 
 big_rcv_sum <- do.call(rbind, big_rcv_sum)
@@ -600,6 +636,89 @@ eb_plur_agg <- as.data.frame(big_plur_sum %>% group_by(k) %>% summarise(avg = we
 ggplot(big_rcv_sum, aes(x = k, y = Prevalence)) + 
   geom_line(data = big_rcv_sum, aes(x = k, y = Prevalence, group = case), alpha = 0.1, colour = "blue") + 
   geom_line(data = big_plur_sum, aes(x = k, y = Prevalence, group = case), alpha = 0.1, colour = "orange") + 
+<<<<<<< HEAD
+  geom_line(data = rcv_agg, aes(x = k, y = prev), colour = "blue", lwd = 2) + 
+  geom_line(data = plur_agg, aes(x = k, y = prev), colour = "orange", lwd = 2) + 
+  facet_wrap(. ~ s) +
+  theme_sv() +
+  labs(x = "Iteration", y = "Prevalence")
+ggsave(here("../output/figures/iterated_prevalence.pdf"), device = cairo_pdf)
+
+ggplot(big_rcv_sum, aes(x = k, y = Magnitude)) + 
+  geom_line(data = big_rcv_sum, aes(x = k, y = Magnitude, group = case), alpha = 0.1, colour = "blue") + 
+  geom_line(data = big_plur_sum, aes(x = k, y = Magnitude, group = case), alpha = 0.1, colour = "orange") + 
+  geom_line(data = rcv_agg, aes(x = k, y = mag), colour = "blue", lwd = 2) + 
+  geom_line(data = plur_agg, aes(x = k, y = mag), colour = "orange", lwd = 2) + 
+  facet_wrap(. ~ s) +
+  theme_sv() +
+  labs(x = "Iteration", y = "Magnitude")
+ggsave(here("../output/figures/iterated_magnitude.pdf"), device = cairo_pdf)
+
+ebplot <- ggplot(big_rcv_sum, aes(x = k, y = ExpBenefit)) + 
+  geom_line(data = big_rcv_sum, aes(x = k, y = ExpBenefit, group = case), alpha = 0.1, colour = "blue") + 
+  geom_line(data = big_plur_sum, aes(x = k, y = ExpBenefit, group = case), alpha = 0.1, colour = "orange") + 
+  geom_line(data = rcv_agg, aes(x = k, y = eb), colour = "blue", lwd = 2) + 
+  geom_line(data = plur_agg, aes(x = k, y = eb), colour = "orange", lwd = 2) + 
+  facet_wrap(. ~ s) +
+  theme_sv() +
+  labs(x = "Iteration", y = "Expected Benefit")
+ggsave(here("../output/figures/iterated_expbenefit.pdf"), ebplot, device = cairo_pdf)
+
+# same but with zoomed-in y-axis
+ebplot + ylim(0, 0.25)
+ggsave(here("../output/figures/iterated_expbenefit_zoomed.pdf"), device = cairo_pdf)
+
+# v-vec euclidean distance
+bind_vecs_rcv <- function(vec_list){
+  vec_list_mod <- lapply(vec_list, function(x) {
+    orig <- x[1, ]
+    x$dist <- c(NA, sqrt(rowSums((x[-1, 1:6] - orig[rep(1, 60), ])^2)))
+    x$diff <- c(NA, sqrt(rowSums((x[-1, 1:6] - x[-61, 1:6])^2)))
+    x$k <- 1:61
+    return(x)
+    })
+  out <- do.call(rbind, vec_list_mod) 
+  out$case <- rep(names(big_list_na_omit), each = 61)
+  return(out)   
+ } 
+
+ bind_vecs_plur <- function(vec_list){
+  vec_list_mod <- lapply(vec_list, function(x) {
+    x_three <- x[, c(1, 3, 5)] + x[, c(2, 4, 6)]
+    orig <- x_three[1, ]
+    x_three$dist <- c(NA, sqrt(rowSums((x_three[-1, 1:3] - orig[rep(1, 60), ])^2)))
+    x_three$diff <- c(NA, sqrt(rowSums((x_three[-1, 1:3] - x_three[-61, 1:3])^2)))
+    x_three$k <- 1:61
+    return(x_three)
+    })
+  out <- do.call(rbind, vec_list_mod) 
+  out$case <- rep(names(big_list_na_omit), each = 61)
+  return(out)   
+ } 
+
+vec_list_rcv <- lapply(big_rcv_vec, bind_vecs_rcv)
+vec_rcv <- do.call(rbind, vec_list_rcv)
+vec_rcv$s <- rep(as.numeric(s_list), each = 9760)
+vec_rcv$type <- "IRV"
+vec_list_plur <- lapply(big_plur_vec, bind_vecs_plur)
+vec_plur <- do.call(rbind, vec_list_plur)
+vec_plur$s <- rep(as.numeric(s_list), each = 9760)
+vec_plur$type <- "Plurality"
+
+vec_df <- rbind(vec_rcv[, c("dist", "diff", "k", "case", "s", "type")], 
+                vec_plur[, c("dist", "diff", "k", "case", "s", "type")])
+
+vec_df_agg <- as.data.frame(vec_df %>% group_by(k, s, type) %>% summarise(wtd_diff = as.numeric(weighted.mean(log(diff), weights = country_weight)), wtd_dist = as.numeric(weighted.mean(log(dist), weights = country_weight))))
+
+ggplot(vec_df, aes(x = k, y = log(diff))) +
+  geom_line(aes(group = interaction(case, type), colour = type), alpha = 0.05) +
+  geom_line(data = vec_df_agg, aes(x = k, y = as.numeric(wtd_diff), group = type, colour = type), lwd = 2) +
+  facet_wrap(. ~ s) +
+  theme_sv() +
+  labs(x = "kth Iteration", y = "log(Distance to k - 1)") +
+  scale_color_manual(values = c("blue", "orange"))
+ggsave(here("../output/figures/iteration_euclid_diff.pdf"), device = cairo_pdf)
+=======
   geom_line(data = eb_rcv_agg, aes(x = k, y = avg), colour = "blue", lwd = 2) + 
   geom_line(data = eb_plur_agg, aes(x = k, y = avg), colour = "orange", lwd = 2) + 
   theme_sv()
@@ -615,4 +734,18 @@ ggsave(here("../output/figures/iteration_expected_benefit.pdf"), height = 4, wid
   ### full item of last iteration? (to get at distribution of magnitudes)
   # s = 40
   ## ...
+>>>>>>> parent of 8bbe77c... iterations plots
 
+  ggplot(vec_df, aes(x = k, y = log(dist))) +
+  geom_line(aes(group = interaction(case, type), colour = type), alpha = 0.05) +
+  geom_line(data = vec_df_agg, aes(x = k, y = as.numeric(wtd_dist), group = type, colour = type), lwd = 2) +
+  facet_wrap(. ~ s) +
+  theme_sv() +
+  labs(x = "kth Iteration", y = "log(Distance to first iteration)") +
+  scale_color_manual(values = c("blue", "orange"))
+  ggsave(here("../output/figures/iteration_euclid_dist.pdf"), device = cairo_pdf)
+
+inspect <- cbind(vec_df[vec_df$s == 55 & vec_df$k == 60 & vec_df$type == "IRV", ], country_weight)
+inspect[, 1:2] <- log(inspect[, 1:2])
+inspect[order(inspect$diff), ]
+weighted
