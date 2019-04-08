@@ -27,7 +27,7 @@ source(here("utils", "general_iteration_simulation_approach.r"))
 source(here("utils/sv.r"))
 
 # Load data
-load(here("../output/cses_big_list_2.RData"))
+load(here("../output/big_list_2.RData"))
 vap <- read.csv(here("../data/case_vap.csv"), sep = "") # voting age pop.
 
 # Load fonts
@@ -515,21 +515,21 @@ ggsave("../output/figures_paper/inter.pdf", width = 7, height = 5, inter_plot, d
 
 # Ugly code: improvve functions and write documentation.
 
-<<<<<<< HEAD
 ### EQUILIBRIUM ANALYSIS
-=======
 iteration_return_summary <- function(object, v_vec, lambda, s){
   obj <- object
-  tab <- convert_andy_to_sv_item_two(obj$U, obj$weights, 85, v_vec)
+  tab <- convert_andy_to_sv_item_two(obj$U, obj$weights, s, v_vec)
 
   prev_rcv <- weighted.mean(tab$tau_rcv > 0, weights = obj$weights)
-  mag_rcv <- weighted.mean(tab$tau_rcv[tab$tau_rcv > 0], weights = obj$weights)
+  mag_rcv <- weighted.mean(tab$tau_tilde_rcv[tab$tau_tilde_rcv > 0], weights = obj$weights[tab$tau_tilde_rcv > 0])
   eb_rcv <- prev_rcv * mag_rcv
   strat_vec_rcv <- as.numeric(table(factor(tab$opt_rcv, 1:6))/nrow(tab))
   new_vec_rcv <- lambda * strat_vec_rcv + (1 - lambda) * v_vec
 
   prev_plur <- weighted.mean(tab$tau_plur > 0, weights = obj$weights)
-  mag_plur <- weighted.mean(tab$tau_plur[tab$tau_plur > 0], weights = obj$weights)
+  weight_mag_plur <- sum(obj$weights[tab$tau_plur > 0])
+  # print(weight_mag_plur)
+  mag_plur <- weighted.mean(tab$tau_tilde_plur[tab$tau_tilde_plur > 0], weights = obj$weights[tab$tau_tilde_plur > 0]) / weight_mag_plur
   eb_plur <- prev_plur * mag_plur
 
   strat_vec_plur <- rep(as.numeric(table(factor(tab$opt_plur, 1:3))/nrow(tab)), each = 2) /2
@@ -572,27 +572,25 @@ iteration_wrapper <- function(object, v_vec, lambda, s, k){
     return(list(rcv_sum, rcv_v_vec, plur_sum, plur_v_vec))
 }
 
->>>>>>> parent of 8bbe77c... iterations plots
 
 big_rcv_sum <- list()
 big_plur_sum <- list()
 big_rcv_vec <- list()
 big_plur_vec <- list()
 
-lambda <- 0.1
+lambda <- 0.05
 k <- 60
 
 # Repeat loop for multiple values of s (list structure)
-<<<<<<< HEAD
 # Warning, takes a long imte!
-for(prec in 1:length(s_list)){
+for(prec in 6:6){
   s_val <- s_list[[prec]]
   print(s_val)
   rcv_sum <- list()
   plur_sum <- list()
   rcv_vec <- list()
   plur_vec <- list()
-  for (case in 1:length(big_list_na_omit)) {
+  for (case in 1:1) {
     print(case)
     out <- iteration_wrapper(big_list_na_omit[[case]], big_list_na_omit[[case]]$v_vec, lambda, s_val, k)
     rcv_sum[[case]] <- out[[1]]
@@ -610,21 +608,15 @@ for(prec in 1:length(s_list)){
   big_rcv_vec[[prec]] <- rcv_vec
   big_plur_sum[[prec]] <- plur_sum
   big_plur_vec[[prec]] <- plur_vec
-=======
-for (case in 1:length(big_list_na_omit)) {
-  print(case)
-  out <- iteration_wrapper(big_list_na_omit[[case]], big_list_na_omit[[case]]$v_vec, 0.2, 85, 20)
-  big_rcv_sum[[case]] <- out[[1]]
-  big_rcv_sum[[case]]$case <- names(big_list_na_omit)[[case]]
-  big_plur_sum[[case]] <- out[[3]]
-  big_plur_sum[[case]]$case <- names(big_list_na_omit)[[case]]
-  big_rcv_vec[[case]] <- out[[2]]
-  big_plur_vec[[case]] <- out[[4]]
->>>>>>> parent of 8bbe77c... iterations plots
 }
 
 big_rcv_sum <- do.call(rbind, big_rcv_sum)
 big_plur_sum <- do.call(rbind, big_plur_sum)
+
+# Test and check diff. with Andy's code
+test <- as.data.frame(big_plur_vec[[6]])
+test[, c(1, 3, 5)] + test[, c(2, 4, 6)]
+big_list_na_omit[[1]]$v_vec[c(1, 3, 5)] + big_list_na_omit[[1]]$v_vec[c(2, 4, 6)]
 
 # Aggregate
 
@@ -636,7 +628,6 @@ eb_plur_agg <- as.data.frame(big_plur_sum %>% group_by(k) %>% summarise(avg = we
 ggplot(big_rcv_sum, aes(x = k, y = Prevalence)) + 
   geom_line(data = big_rcv_sum, aes(x = k, y = Prevalence, group = case), alpha = 0.1, colour = "blue") + 
   geom_line(data = big_plur_sum, aes(x = k, y = Prevalence, group = case), alpha = 0.1, colour = "orange") + 
-<<<<<<< HEAD
   geom_line(data = rcv_agg, aes(x = k, y = prev), colour = "blue", lwd = 2) + 
   geom_line(data = plur_agg, aes(x = k, y = prev), colour = "orange", lwd = 2) + 
   facet_wrap(. ~ s) +
@@ -718,7 +709,6 @@ ggplot(vec_df, aes(x = k, y = log(diff))) +
   labs(x = "kth Iteration", y = "log(Distance to k - 1)") +
   scale_color_manual(values = c("blue", "orange"))
 ggsave(here("../output/figures/iteration_euclid_diff.pdf"), device = cairo_pdf)
-=======
   geom_line(data = eb_rcv_agg, aes(x = k, y = avg), colour = "blue", lwd = 2) + 
   geom_line(data = eb_plur_agg, aes(x = k, y = avg), colour = "orange", lwd = 2) + 
   theme_sv()
@@ -734,7 +724,6 @@ ggsave(here("../output/figures/iteration_expected_benefit.pdf"), height = 4, wid
   ### full item of last iteration? (to get at distribution of magnitudes)
   # s = 40
   ## ...
->>>>>>> parent of 8bbe77c... iterations plots
 
   ggplot(vec_df, aes(x = k, y = log(dist))) +
   geom_line(aes(group = interaction(case, type), colour = type), alpha = 0.05) +
