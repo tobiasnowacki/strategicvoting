@@ -629,3 +629,61 @@ return(cw_df)
 boot_wmean <- function(x, d){
   weighted.mean(x[d, 1], x[d, 2])
 }
+
+## STUFF FOR INTERDEPENDENCE
+
+iteration_return_summary <- function(object, v_vec, lambda, s){
+  obj <- object
+  tab <- convert_andy_to_sv_item_two(obj$U, obj$weights, s, v_vec)
+
+  prev_rcv <- weighted.mean(tab$tau_rcv > 0, weights = obj$weights)
+  mag_rcv <- weighted.mean(tab$tau_rcv[tab$tau_rcv > 0], weights = obj$weights[tab$tau_rcv > 0])
+  eb_rcv <- prev_rcv * mag_rcv
+  strat_vec_rcv <- as.numeric(table(factor(tab$opt_rcv, 1:6))/nrow(tab))
+  new_vec_rcv <- lambda * strat_vec_rcv + (1 - lambda) * v_vec
+
+  prev_plur <- weighted.mean(tab$tau_plur > 0, weights = obj$weights)
+  weight_mag_plur <- sum(obj$weights[tab$tau_plur > 0])
+  # print(weight_mag_plur)
+  mag_plur <- weighted.mean(tab$tau_plur[tab$tau_plur > 0], weights = obj$weights[tab$tau_plur > 0])
+  eb_plur <- prev_plur * mag_plur
+
+  strat_vec_plur <- rep(as.numeric(table(factor(tab$opt_plur, 1:3))/nrow(tab)), each = 2) /2
+  new_vec_plur <- lambda * strat_vec_plur + (1 - lambda) * v_vec
+
+  return(list(rcv_sum = c(prev_rcv, mag_rcv, eb_rcv),
+              rcv_vec = new_vec_rcv,
+              plur_sum = c(prev_plur, mag_plur, eb_plur),
+              plur_vec = new_vec_plur))
+}
+
+iteration_wrapper <- function(object, v_vec, lambda, s, k){
+    rcv_sum_list <- list()
+    rcv_v_vec_list <- list(v_vec)
+    plur_sum_list <- list()
+    plur_v_vec_list <- list(v_vec)
+
+    # RCV loop
+    for (j in 1:k) {
+       out <- iteration_return_summary(object, rcv_v_vec_list[[j]], lambda, s)
+       rcv_sum_list[[j]] <- out$rcv_sum
+       rcv_v_vec_list[[j + 1]] <- out$rcv_vec
+    }
+    rcv_sum <- as.data.frame(do.call(rbind, rcv_sum_list))
+    names(rcv_sum) <- c("Prevalence", "Magnitude", "ExpBenefit")
+    rcv_sum$k <- 1:k
+    rcv_v_vec <- as.data.frame(do.call(rbind, rcv_v_vec_list))
+
+    # Plurality loop
+    for (j in 1:k) {
+       out <- iteration_return_summary(object, plur_v_vec_list[[j]], lambda, s)
+       plur_sum_list[[j]] <- out$plur_sum
+       plur_v_vec_list[[j + 1]] <- out$plur_vec
+    }
+    plur_sum <- as.data.frame(do.call(rbind, plur_sum_list))
+    names(plur_sum) <- c("Prevalence", "Magnitude", "ExpBenefit")
+    plur_sum$k <- 1:k
+    plur_v_vec <- as.data.frame(do.call(rbind, plur_v_vec_list))
+
+    return(list(rcv_sum, rcv_v_vec, plur_sum, plur_v_vec))
+}

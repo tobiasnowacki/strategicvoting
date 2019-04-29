@@ -521,7 +521,7 @@ iteration_return_summary <- function(object, v_vec, lambda, s){
   tab <- convert_andy_to_sv_item_two(obj$U, obj$weights, s, v_vec)
 
   prev_rcv <- weighted.mean(tab$tau_rcv > 0, weights = obj$weights)
-  mag_rcv <- weighted.mean(tab$tau_tilde_rcv[tab$tau_tilde_rcv > 0], weights = obj$weights[tab$tau_tilde_rcv > 0])
+  mag_rcv <- weighted.mean(tab$tau_rcv[tab$tau_rcv > 0], weights = obj$weights[tab$tau_rcv > 0])
   eb_rcv <- prev_rcv * mag_rcv
   strat_vec_rcv <- as.numeric(table(factor(tab$opt_rcv, 1:6))/nrow(tab))
   new_vec_rcv <- lambda * strat_vec_rcv + (1 - lambda) * v_vec
@@ -529,7 +529,7 @@ iteration_return_summary <- function(object, v_vec, lambda, s){
   prev_plur <- weighted.mean(tab$tau_plur > 0, weights = obj$weights)
   weight_mag_plur <- sum(obj$weights[tab$tau_plur > 0])
   # print(weight_mag_plur)
-  mag_plur <- weighted.mean(tab$tau_tilde_plur[tab$tau_tilde_plur > 0], weights = obj$weights[tab$tau_tilde_plur > 0]) / weight_mag_plur
+  mag_plur <- weighted.mean(tab$tau_plur[tab$tau_plur > 0], weights = obj$weights[tab$tau_plur > 0])
   eb_plur <- prev_plur * mag_plur
 
   strat_vec_plur <- rep(as.numeric(table(factor(tab$opt_plur, 1:3))/nrow(tab)), each = 2) /2
@@ -590,7 +590,7 @@ for(prec in 6:6){
   plur_sum <- list()
   rcv_vec <- list()
   plur_vec <- list()
-  for (case in 1:1) {
+  for (case in 1:160) {
     print(case)
     out <- iteration_wrapper(big_list_na_omit[[case]], big_list_na_omit[[case]]$v_vec, lambda, s_val, k)
     rcv_sum[[case]] <- out[[1]]
@@ -614,13 +614,24 @@ big_rcv_sum <- do.call(rbind, big_rcv_sum)
 big_plur_sum <- do.call(rbind, big_plur_sum)
 
 # Test and check diff. with Andy's code
-test <- as.data.frame(big_plur_vec[[6]])
-test[, c(1, 3, 5)] + test[, c(2, 4, 6)]
-big_list_na_omit[[1]]$v_vec[c(1, 3, 5)] + big_list_na_omit[[1]]$v_vec[c(2, 4, 6)]
+# test <- as.data.frame(big_plur_vec[[6]])
+# test[, c(1, 3, 5)] + test[, c(2, 4, 6)]
+# big_list_na_omit[[1]]$v_vec[c(1, 3, 5)] + big_list_na_omit[[1]]$v_vec[c(2, 4, 6)]
 
 # Aggregate
 
 iteration_return_summary(big_list_na_omit[[124]], as.numeric(big_rcv_vec[[124]][13, ]), 0.2, 85)
+
+rcv_agg <- as.data.frame(big_rcv_sum %>% group_by(k) %>% summarise(
+  prev = weighted.mean(Prevalence, weights = country_weight, na.rm = TRUE),
+  mag = weighted.mean(Magnitude, weights = country_weight, na.rm = TRUE),
+  eb = weighted.mean(ExpBenefit, weights = country_weight, na.rm = TRUE)
+))
+plur_agg <- as.data.frame(big_plur_sum %>% group_by(k) %>% summarise(  
+  prev = weighted.mean(Prevalence, weights = country_weight, na.rm = TRUE),
+  mag = weighted.mean(Magnitude, weights = country_weight, na.rm = TRUE),
+  eb = weighted.mean(ExpBenefit, weights = country_weight, na.rm = TRUE)
+))
 
 eb_rcv_agg <- as.data.frame(big_rcv_sum %>% group_by(k) %>% summarise(avg = weighted.mean(ExpBenefit, weights = country_weight, na.rm = TRUE)))
 eb_plur_agg <- as.data.frame(big_plur_sum %>% group_by(k) %>% summarise(avg = weighted.mean(ExpBenefit, weights = country_weight, na.rm = TRUE)))
@@ -643,7 +654,7 @@ ggplot(big_rcv_sum, aes(x = k, y = Magnitude)) +
   facet_wrap(. ~ s) +
   theme_sv() +
   labs(x = "Iteration", y = "Magnitude")
-ggsave(here("../output/figures/iterated_magnitude.pdf"), device = cairo_pdf)
+ggsave(here("../output/figures/iterated_magnitude2.pdf"), device = cairo_pdf)
 
 ebplot <- ggplot(big_rcv_sum, aes(x = k, y = ExpBenefit)) + 
   geom_line(data = big_rcv_sum, aes(x = k, y = ExpBenefit, group = case), alpha = 0.1, colour = "blue") + 

@@ -73,7 +73,7 @@ av.pivotal.probs.from.sims = function(v.vec = NULL, s.vec = NULL, M = 100000, to
 		# second-round pivotal events: I have checked this and it is fine. 
 		"AB" = mean(second.round & second.round.AB & share.preferring.A.to.B > (1 - sims[,9] - tol/2)/2 & share.preferring.A.to.B < (1 - sims[,9] + tol/2)/2), 
 		"AC" = mean(second.round & second.round.AC & share.preferring.A.to.C > (1 - sims[,8] - tol/2)/2 & share.preferring.A.to.C < (1 - sims[,8] + tol/2)/2),
-		"BC`" = mean(second.round & second.round.BC & share.preferring.B.to.C > (1 - sims[,7] - tol/2)/2 & share.preferring.B.to.C < (1 - sims[,7] + tol/2)/2)
+		"BC" = mean(second.round & second.round.BC & share.preferring.B.to.C > (1 - sims[,7] - tol/2)/2 & share.preferring.B.to.C < (1 - sims[,7] + tol/2)/2)
 								
 		)
 	
