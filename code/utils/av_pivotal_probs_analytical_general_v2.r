@@ -27,8 +27,6 @@ get.increment.midpoints = function(start, end, increments, increments.at.end = N
 #### second-round pivotal events ####
 #####################################
 
-
-
 pr.second.round.pivotal.cands.1.and.2.general = function(v.vec, s.vec, increments = 20, increments.at.end = 10, alpha.min = .5, noisy = F, list.please = F){
 	stopifnot(length(v.vec) == 9)
 	stopifnot(length(s.vec) == 4)
@@ -41,9 +39,9 @@ pr.second.round.pivotal.cands.1.and.2.general = function(v.vec, s.vec, increment
 		dir.parts = c()
 		int.limits = 2*midpoints.y - .5
 		int.limits[midpoints.y > 1/3] = midpoints.y[midpoints.y > 1/3]/2
-		beta.parts = pbeta(int.limits/.5, alpha.vec[6], sum(alpha.vec[3:4])) # vectorized
+		beta.parts = pbeta(int.limits/.5, alpha.vec[6], sum(alpha.vec[3:4])) # vectorized: calculating the probability of \pi_{CB}/(\pi_CB + \pi_B) being below 
 		y.mat = cbind(midpoints.y, 1/2 - midpoints.y, 1/2)
-		dir.parts = apply(y.mat, 1, ddirichlet, alpha = c(sum(alpha.vec[c(1,2)]), alpha.vec[5], sum(alpha.vec[c(3,4,6)])))/2  # NOT dividing by 2 because the height is 1/n along the line
+		dir.parts = apply(y.mat, 1, ddirichlet, alpha = c(sum(alpha.vec[c(1,2)]), alpha.vec[5], sum(alpha.vec[c(3,4,6)])))/2  # NOTE dividing by 2
 		stopifnot(length(beta.parts) == length(dir.parts))
 		if(list.please){return(list(
 			pr.ab.tie.unconditional = y.inc*sum(dir.parts), # probability of TPP ties: A and B tying

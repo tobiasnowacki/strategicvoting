@@ -105,11 +105,11 @@ outcome_mat_from_utility = function(utility, piv.events = c("AB", "AC", "BC", "A
 	out[piv.events, ballots]
 }
 
-P_mat_at_pivotal_events = function(piv_probs, piv.events = c("AB", "AC", "BC", "AB.AB", "AB.AC", "AB.CB", "AC.AC", "AC.BC", "AC.AB", "BC.BC", "BC.AC", "BC.BA"), ballots = c("AB", "AC", "BA", "BC", "CA", "CB"), candidates = c("A", "B", "C"), rule = "AV"){
+P_mat_at_pivotal_events = function(piv_probs, piv.events = c("AB", "AC", "BC", "AB.AB", "AB.AC", "AB.CB", "AC.AC", "AC.BC", "AC.AB", "BC.BC", "BC.AC", "BC.BA"), ballots = c("AB", "AC", "BA", "BC", "CA", "CB"), candidates = c("A", "B", "C"), rule = "AV", normalize = T){
 	# we want to make a K x B matrix: probability of each candidate being elected given each ballot, focusing only on pivotal events.
-	# in other words, the output of this function tells you the probability of each candidate being elected given each ballot, in expectation, conditioning on being pivotal. 
+	# in other words, the output of this function tells you the probability of each candidate being elected given each ballot, in expectation, conditioning on being pivotal if we normalize. 
 
-	# we start by creating matrices that give you the probability of A, B, and C winning at each pivotal event -- E rows and B columns, where E is number of pivotal events and B is number of ballots
+	# we start by creating matrices that give you the probability of A, B, and C winning at each pivotal event as a function of the marginal ballot -- E rows and B columns, where E is number of pivotal events and B is number of ballots
 	if(rule == "plurality"){
 		pA.mat = rbind(
 			c(1,0,.5),
@@ -160,6 +160,12 @@ P_mat_at_pivotal_events = function(piv_probs, piv.events = c("AB", "AC", "BC", "
 	# label the matrix.
 	colnames(out) = ballots
 	rownames(out) = candidates
+	# normalize -- this makes it conditional on pivotal events.
+	if(normalize){
+	  for(j in 1:ncol(out)){
+	    out[,j] = out[,j]/sum(out[,j])
+	  }
+	} # otherwise it's just the raw pivotal probabilities.
 	out
 }
 
