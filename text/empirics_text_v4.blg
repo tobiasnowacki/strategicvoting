@@ -1,5 +1,0 @@
-[0] Config.pm:302> INFO - This is Biber 2.11
-[0] Config.pm:305> INFO - Logfile is 'empirics_text_v4.blg'
-[38] biber-darwin:313> INFO - === Fri Apr 26, 2019, 10:05:41
-[74] Biber.pm:371> INFO - Reading 'empirics_text_v4.bcf'
-[156] Utils.pm:193> WARN - No data sources defined!
