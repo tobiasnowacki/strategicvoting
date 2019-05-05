@@ -20,15 +20,15 @@ ipak <- function(pkg){
 ipak(requiredPackages)
 
 # Load functions
-source(here("utils/functions.r"))
-source(here("utils/av_pivotal_probs_analytical_general_v2.r"))
-source(here("utils/plurality_pivotal_probabilities_analytical.r"))
-source(here("utils", "general_iteration_simulation_approach.r"))
-source(here("utils/sv.r"))
+source(here("code/utils/functions.r"))
+source(here("code/utils/av_pivotal_probs_analytical_general_v2.r"))
+source(here("code/utils/plurality_pivotal_probabilities_analytical.r"))
+source(here("code", "utils", "general_iteration_simulation_approach.r"))
+source(here("code/utils/sv.r"))
 
 # Load data
-load(here("../output/big_list_2.RData"))
-vap <- read.csv(here("../data/case_vap.csv"), sep = "") # voting age pop.
+load(here("output/big_list_2.RData"))
+vap <- read.csv(here("data/case_vap.csv"), sep = "") # voting age pop.
 
 # Load fonts
 font_import()
@@ -179,14 +179,14 @@ for(prec in c(1, 4, 6)){
 big_rcv_sum <- do.call(rbind, big_rcv_sum)
 big_plur_sum <- do.call(rbind, big_plur_sum)
 
-load(here("../output/intermediate.RData"))
+load(here("output/intermediate.RData"))
 
 ###
 ### EUCLIDEAN DISTANCES
 ###
 
-# v_vec convergence
 euclid <- function(x) {
+  # Euclidean distance between one iteration and next
   if (isdf <- is.data.frame(x)) {
     x <- data.matrix(x)
   }
@@ -198,24 +198,60 @@ euclid <- function(x) {
   x
 }
 
-rcv_vec <- lapply(big_rcv_vec[c(1, 4, 6)], function(x) {do.call(rbind, x) %>% euclid %>% mutate(iter = rep(1:61, 160), case = rep(names(big_list_na_omit), each = 61))})
+euclid_first <- function(df){
+  # Euclidean distance between one iteration and first
+  df_follow <- df[2:nrow(df), ]
+  dist <- apply(df_follow, 1, function(x) sqrt(sum((x - df[1, ])^2)))
+  return(dist)
+}
+
+euclid_together <- function(df){
+  a <- euclid(df)
+  b <- c(NA, euclid_first(df))
+  return(cbind(a, b))
+}
+
+rcv_vec <- lapply(big_rcv_vec[c(1, 4, 6)], function(x) lapply(x, function(y){
+  euclid_together(y)
+}))
+rcv_vec <- lapply(rcv_vec, function(x) {do.call(rbind, x) %>% mutate(iter = rep(1:61, 160), case = rep(names(big_list_na_omit), each = 61))})
 rcv_vec <- do.call(rbind, rcv_vec)
 rcv_vec <- rcv_vec %>% mutate(s = rep(c(10, 55, 85), each = 9760), system = "RCV")
 
-plur_vec <- lapply(big_plur_vec[c(1, 4, 6)], function(x) {do.call(rbind, x) %>% euclid %>% mutate(iter = rep(1:61, 160), case = rep(names(big_list_na_omit), each = 61))})
+
+plur_vec <- lapply(big_plur_vec[c(1, 4, 6)], function(x) lapply(x, function(y){
+  euclid_together(y)
+}))
+plur_vec <- lapply(plur_vec, function(x) {do.call(rbind, x) %>% mutate(iter = rep(1:61, 160), case = rep(names(big_list_na_omit), each = 61))})
 plur_vec <- do.call(rbind, plur_vec)
 plur_vec <- plur_vec %>% mutate(s = rep(c(10, 55, 85), each = 9760), system = "Plurality")
 
 dist_df <- rbind(rcv_vec, plur_vec)
 
+# Figure: Euclidean distances from one vector to the next iteration
 ggplot(dist_df, aes(x = iter, y = diff)) +
   geom_line(aes(group = interaction(case, s, system), colour = system), alpha = 0.05) + 
   facet_wrap(. ~ s) +
   ylim(0, 0.05) + 
   labs(x = "Iteration", y = "Euclidean Distance") + 
   scale_color_manual(values = c("orange", "blue")) + 
-  theme_sv()
-ggsave(here("../output/figures/euclidean.pdf"), device = cairo_pdf)
+  theme_sv() +
+  theme(legend.position = "bottom", legend.direction = "horizontal")
+ggsave(here("output/figures/euclidean.pdf"), device = cairo_pdf, height = 3, width = 6)
+
+# Figure: Euclidean distances from one vector to the first iteration
+ggplot(dist_df, aes(x = iter, y = b)) +
+  geom_line(aes(group = interaction(case, s, system), colour = system), alpha = 0.05) + 
+  facet_wrap(. ~ s) +
+  labs(x = "Iteration", y = "Euclidean Distance") + 
+  scale_color_manual(values = c("orange", "blue")) + 
+  theme_sv() +
+  theme(legend.position = "bottom", legend.direction = "horizontal")
+ggsave(here("output/figures/euclidean.pdf"), device = cairo_pdf, height = 3, width = 6)
+
+# Statistic: Avg change at first and last iteration
+dist_df %>% filter(iter %in% c(2, 61)) %>% group_by(system, s, iter) %>% summarise(mean(diff))
+
 
 # Simplex paths
 rcv_vec_df <- big_rcv_vec[[6]] %>% do.call(rbind, .) %>% mutate(case = rep(1:160, each = 61), iter = rep(1:61, 160), A = V1 + V2, B = V3 + V4, C = V5 + V6)
@@ -228,7 +264,7 @@ ggtern(plur_vec_df, aes(A, B, C)) +
   geom_point(data = plur_vec_df[plur_vec_df$iter == 1, ], alpha = 0.5) + 
   geom_point(data = plur_vec_df[plur_vec_df$iter == 61, ], size = 0.5, colour = "blue") + 
   theme_sv()
-ggsave(here("../output/figures/tatonnement_plur.pdf"), device = cairo_pdf)
+ggsave(here("output/figures/tatonnement_plur.pdf"), device = cairo_pdf, width = 3, height = 3)
 
 ggtern(rcv_vec_df, aes(A, B, C)) + 
   geom_line(aes(group = case), alpha = 0.1) + 
@@ -236,45 +272,44 @@ ggtern(rcv_vec_df, aes(A, B, C)) +
   geom_point(data = rcv_vec_df[plur_vec_df$iter == 1, ], alpha = 0.5) + 
   geom_point(data = rcv_vec_df[plur_vec_df$iter == 61, ], size = 0.5, colour = "blue") + 
   theme_sv()
-ggsave(here("../output/figures/tatonnement_rcv.pdf"), device = cairo_pdf)
+ggsave(here("output/figures/tatonnement_rcv.pdf"), device = cairo_pdf, width = 3, height = 3)
 
 ###
 ### EXPECTED BENEFIT AND OTHERS
 ### 
 
 # Aggregate means
-rcv_agg <- as.data.frame(big_rcv_sum %>% group_by(k) %>% summarise(
+rcv_agg <- as.data.frame(big_rcv_sum %>% group_by(k, s) %>% summarise(
   Prevalence = weighted.mean(Prevalence, weights = country_weight, na.rm = TRUE),
   Magnitude = weighted.mean(Magnitude, weights = country_weight, na.rm = TRUE),
   ExpBenefit = weighted.mean(ExpBenefit, weights = country_weight, na.rm = TRUE)
-)) %>% gather(., key = "Type", value = "Statistic", 2:4) %>% mutate(System = "IRV")
+)) %>% gather(., key = "Type", value = "Statistic", 3:5) %>% mutate(System = "IRV")
 
-plur_agg <- as.data.frame(big_plur_sum %>% group_by(k) %>% summarise(  
+plur_agg <- as.data.frame(big_plur_sum %>% group_by(k, s) %>% summarise(  
   Prevalence = weighted.mean(Prevalence, weights = country_weight, na.rm = TRUE),
   Magnitude = weighted.mean(Magnitude, weights = country_weight, na.rm = TRUE),
   ExpBenefit = weighted.mean(ExpBenefit, weights = country_weight, na.rm = TRUE)
-)) %>% gather(., key = "Type", value = "Statistic", 2:4) %>% mutate(System = "Plurality")
+)) %>% gather(., key = "Type", value = "Statistic", 3:5) %>% mutate(System = "Plurality")
 agg_df <- rbind(rcv_agg, plur_agg)
 
 
 # Tidying data
 big_rcv_sum <- gather(big_rcv_sum, key = "Type", value = "Statistic", 1:3) %>% mutate(System = "IRV")
+
 big_plur_sum <- gather(big_plur_sum, key = "Type", value = "Statistic", 1:3) %>% mutate(System = "Plurality")
 
 big_df <- rbind(big_rcv_sum, big_plur_sum)
 
 
-ggplot(big_df %>% filter(s == 85), aes(x = k, y = Statistic)) +
+ggplot(big_df, aes(x = k, y = Statistic)) +
     geom_line(aes(color = System, group = interaction(System, case)), alpha = 0.1) +
     geom_line(data = agg_df, aes(color = System), lwd = 2) + 
-    facet_wrap(. ~ Type) +
+    facet_wrap(s ~ Type, scales = "free") +
     theme_sv() +
     labs(x = "Iteration", y = "Statistic") +
-    scale_color_manual(values = cbbPalette) +
+    scale_color_manual(values = cbbPalette[c(3, 2)]) +
     theme(legend.position = "bottom", legend.direction = "horizontal")
-
-
-
+ggsave(here("output/figures/iterated_complete.pdf"), device = cairo_pdf, width = 6, height = 5)
 
 
 eb_rcv_agg <- as.data.frame(big_rcv_sum %>% group_by(k) %>% summarise(avg = weighted.mean(ExpBenefit, weights = country_weight, na.rm = TRUE)))
