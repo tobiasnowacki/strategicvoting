@@ -399,13 +399,16 @@ convert_andy_to_sv_item <- function(list_item, s, v_vec){
 }
 
 # write new function in terms of level_two_props_cases
-convert_andy_to_sv_item_two <- function(U, w, s, v_vec){
+convert_andy_to_sv_item_two <- function(U, w, s, v_vec){ 
   # Generates sv object from Andy's function and converts it into my data structure -- much faster!
+	n_obs <- nrow(U)
   out_rcv <- sv(U = U, weights = w, s = s, rule = "AV", v.vec = v_vec)
   v_vec_plur <- c(v_vec[1] + v_vec[2], v_vec[3] + v_vec[4], v_vec[5] + v_vec[6])
   out_plur <- sv(U = U, weights = w, s = s, v.vec = v_vec_plur)
   psum_rcv <- sum(unlist(out_rcv$piv.probs))
+	rcvpp_col <- matrix(unlist(out_rcv$piv.probs), nrow = n_obs, ncol = 12, byrow = T, dimnames = list(NULL, names(unlist(out_rcv$piv.probs))))
   psum_plur <- sum(unlist(out_plur$piv.probs))
+	plurpp_col <- matrix(unlist(out_plur$piv.probs), nrow = n_obs, ncol = 3, byrow = T, dimnames = list(NULL, c("ABp", "ACp", "BCp")))
   sin_rcv <- apply(out_rcv$V0, 1, function(x) which(x == 1))
   sin_plur <- apply(out_plur$V0, 1, function(x) which(x == 1))
   tau_rcv <- as.numeric(out_rcv$tau)
@@ -415,7 +418,7 @@ convert_andy_to_sv_item_two <- function(U, w, s, v_vec){
   opt_rcv <- apply(out_rcv$V.mat, 1, function(x) which(x == 1)[1])
   opt_plur <- apply(out_plur$V.mat, 1, function(x) which(x == 1)[1])
   s <- rep(s, nrow(U))
-  df <- as.data.frame(cbind(sin_rcv, sin_plur, tau_rcv, tau_plur, tau_tilde_rcv, tau_tilde_plur, opt_rcv, opt_plur, s))
+  df <- as.data.frame(cbind(sin_rcv, sin_plur, tau_rcv, tau_plur, tau_tilde_rcv, tau_tilde_plur, opt_rcv, opt_plur, s, rcvpp_col, plurpp_col))
   return(df)
 }
 

@@ -23,7 +23,7 @@ ipak(requiredPackages)
 source(here("code/utils/functions.r"))
 source(here("code/utils/av_pivotal_probs_analytical_general_v2.r"))
 source(here("code/utils/plurality_pivotal_probabilities_analytical.r"))
-source(here("code", "utils", "general_iteration_simulation_approach.r"))
+source(here("code/utils/general_iteration_simulation_approach.r"))
 source(here("code/utils/sv.r"))
 
 # Load data
@@ -84,7 +84,6 @@ n <- length(big_list_na_omit)
 for(i in 1:n){
   progress(i)
   if(i == n) cat("Done! \n")
-
   this_list <- big_list_na_omit[[i]]
   df_list <- lapply(s_list, function(x) convert_andy_to_sv_item_two(this_list$U, this_list$weights, x, this_list$v_vec))
   df <- as.data.frame(do.call(rbind, df_list))
@@ -137,11 +136,16 @@ big_sv_df$dm <- as.numeric(big_sv_df$case %in% names(big_list_na_omit)[dm])
 big_sv_df$sp <- as.numeric(big_sv_df$case %in% names(big_list_na_omit)[sp])
 big_sv_df$default <- 1
 
+###
 ### EQUILIBRIUM ANALYSIS
+###
+
 big_rcv_sum <- list()
 big_plur_sum <- list()
 big_rcv_vec <- list()
 big_plur_vec <- list()
+piv_ratio_rcv <- list()
+piv_ratio_plur <- list()
 
 # Choice parameters
 lambda <- 0.05
@@ -156,28 +160,69 @@ for(prec in c(1, 4, 6)){
   plur_sum <- list()
   rcv_vec <- list()
   plur_vec <- list()
+  rcv_piv <- list()
+  plur_piv <- list()
   for (case in 1:160) {
     cat(paste0(case, ": ", names(big_list_na_omit)[case], "   "))
-    out <- iteration_wrapper(big_list_na_omit[[case]], big_list_na_omit[[case]]$v_vec, lambda, s_val, k)
-    rcv_sum[[case]] <- out[[1]]
-    rcv_sum[[case]]$case <- names(big_list_na_omit)[[case]]
-    plur_sum[[case]] <- out[[3]]
-    plur_sum[[case]]$case <- names(big_list_na_omit)[[case]]
+    out <- many_iterations(big_list_na_omit[[case]], big_list_na_omit[[case]]$v_vec, lambda, s_val, k)
+    rcv_sum[[case]] <- out[[1]] %>% mutate(case = names(big_list_na_omit)[[case]])
+    plur_sum[[case]] <- out[[3]] %>% mutate(case = names(big_list_na_omit)[[case]])
     rcv_vec[[case]] <- out[[2]]
     plur_vec[[case]] <- out[[4]]
+    rcv_piv[[case]] <- piv_ratio(out[[1]])
+    plur_piv[[case]] <- piv_ratio(out[[3]])
   }
   rcv_sum <- do.call(rbind, rcv_sum)
-  rcv_sum$s <- s_val
   plur_sum <- do.call(rbind, plur_sum)
-  plur_sum$s <- s_val
   big_rcv_sum[[prec]] <- rcv_sum
   big_rcv_vec[[prec]] <- rcv_vec
   big_plur_sum[[prec]] <- plur_sum
   big_plur_vec[[prec]] <- plur_vec
 }
 
+save.image(here("output/intermediate2.Rdata"))
+
 big_rcv_sum <- do.call(rbind, big_rcv_sum)
 big_plur_sum <- do.call(rbind, big_plur_sum)
+
+
+
+# Calculate quantities of interest
+big_rcv_sum %>% group_by(case, s, iter) %>% summarise(prev = mean(tau_rcv > 0), mag = mean(tau_rcv[tau_rcv > 0]), eb = prev * mag) 
+
+
+# for(prec in c(1, 4, 6)){
+#   s_val <- s_list[[prec]]
+#   cat(paste0("=== s = ", s_val, "=============== \n"))
+#   rcv_sum <- list()
+#   plur_sum <- list()
+#   rcv_vec <- list()
+#   plur_vec <- list()
+#   rcv_piv <- list()
+#   plur_piv <- list()
+#   for (case in 1:1) {
+#     cat(paste0(case, ": ", names(big_list_na_omit)[case], "   "))
+#     out <- iteration_wrapper(big_list_na_omit[[case]], big_list_na_omit[[case]]$v_vec, lambda, s_val, k)
+#     rcv_sum[[case]] <- out[[1]]
+#     rcv_sum[[case]]$case <- names(big_list_na_omit)[[case]]
+#     plur_sum[[case]] <- out[[3]]
+#     plur_sum[[case]]$case <- names(big_list_na_omit)[[case]]
+#     rcv_vec[[case]] <- out[[2]]
+#     plur_vec[[case]] <- out[[4]]
+#     # rcv_piv[[case]] <- piv_ratio(out[[1]])
+#     # plur_piv[[case]] <- piv_ratio(out[[3]])
+#   }
+#   rcv_sum <- do.call(rbind, rcv_sum)
+#   rcv_sum$s <- s_val
+#   plur_sum <- do.call(rbind, plur_sum)
+#   plur_sum$s <- s_val
+#   big_rcv_sum[[prec]] <- rcv_sum
+#   big_rcv_vec[[prec]] <- rcv_vec
+#   big_plur_sum[[prec]] <- plur_sum
+#   big_plur_vec[[prec]] <- plur_vec
+# }
+
+
 
 load(here("output/intermediate.RData"))
 

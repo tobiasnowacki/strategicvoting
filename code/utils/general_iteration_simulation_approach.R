@@ -6,9 +6,9 @@ library(stringr)
 library(here)
 
 # source(here("utils", "winner_vec_from_ballot_proportions_for_various_rules.r"))  -- this is used in iteration_simulation, which is now not used 
-source(here("utils", "EU_given_piv_probs_and_utility.r"))
-source(here("utils", "av_pivotal_probs_analytical_general_v2.r"))
-source(here("utils", "plurality_pivotal_probabilities_analytical.r"))
+source(here("code", "utils", "EU_given_piv_probs_and_utility.r"))
+source(here("code", "utils", "av_pivotal_probs_analytical_general_v2.r"))
+source(here("code", "utils", "plurality_pivotal_probabilities_analytical.r"))
 
 ## various functions below that are useful for CSES analysis 
 
