@@ -140,6 +140,22 @@ big_sv_df$default <- 1
 ### EQUILIBRIUM ANALYSIS
 ###
 
+rearrange <- function(x){
+  voter <- as.numeric(x[1])
+  order_utils <- unlist(c(cmat_u[voter, ]))
+  utils <- x[26:28]
+  utils <- utils[order_utils]
+  order_pprobs <- unlist(c(cmat_plur[voter, ]))
+  order_pprobs_rcv <- unlist(c(cmat_rcv[voter, ]))
+  pprobs_plur <- x[22:24]
+  pprobs_plur <- unlist(c(pprobs_plur[order_pprobs]))
+  pprobs_rcv <- x[10:21]
+  pprobs_rcv <- unlist(c(pprobs_rcv[order_pprobs_rcv]))
+  out <- unlist(c(utils, pprobs_plur, pprobs_rcv))
+  names(out) <- c("uA", "uB", "uC", "ABpo", "ACpo", "BCpo", "ABo", "ACo", "BCo", "AB_ABo", "AB_ACo", "AB_CBo", "AC_ACo", "AC_ABo", "AC_BCo", "BC_BCo", "BC_BAo", "BC_ACo")
+  return(out)
+}
+
 big_rcv_sum <- list()
 big_plur_sum <- list()
 big_rcv_vec <- list()
@@ -181,50 +197,79 @@ for(prec in c(1, 4, 6)){
 }
 
 save.image(here("output/intermediate2.Rdata"))
+# load(here("output/intermediate2.RData"))
 
 big_rcv_sum <- do.call(rbind, big_rcv_sum)
 big_plur_sum <- do.call(rbind, big_plur_sum)
 
 
+## QUANTITIES OF INTEREST
 
-# Calculate quantities of interest
-big_rcv_sum %>% group_by(case, s, iter) %>% summarise(prev = mean(tau_rcv > 0), mag = mean(tau_rcv[tau_rcv > 0]), eb = prev * mag) 
+## CONJECTURE 1
+# Summed pivotal probabilities
+rcv_summary <- big_rcv_sum %>% group_by(case, s, iter) %>% summarise_at(vars(AB:BCp), first) 
+rcv_summary$rcv_sum <- rowSums(rcv_summary[, 4:16])
+rcv_summary$plur_sum <- rowSums(rcv_summary[, 7:19])
+rcv_summary <- rcv_summary %>% mutate(diff = plur_sum - rcv_sum)
+
+ggplot(rcv_summary, aes(iter, diff)) +
+  geom_line(aes(group = interaction(case, s)), alpha = 0.05) +
+  geom_hline(yintercept = 0, lty = "dotted") +
+  facet_wrap(. ~ s) +
+  theme_sv() +
+  labs(x = "Iteration", y = "Pr(Pivotal | Plur) - Pr(Pivotal | RCV)")
+ggsave(here("output/figures/conj1_rcv.pdf"), device = cairo_pdf, height = 3, width = 6)
+
+# Do the same thing for plurality
+plur_summary <- big_plur_sum %>% group_by(case, s, iter) %>% summarise_at(vars(AB:BCp), first) 
+plur_summary$rcv_sum <- rowSums(plur_summary[, 4:16])
+plur_summary$plur_sum <- rowSums(plur_summary[, 7:19])
+plur_summary <- plur_summary %>% mutate(diff = plur_sum - rcv_sum)
+
+ggplot(plur_summary, aes(iter, diff)) +
+  geom_line(aes(group = interaction(case, s)), alpha = 0.05) +
+  geom_hline(yintercept = 0, lty = "dotted") +
+  facet_wrap(. ~ s) +
+  theme_sv() +
+  labs(x = "Iteration", y = "Pr(Pivotal | Plur) - Pr(Pivotal | RCV)")
+ggsave(here("output/figures/conj1_plur.pdf"), device = cairo_pdf, height = 3, width = 6)
+
+## CONJECTURE 2
+
+cmat_plur <- matrix(c(1, 2, 3, 2, 1, 3, 1, 3, 2, 3, 1, 2, 2, 3, 1, 3, 2, 1), byrow = T, ncol = 3)
+
+cmat_rcv <- matrix(c(1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 2, 1, 3, 7, 8, 9, 4, 5, 6, 10, 12, 11, 1, 3, 2, 4, 6, 5, 10, 11, 12, 7, 8, 9, 3, 1, 2, 10, 11, 12, 4, 6, 5, 7, 9, 8, 2, 3, 1, 7, 9, 8, 10, 12, 11, 4, 5, 6, 3, 2, 1, 10, 12, 11, 7, 9, 8, 4, 6, 5), byrow = T, ncol = 12)
+
+cmat_u <- matrix(c(1, 2, 3, 1, 3, 2, 2, 1, 3, 2, 3, 1, 3, 1, 2, 3, 2, 1), byrow = T, ncol = 3)
+
+testdf <- big_rcv_sum %>% filter(s == 85)
+ordered_u_probs <- t(apply(testdf, 1, rearrange))
+ordered_u_probs <- apply(ordered_u_probs, 2, as.numeric)
+
+testdf2 <- as.data.frame(ordered_u_probs)
+testdf2 <- testdf2 %>% mutate(ben_p = BCpo * ((uB - uC) / 2), cost_p = ABpo * (uA - uB) + ACpo * ((uB - uC)/2),
+ben_rcv = AB_CBo * (uB - uC) + BC_BCo * ((uB - uC)/2) + BC_ACo * ((uA - uC)/2), cost_rcv = ABo * (uA - uB) + AB_ABo * (uA - uB) + AB_ACo * (uA - uC) + AC_ACo * ((uA - uC) / 2) + AC_ABo * ((uA - uB) / 2) + AC_BCo * ((uB - uC)/2) + BC_BAo * ((uA - uB)/2))
+
+# compute correlations
+testdf3 <- cbind(testdf, testdf2)
+testdf3 <- testdf3 %>% group_by(case, iter) %>% summarise(corr_plur = cor(ben_p, cost_p), corr_rcv = cor(ben_rcv, cost_rcv))
+
+ggplot(testdf3, aes(iter, corr_rcv)) +
+  geom_line(aes(group = case), alpha = 0.05) +
+  geom_line(aes(y = corr_plur, group = case), colour = "blue", alpha = 0.05) +
+  geom_hline(yintercept = 0, lty = "dotted") +
+  theme_sv() +
+  labs(x = "Iteration", y = "Correlation")
+ggsave(here("output/figures/conj2_rcv.pdf"), device = cairo_pdf, height = 3, width = 6)
 
 
-# for(prec in c(1, 4, 6)){
-#   s_val <- s_list[[prec]]
-#   cat(paste0("=== s = ", s_val, "=============== \n"))
-#   rcv_sum <- list()
-#   plur_sum <- list()
-#   rcv_vec <- list()
-#   plur_vec <- list()
-#   rcv_piv <- list()
-#   plur_piv <- list()
-#   for (case in 1:1) {
-#     cat(paste0(case, ": ", names(big_list_na_omit)[case], "   "))
-#     out <- iteration_wrapper(big_list_na_omit[[case]], big_list_na_omit[[case]]$v_vec, lambda, s_val, k)
-#     rcv_sum[[case]] <- out[[1]]
-#     rcv_sum[[case]]$case <- names(big_list_na_omit)[[case]]
-#     plur_sum[[case]] <- out[[3]]
-#     plur_sum[[case]]$case <- names(big_list_na_omit)[[case]]
-#     rcv_vec[[case]] <- out[[2]]
-#     plur_vec[[case]] <- out[[4]]
-#     # rcv_piv[[case]] <- piv_ratio(out[[1]])
-#     # plur_piv[[case]] <- piv_ratio(out[[3]])
-#   }
-#   rcv_sum <- do.call(rbind, rcv_sum)
-#   rcv_sum$s <- s_val
-#   plur_sum <- do.call(rbind, plur_sum)
-#   plur_sum$s <- s_val
-#   big_rcv_sum[[prec]] <- rcv_sum
-#   big_rcv_vec[[prec]] <- rcv_vec
-#   big_plur_sum[[prec]] <- plur_sum
-#   big_plur_vec[[prec]] <- plur_vec
-# }
+## SUMMARY OF INCENTIVES
+# Prevalence, Magnitude, EB
+big_rcv_sum %>% group_by(case, iter) %>% summarise(prev = mean(tau_rcv > 0), mag = mean(tau_rcv[tau_rcv > 0]), eb = prev * mag) 
 
 
 
-load(here("output/intermediate.RData"))
+
 
 ###
 ### EUCLIDEAN DISTANCES
