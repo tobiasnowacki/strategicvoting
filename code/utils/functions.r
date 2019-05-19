@@ -418,7 +418,7 @@ convert_andy_to_sv_item_two <- function(U, w, s, v_vec){
   opt_rcv <- apply(out_rcv$V.mat, 1, function(x) which(x == 1)[1])
   opt_plur <- apply(out_plur$V.mat, 1, function(x) which(x == 1)[1])
   s <- rep(s, nrow(U))
-  df <- as.data.frame(cbind(sin_rcv, sin_plur, tau_rcv, tau_plur, tau_tilde_rcv, tau_tilde_plur, opt_rcv, opt_plur, s, rcvpp_col, plurpp_col))
+  df <- as.data.frame(cbind(sin_rcv, sin_plur, tau_rcv, tau_plur, tau_tilde_rcv, tau_tilde_plur, opt_rcv, opt_plur, s, rcvpp_col, plurpp_col, w, U))
   return(df)
 }
 
@@ -689,4 +689,55 @@ iteration_wrapper <- function(object, v_vec, lambda, s, k){
     plur_v_vec <- as.data.frame(do.call(rbind, plur_v_vec_list))
 
     return(list(rcv_sum, rcv_v_vec, plur_sum, plur_v_vec))
+}
+
+## NEW VERSION AS OF MAY 2019
+
+one_iteration <- function(object, v_vec, lambda, s){
+  obj <- object
+  tab <- convert_andy_to_sv_item_two(obj$U, obj$weights, s, v_vec)
+
+  strat_vec_rcv <- as.numeric(table(factor(tab$opt_rcv, 1:6))/nrow(tab))
+  new_vec_rcv <- lambda * strat_vec_rcv + (1 - lambda) * v_vec
+
+  strat_vec_plur <- rep(as.numeric(table(factor(tab$opt_plur, 1:3))/nrow(tab)), each = 2) /2
+  new_vec_plur <- lambda * strat_vec_plur + (1 - lambda) * v_vec
+
+  return(list(df = tab,
+              rcv_vec = new_vec_rcv,
+              plur_vec = new_vec_plur))
+}
+
+many_iterations <- function(object, v_vec, lambda, s, k){
+    rcv_df_list <- list()
+    rcv_v_vec_list <- list(v_vec)
+    plur_df_list <- list()
+    plur_v_vec_list <- list(v_vec)
+
+    # RCV loop
+    for (j in 1:k) {
+       out <- one_iteration(object, rcv_v_vec_list[[j]], lambda, s)
+       rcv_df_list[[j]] <- out$df %>% mutate(iter = j)
+       rcv_v_vec_list[[j + 1]] <- out$rcv_vec
+    }
+    rcv_sum <- as.data.frame(do.call(rbind, rcv_df_list))
+    rcv_v_vec <- as.data.frame(do.call(rbind, rcv_v_vec_list))
+
+    # Plurality loop
+    for (j in 1:k) {
+       out <- one_iteration(object, plur_v_vec_list[[j]], lambda, s)
+       plur_df_list[[j]] <- out$df %>% mutate(iter = j)
+       plur_v_vec_list[[j + 1]] <- out$plur_vec
+    }
+    plur_sum <- as.data.frame(do.call(rbind, plur_df_list))
+    plur_v_vec <- as.data.frame(do.call(rbind, plur_v_vec_list))
+
+    return(list(rcv_sum, rcv_v_vec, plur_sum, plur_v_vec))
+}
+
+
+piv_ratio <- function(x){
+	pprobs <- x[1, ] %>% select("AB":"BCp")
+	prat <- sum(pprobs[13:15]) / sum(pprobs[1:12])
+	return(prat)
 }
