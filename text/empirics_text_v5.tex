@@ -35,7 +35,7 @@ Tobias Nowacki\thanks{Department of Political Science, Stanford University, CA, 
 
 \setcounter{section}{4}
 
-\section{Data and Methids}
+\section{Data and Methods}
 
 To assess strategic incentives under Plurality and IRV empirically, we rely on data from the  Comparative Study of Electoral Systems (CSES) for a realistic set of preferences and beliefs. The dataset covers 160 surveys from xx different countries, administered shortly before or after an election.\footnote{Two additional cases in the survey, Belarus (20xx) and Lithuania (20xx), are dropped because no respondent specified full preferences over more than two parties.} We focus on the three largest parties (evaluated how?) and label them $A, B, C$ in descending size, respectively. (Some more summary of the data set?)
 
@@ -46,6 +46,10 @@ We construct the utilities over candidates and beliefs over the electoral outcom
 \end{equation}
 
 where $s$ is a precision parameter (see above). Alternatively, we can think of a Level-2 voter as someone who has just been given a poll of everyone else voting ...(A better way to approach this is probably to start with sincere preferences and then work my way up...)
+
+\subsection{CSES summary statistics}
+
+Brief summary of the CSES dataset (countries, cases, three party dominance)
 
 \subsection{Weights}
 
@@ -69,9 +73,40 @@ Of course, when constructing respondents' utilities from like-dislike scores, we
 
 The iterative algorithm described above yields a large dataset of every respondent's strategic incentive and their optimal ballot for each iteration under either electoral system (all conditional on $s$).
 
-For our analysis, we calculate and present the following quantities of interest in our results section. Each of these quantities is a weighted mean computed for each case within the CSES, conditional on iteration, system, and belief precision. (Express in formal language w/ conditionality)
+For our analysis, we calculate and present the following quantities of interest in our results section. Each of these quantities is a weighted mean computed for each case within the CSES, conditional on iteration, system, and belief precision. (Express in formal language w/ conditionality).
+
+\textbf{Convergence of strategic voting.} We are interested in what `path' the iterative process described above takes. Specifically, we measure the distance between the iterated result (i.e., the vector of ballot shares) and the original ballot share vector (if everyone voted sincerely). Formally, for iteration $k$, the Euclidian distance is:
+
+\begin{equation}
+	d \equiv \sqrt{({\bf v}_k - {\bf v}_0)\trans ({\bf v}_k - {\bf v}_0)}
+\end{equation}
+
+\textbf{Prevalence of strategic incentives}. We measure the proportion of voters who have a positive strategic incentive, that is, $\tau_i > 0$ in each setting. Formally, the measure is:
+
+\begin{equation}
+	\text{Prevalence} \equiv \Prob(\tau > 0) = \frac{\sum^N_{i = 1} I(\tau_i > 0)}{N}
+\end{equation}
+
+\textbf{Magnitude of strategic incentives}. We measure the overall magnitude of these strategic incentives. This is the average of $\tau$ conditional on being greater than $0$.
+
+\begin{equation}
+	\text{Magnitude} \equiv \EX[\tau | \tau > 0] = \frac{\sum^N_{i = 1} I(\tau_i > 0) \times \tau_i}{\sum^N_{i = 1} I(\tau_i > 0)}
+\end{equation}
+
+\textbf{Expected benefit of strategic incentives}. We measure the expected benefit by asking: on average (across all respondents), what is the expected benefit of strategic voting?
+
+\begin{equation}
+	\text{Expected Benefit} \equiv \text{Prevalence} \times \text{Magnitude} = ...
+\end{equation}
+
+\textbf{Likelihood of pivotal events}. We measure the likelihood of pivotal events by taking the relevant pivotal probabilities from Section XX (see above). Note that these will be different for each voter type (e.g., an $ABC$ ballot will be pivotal in different circumstances than a $BAC$ one)
+
+\textbf{Expected cost and benefit of specific ballots}.
+
+Paraphrase Andy's stuff here.
 
 \begin{itemize}
+	\item Convergence of strategic voting.
 	\item Prevalence of strategic incentives.
 	\item Magnitude of strategic incentives.
 	\item Expected benefit of strategic incentives.
@@ -80,73 +115,75 @@ For our analysis, we calculate and present the following quantities of interest 
 \end{itemize}
 
 
-From each survey in the data set, we take respondents' party like/dislike scores for these parties to approximate voters' ordinal utilities and, by extension, their preferences over the parties.
+% From each survey in the data set, we take respondents' party like/dislike scores for these parties to approximate voters' ordinal utilities and, by extension, their preferences over the parties.
 
-Let $\bf \tilde{v}$ be the vector of ballot proportions if everyone in the CSES survey voted sincerely according to their preferences. If voter $i$ believes that everyone else is voting sincerely (in other words, everyone else is Level-0 strategic), then we model the $i$'s belief about the next election as $\text{Dir}(s \times \bf \tilde{v})$, where $s$ is a parameter capturing the precision of $i$'s beliefs. Given this set-up of beliefs and preferences, we calculate the strategic incentives under either electoral system, and iterate this procedure as laid out in Section 3.
+% Let $\bf \tilde{v}$ be the vector of ballot proportions if everyone in the CSES survey voted sincerely according to their preferences. If voter $i$ believes that everyone else is voting sincerely (in other words, everyone else is Level-0 strategic), then we model the $i$'s belief about the next election as $\text{Dir}(s \times \bf \tilde{v})$, where $s$ is a parameter capturing the precision of $i$'s beliefs. Given this set-up of beliefs and preferences, we calculate the strategic incentives under either electoral system, and iterate this procedure as laid out in Section 3.
 
-The remainder of this section describes brief summary statistics of the CSES data.
+% The remainder of this section describes brief summary statistics of the CSES data.
 
 
-\subsection{Summary statistics}
+% \subsection{Summary statistics}
 
-\begin{figure}[!htb]
-	\centering
-	\includegraphics[width = .5 \textwidth]{../output/figures/case_map.pdf}
-	\caption{Cases in CSES data, by country}
-	\label{fig:case_map}
-\end{figure}
+% \begin{figure}[!htb]
+% 	\centering
+% 	\includegraphics[width = .5 \textwidth]{../output/figures/case_map.pdf}
+% 	\caption{Cases in CSES data, by country}
+% 	\label{fig:case_map}
+% \end{figure}
 
-The mean number of respondents in the CSES surveys is 1384 (with a standard deviation of 539). The 160 different surveys come from xx different countries, between 1996 and 2016. Figure~\ref{fig:map} maps the number of surveys in each country. (Do we need to say any more? Perhaps something about mean / sd of preference intensity and $\tau$?)
+% The mean number of respondents in the CSES surveys is 1384 (with a standard deviation of 539). The 160 different surveys come from xx different countries, between 1996 and 2016. Figure~\ref{fig:map} maps the number of surveys in each country. (Do we need to say any more? Perhaps something about mean / sd of preference intensity and $\tau$?)
 
-\subsection{Weighting}
+% \subsection{Weighting}
 
-In some CSES cases, respondents are assigned a non-uniform weight. When computing case-level statistics (e.g., prevalence of strategic incentives in case $j$), we weigh each observation by its original weight. When aggregating up even further, and presenting aggregate statistics (averaged over all cases), we also assign case-level weights to adjust for countries' voting age population and the overrepresenation of some countries.\footnote{Recall that our initial objective is to compare the \textit{overall} distribution of strategic voting incentives under Plurality and IRV. Without weights, we would run the risk of having our findings distorted by a small countryoutlier that counts for as much as a large state (e.g., Denmark and the United States); alternatively, we also do not want a result that is particular to one country to be over-represented purely because there are multiple surveys from that country.}
+% In some CSES cases, respondents are assigned a non-uniform weight. When computing case-level statistics (e.g., prevalence of strategic incentives in case $j$), we weigh each observation by its original weight. When aggregating up even further, and presenting aggregate statistics (averaged over all cases), we also assign case-level weights to adjust for countries' voting age population and the overrepresenation of some countries.\footnote{Recall that our initial objective is to compare the \textit{overall} distribution of strategic voting incentives under Plurality and IRV. Without weights, we would run the risk of having our findings distorted by a small countryoutlier that counts for as much as a large state (e.g., Denmark and the United States); alternatively, we also do not want a result that is particular to one country to be over-represented purely because there are multiple surveys from that country.}
 
-These case-level weights are constructed as follows:
+% These case-level weights are constructed as follows:
 
-\begin{equation}
-	w_j \equiv
-\end{equation}
+% \begin{equation}
+% 	w_j \equiv
+% \end{equation}
 
-\subsection{Distribution of preferences} 
+% \subsection{Distribution of preferences} 
 
-How different are the CSES cases from one another? Aside from the intensity of preferences, we can describe each case with the vector $\bf \tilde{v}$, where the three-item vector $(v_1 + v_2, v_3 + v_4, v_5 + v_6)$ describes the distribution of first preferences, and the three-item vector $(m_{AB} = \frac{v_1}{v_1 + v_2}, m_{BA} = \frac{v_3}{v_3 + v_4}, m_{CB} = \frac{v_6}{v_5 + v_6})$ describes the distribution of second preferences. 
+% How different are the CSES cases from one another? Aside from the intensity of preferences, we can describe each case with the vector $\bf \tilde{v}$, where the three-item vector $(v_1 + v_2, v_3 + v_4, v_5 + v_6)$ describes the distribution of first preferences, and the three-item vector $(m_{AB} = \frac{v_1}{v_1 + v_2}, m_{BA} = \frac{v_3}{v_3 + v_4}, m_{CB} = \frac{v_6}{v_5 + v_6})$ describes the distribution of second preferences. 
 
-To link these two distributions together and classify cases more completely, we offer the following approach. Without loss of generality, let the candidate (party) $X$ whose first-preference voters have the most equally split second preferences, and the other two parties $Y$ and $Z$. If both $m_{YZ}$, $m_{ZY} > 0.6$, then classify this case as \emph{single-peaked} and denote it $X+$.\footnote{$X$ is the attractor: both remaining parties have a majority of their second preferences tilted towards $X$.} Conversely, if both $m_{YZ}, m{ZY} < 0.4$, then classify this case as \emph{divided majority} and denote it $X-$.\footnote{Here, $X$ is the repeller: both remaining parties have a majority of their second preferences tilted towards each other and away from $X$.} If $m_{YZ}, m_{ZY} \in [0.4, 0.6]$, then classify this case as \emph{neutral} and denote it $N(X)$. If neither of these conditions hold (because of unusual second preferences), classify it as \emph{other} and denote it $O$. This completes a mutually exclusive and exhaustive set of classes determined by $\bf \tilde{v}$.
+% To link these two distributions together and classify cases more completely, we offer the following approach. Without loss of generality, let the candidate (party) $X$ whose first-preference voters have the most equally split second preferences, and the other two parties $Y$ and $Z$. If both $m_{YZ}$, $m_{ZY} > 0.6$, then classify this case as \emph{single-peaked} and denote it $X+$.\footnote{$X$ is the attractor: both remaining parties have a majority of their second preferences tilted towards $X$.} Conversely, if both $m_{YZ}, m{ZY} < 0.4$, then classify this case as \emph{divided majority} and denote it $X-$.\footnote{Here, $X$ is the repeller: both remaining parties have a majority of their second preferences tilted towards each other and away from $X$.} If $m_{YZ}, m_{ZY} \in [0.4, 0.6]$, then classify this case as \emph{neutral} and denote it $N(X)$. If neither of these conditions hold (because of unusual second preferences), classify it as \emph{other} and denote it $O$. This completes a mutually exclusive and exhaustive set of classes determined by $\bf \tilde{v}$.
 
-\begin{table}[tb]
-	\caption{Distribution of preference profiles in CSES data}
-	\label{tab:csesprefs}
-	\centering
+% \begin{table}[tb]
+% 	\caption{Distribution of preference profiles in CSES data}
+% 	\label{tab:csesprefs}
+% 	\centering
 
-	\begin{tabular}{lccc}
-	\hline
+% 	\begin{tabular}{lccc}
+% 	\hline
 
-	\toprule
-	\textbf{} & \textbf{A} & \textbf{B} & \textbf{C} \\
-	\cmidrule{2-4}
-	Single-peaked (+) & 18 & 23 & 9  \\
-	Divided majority (-) & 28 & 20 & 20  \\
-	Neutral () & 5 & 7 & 3  \\
-	Other () & & 27 &  \\
-	\bottomrule
-	\end{tabular}
-\end{table}
+% 	\toprule
+% 	\textbf{} & \textbf{A} & \textbf{B} & \textbf{C} \\
+% 	\cmidrule{2-4}
+% 	Single-peaked (+) & 18 & 23 & 9  \\
+% 	Divided majority (-) & 28 & 20 & 20  \\
+% 	Neutral () & 5 & 7 & 3  \\
+% 	Other () & & 27 &  \\
+% 	\bottomrule
+% 	\end{tabular}
+% \end{table}
 
-Table~\ref{tab:csesprefs} summarises the distribution of preference classes across the CSES cases. A plurality of cases belong to the divided majority classes; however, there is also a large number of single-peaked cases, whereas neutral and others tend to be rarer. (Figure~\ref{fig:cses_fp} plots the distribution of first preferences conditional on the classes.)
+% Table~\ref{tab:csesprefs} summarises the distribution of preference classes across the CSES cases. A plurality of cases belong to the divided majority classes; however, there is also a large number of single-peaked cases, whereas neutral and others tend to be rarer. (Figure~\ref{fig:cses_fp} plots the distribution of first preferences conditional on the classes.)
 
-\begin{figure}[!htb]
-	\centering
-	\includegraphics[width = 0.6 \textwidth]{../output/figures/cses_fp.pdf}
-	\caption{Distribution of first preferences in CSES cases, by class}
-	\label{fig:cses_fp}
-\end{figure}
+% \begin{figure}[!htb]
+% 	\centering
+% 	\includegraphics[width = 0.6 \textwidth]{../output/figures/cses_fp.pdf}
+% 	\caption{Distribution of first preferences in CSES cases, by class}
+% 	\label{fig:cses_fp}
+% \end{figure}
 
 \section{Results}
 
 We now proceed to present and discuss our results.
 
 \subsection{Convergence}
+
+\textit{Main point: show that our cases converge on strategic voting equilibria; in the case of Plurality, two-party ones. Show that these fixed points are further away from original ballot shares under Plurality than under IRV.}
 
 Under both IRV and Plurality, the distribution of ballot shares quickly converges towards a fixed point in the vast majority of CSES cases. The average Euclidean distance going from the 59th to the 60th iteration is below 0.0014 for Plurality, and below 0.006 for IRV.\footnote{These averages are unweighted -- need to recompile in the future.} Put differently, we can obtain a perfectly strategic voting equilibrium, where all voters anticipate others' vote choices, and react accordingly, within about 60 iterations from the sincere voting profile.
 
@@ -171,7 +208,9 @@ In sum, when applying our iterative strategic voting procedure to all CSES cases
 	\label{fig:convergence_paths}
 \end{figure}
 
-\subsection{Strategic Incentives}
+\subsection{Distribution of Strategic Incentives}
+
+\textit{Main takeaway: discuss expected benefit, magnitude, and prevalence. Show that strategic incentives are, generally speaking, higher under plurality than under IRV. With better information, strategic incentives under IRV become more prevalent, but the benefit of acting on them does not really increase. --> complements and substitudes...}
 
 In this section, we present our main results. We focus on the prevalence, magnitude and expected benefit of strategic voting under either electoral system. Overall, strategic voting incentives are more prevalent, have a higher magnitude and higher expected benefit under Plurality than under IRV.
 
@@ -183,6 +222,11 @@ Figure~\ref{fig:main_stats} shows the quantities of interest for each case, as w
 	\caption{Main statistics}
 	\label{fig:main_stats}
 \end{figure}
+
+\subsection{Conjecture Tests}
+
+Continue here tomorrow and think more clearly about how to structure results section.
+
 
 \section{Conclusion}
 
