@@ -44,10 +44,10 @@
   <internal package="biblatex" priority="9" active="0">
     <generic>latex</generic>
     <provides type="dynamic">
-      <file>empirics_text_v5.bcf</file>
+      <file>empirics_text_v6.bcf</file>
     </provides>
     <requires type="dynamic">
-      <file>empirics_text_v5.bbl</file>
+      <file>empirics_text_v6.bbl</file>
     </requires>
     <requires type="static">
       <file>blx-dm.def</file>
@@ -64,19 +64,19 @@
     <generic>biber</generic>
     <cmdline>
       <binary>biber</binary>
-      <infile>empirics_text_v5</infile>
+      <infile>empirics_text_v6</infile>
     </cmdline>
     <input>
-      <file>empirics_text_v5.bcf</file>
+      <file>empirics_text_v6.bcf</file>
     </input>
     <output>
-      <file>empirics_text_v5.bbl</file>
+      <file>empirics_text_v6.bbl</file>
     </output>
     <provides type="dynamic">
-      <file>empirics_text_v5.bbl</file>
+      <file>empirics_text_v6.bbl</file>
     </provides>
     <requires type="dynamic">
-      <file>empirics_text_v5.bcf</file>
+      <file>empirics_text_v6.bcf</file>
     </requires>
   </external>
 </requests>
