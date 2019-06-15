@@ -10,7 +10,7 @@
 ##
 
 # Load packages
-requiredPackages <- c("here", "ggplot2", "ggtern", "dplyr", "purrr", "tidyr", "lmtest", "sandwich", "plm", "extrafont", "RColorBrewer", "boot", "svMisc", "ggtern", "reldist")
+requiredPackages <- c("here", "ggplot2", "ggtern", "dplyr", "purrr", "tidyr", "lmtest", "sandwich", "plm", "extrafont", "RColorBrewer", "boot", "svMisc", "ggtern", "reldist", "gridExtra", "ggpubr")
 ipak <- function(pkg){
         new.pkg <- pkg[!(pkg %in% installed.packages()[, "Package"])]
         if (length(new.pkg))
@@ -31,7 +31,7 @@ load(here("output/big_list_2.RData"))
 vap <- read.csv(here("data/case_vap.csv"), sep = "") # voting age pop.
 
 # Load fonts
-font_import()
+# font_import()
 
 # Define ggplot theme
 theme_sv <- function(){
@@ -292,7 +292,8 @@ geom_line(aes(y = pprob, group = interaction(case, type), colour = type), alpha 
 geom_line(data = conjdf_quant, aes(x = iter, y = pprob_mean, group = type, colour = type), lwd = 2) + 
 geom_hline(yintercept = 0, lty = "dashed") +
 labs(x = "Iteration", y = "Pivotal Probabilities") +
-theme_sv() 
+theme_sv()  +
+ylim(c(0, 0.5))
 ggsave(here("output/figures/conj1.pdf"), device = cairo_pdf)
 
 # Pprobs plot (quantiles)
@@ -307,7 +308,8 @@ ggplot(conjdf, aes(x = iter)) +
 geom_line(aes(y = correlation, group = interaction(case, type), colour = type), alpha = 0.05) +
 geom_line(data = conjdf_quant, aes(x = iter, y = corr_mean, group = type, colour = type), lwd = 2) + 
 geom_hline(yintercept = 0, lty = "dashed") +
-theme_sv() 
+theme_sv() +
+ylim(c(-0.5, 0.5))
 ggsave(here("output/figures/conj2.pdf"), device = cairo_pdf)
 
 # Correlations plot (quantiles)
@@ -316,11 +318,6 @@ geom_line(aes(y = corr_q50, group = type, colour = type), alpha = 1) +
 geom_ribbon(aes(ymin = corr_q25, ymax = corr_q75, group = type, fill = type), alpha = 0.25) + 
 geom_hline(yintercept = 0, lty = "dashed") +
 theme_sv() 
-
-## SUMMARY OF INCENTIVES
-# Prevalence, Magnitude, EB
-big_rcv_sum %>% group_by(case, iter) %>% summarise(prev = mean(tau_rcv > 0), mag = mean(tau_rcv[tau_rcv > 0]), eb = prev * mag) 
-
 
 
 
@@ -380,7 +377,8 @@ ggplot(dist_df, aes(x = iter, y = diff)) +
   labs(x = "Iteration", y = "Euclidean Distance") + 
   scale_color_manual(values = c("orange", "blue")) + 
   theme_sv() +
-  theme(legend.position = "bottom", legend.direction = "horizontal")
+  theme(legend.position = "bottom", legend.direction = "horizontal") +
+  ylim(c(0, 0.035))
 ggsave(here("output/figures/euclidean.pdf"), device = cairo_pdf, height = 3, width = 6)
 
 # Figure: Euclidean distances from one vector to the first iteration
@@ -390,8 +388,9 @@ ggplot(dist_df, aes(x = iter, y = b)) +
   labs(x = "Iteration", y = "Euclidean Distance") + 
   scale_color_manual(values = c("orange", "blue")) + 
   theme_sv() +
-  theme(legend.position = "bottom", legend.direction = "horizontal")
-ggsave(here("output/figures/euclidean.pdf"), device = cairo_pdf, height = 3, width = 6)
+  theme(legend.position = "bottom", legend.direction = "horizontal") +
+  ylim(c(0, 0.4))
+ggsave(here("output/figures/euclidean_origin.pdf"), device = cairo_pdf, height = 3, width = 6)
 
 # Statistic: Avg change at first and last iteration
 dist_df %>% filter(iter %in% c(2, 61)) %>% group_by(system, s, iter) %>% summarise(mean(diff))
@@ -400,36 +399,74 @@ dist_df %>% filter(iter %in% c(2, 61)) %>% group_by(system, s, iter) %>% summari
 # Simplex paths
 rcv_vec_df <- big_rcv_vec[[6]] %>% do.call(rbind, .) %>% mutate(case = rep(1:160, each = 61), iter = rep(1:61, 160), A = V1 + V2, B = V3 + V4, C = V5 + V6)
 plur_vec_df <- big_plur_vec[[6]] %>% do.call(rbind, .) %>% mutate(case = rep(1:160, each = 61), iter = rep(1:61, 160), A = V1 + V2, B = V3 + V4, C = V5 + V6)
-line_df <- data.frame(A = c(0.5, 1/3), B = c(0.5, 1/3), C = c(0, 1/3))
+line_df <- data.frame(A = c(0.5, 1/3, 1/3, 0.5), 
+                      B = c(0.5, 1/3, 1/3, 0), 
+                      C = c(0,   1/3, 1/3, 0.5),
+                      gr = c(1, 1, 2, 2))
 
-ggtern(plur_vec_df, aes(A, B, C)) + 
+path_plur <- ggtern(plur_vec_df, aes(A, B, C)) + 
   geom_line(aes(group = case), alpha = 0.1) + 
-  geom_line(data = line_df, lty = "dashed", colour = "red") +
-  geom_point(data = plur_vec_df[plur_vec_df$iter == 1, ], alpha = 0.5) + 
-  geom_point(data = plur_vec_df[plur_vec_df$iter == 61, ], size = 0.5, colour = "blue") + 
-  theme_sv()
-ggsave(here("output/figures/tatonnement_plur.pdf"), device = cairo_pdf, width = 3, height = 3)
+  geom_line(data = line_df, 
+            lty = "dashed", 
+            colour = "grey",
+            aes(group = gr)) +
+  geom_point(data = plur_vec_df[plur_vec_df$iter == 1, ], 
+             alpha = 0.2,
+             colour = "red", 
+             size = 0.75) + 
+  geom_point(data = plur_vec_df[plur_vec_df$iter == 61, ],
+             size = 1, 
+             colour = "blue", 
+             alpha = 0.5) + 
+  theme_sv() +
+  theme(plot.margin = unit(c(0.01,-0.4,0.01,-0.4), "cm"))
+# ggsave(here("output/figures/tatonnement_plur.pdf"), device = cairo_pdf, width = 3, height = 3)
 
-ggtern(rcv_vec_df, aes(A, B, C)) + 
+path_rcv <- ggtern(rcv_vec_df, aes(A, B, C)) + 
   geom_line(aes(group = case), alpha = 0.1) + 
-  geom_line(data = line_df, lty = "dashed", colour = "red") +
-  geom_point(data = rcv_vec_df[plur_vec_df$iter == 1, ], alpha = 0.5) + 
-  geom_point(data = rcv_vec_df[plur_vec_df$iter == 61, ], size = 0.5, colour = "blue") + 
-  theme_sv()
-ggsave(here("output/figures/tatonnement_rcv.pdf"), device = cairo_pdf, width = 3, height = 3)
+  geom_line(data = line_df, 
+            lty = "dashed", 
+            colour = "grey",
+            aes(group = gr)) +
+  geom_point(data = rcv_vec_df[plur_vec_df$iter == 1, ], 
+             alpha = 0.2,
+             colour = "red", 
+             size = 0.75) + 
+  geom_point(data = rcv_vec_df[plur_vec_df$iter == 61, ], 
+             size = 1, 
+             colour = "blue", 
+             alpha = 0.5) + 
+  theme_sv() +
+  theme(plot.margin = unit(c(0.01,-0.4,0.01,-0.4), "cm"))
+# ggsave(here("output/figures/tatonnement_rcv.pdf"), device = cairo_pdf, width = 3, height = 3)
+
+paths <- ggtern::grid.arrange(path_plur, path_rcv,
+                     ncol = 2, 
+                     widths = c(7, 7),
+                     padding = unit(0.01, "line"))
+ggsave(here("output/figures/tatonnement_both.pdf"), paths,
+       device = cairo_pdf, width = 6, height = 3)
+
+
 
 ###
 ### EXPECTED BENEFIT AND OTHERS
 ### 
 
+## SUMMARY OF INCENTIVES
+# Prevalence, Magnitude, EB
+
+big_rcv_sum2 <- big_rcv_sum %>% group_by(case, iter, s) %>% summarise(Prevalence = mean(tau_rcv > 0), Magnitude = mean(tau_rcv[tau_rcv > 0]), ExpBenefit = Prevalence * Magnitude) 
+big_plur_sum2 <- big_plur_sum %>% group_by(case, iter, s) %>% summarise(Prevalence = mean(tau_plur > 0), Magnitude = mean(tau_plur[tau_plur > 0]), ExpBenefit = Prevalence * Magnitude) 
+
 # Aggregate means
-rcv_agg <- as.data.frame(big_rcv_sum %>% group_by(k, s) %>% summarise(
+rcv_agg <- as.data.frame(big_rcv_sum2 %>% group_by(iter, s) %>% summarise(
   Prevalence = weighted.mean(Prevalence, weights = country_weight, na.rm = TRUE),
   Magnitude = weighted.mean(Magnitude, weights = country_weight, na.rm = TRUE),
   ExpBenefit = weighted.mean(ExpBenefit, weights = country_weight, na.rm = TRUE)
 )) %>% gather(., key = "Type", value = "Statistic", 3:5) %>% mutate(System = "IRV")
 
-plur_agg <- as.data.frame(big_plur_sum %>% group_by(k, s) %>% summarise(  
+plur_agg <- as.data.frame(big_plur_sum2 %>% group_by(iter, s) %>% summarise(  
   Prevalence = weighted.mean(Prevalence, weights = country_weight, na.rm = TRUE),
   Magnitude = weighted.mean(Magnitude, weights = country_weight, na.rm = TRUE),
   ExpBenefit = weighted.mean(ExpBenefit, weights = country_weight, na.rm = TRUE)
@@ -438,22 +475,33 @@ agg_df <- rbind(rcv_agg, plur_agg)
 
 
 # Tidying data
-big_rcv_sum <- gather(big_rcv_sum, key = "Type", value = "Statistic", 1:3) %>% mutate(System = "IRV")
+big_rcv_sum3 <- gather(big_rcv_sum2, key = "Type", value = "Statistic", 4:6) %>% mutate(System = "IRV")
 
-big_plur_sum <- gather(big_plur_sum, key = "Type", value = "Statistic", 1:3) %>% mutate(System = "Plurality")
+big_plur_sum3 <- gather(big_plur_sum2, key = "Type", value = "Statistic", 4:6) %>% mutate(System = "Plurality")
 
-big_df <- rbind(big_rcv_sum, big_plur_sum)
+big_df <- rbind(big_rcv_sum3, big_plur_sum3)
 
+# Change axes
+hidden_scale_adj <- data.frame(iter = 3, Statistic = 0.69, type = "Prevalence")
 
-ggplot(big_df, aes(x = k, y = Statistic)) +
-    geom_line(aes(color = System, group = interaction(System, case)), alpha = 0.1) +
-    geom_line(data = agg_df, aes(color = System), lwd = 2) + 
-    facet_wrap(s ~ Type, scales = "free") +
-    theme_sv() +
-    labs(x = "Iteration", y = "Statistic") +
-    scale_color_manual(values = cbbPalette[c(3, 2)]) +
-    theme(legend.position = "bottom", legend.direction = "horizontal")
-ggsave(here("output/figures/iterated_complete.pdf"), device = cairo_pdf, width = 6, height = 5)
+plot_together <- ggplot(big_df,
+                  aes(x = iter, y = Statistic)) +
+                geom_line(aes(color = System, 
+                              group = interaction(System, case)),
+                            alpha = 0.1) +
+                geom_line(data = agg_df %>% filter(System == "IRV"), 
+                          color = "#004C99", lwd = 1.1) + 
+                geom_line(data = agg_df %>% filter(System == "Plurality"), 
+                          color = "#CC6600", lwd = 1.1) + 
+                geom_point(data = hidden_scale_adj, alpha = 0) +
+                theme_sv() +
+                facet_wrap(s ~ Type, scales = "free_y") +
+                labs(x = "Iteration", y = "") +
+                scale_color_manual(values = cbbPalette[c(3, 2)]) +
+                guides(colour = guide_legend(override.aes = list(alpha = 1))) +
+                theme(legend.position = "bottom", legend.direction = "horizontal")
+
+ggsave(here("output/figures/iterated_complete.pdf"), plot_together, device = cairo_pdf, width = 6, height = 6.5)
 
 
 eb_rcv_agg <- as.data.frame(big_rcv_sum %>% group_by(k) %>% summarise(avg = weighted.mean(ExpBenefit, weights = country_weight, na.rm = TRUE)))
