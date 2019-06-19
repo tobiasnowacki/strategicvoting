@@ -198,7 +198,7 @@ for(prec in c(1, 4, 6)){
 }
 
 # save.image(here("output/intermediate2.Rdata"))
-load(here("output/intermediate2.RData"))
+# load(here("output/intermediate2.RData"))
 
 big_rcv_sum <- do.call(rbind, big_rcv_sum)
 big_plur_sum <- do.call(rbind, big_plur_sum)
@@ -284,14 +284,15 @@ conjdf_quant <- conjdf %>% group_by(iter, type) %>% summarise(
   pprob_q975 = wtd.quantile(pprob, q = 0.975, weight = ctryweight),
   pprob_mean = wtd.mean(pprob, weight = ctryweight))
 
-
+# save.image(here("output/intermediate3.Rdata"))
+load(here("output/intermediate3.RData"))
 
 # Pprobs plot (raw)
 ggplot(conjdf, aes(x = iter)) +
 geom_line(aes(y = pprob, group = interaction(case, type), colour = type), alpha = 0.1) +
 geom_line(data = conjdf_quant, aes(x = iter, y = pprob_mean, group = type, colour = type), lwd = 2) + 
 geom_hline(yintercept = 0, lty = "dashed") +
-labs(x = "Iteration", y = "Pivotal Probabilities") +
+labs(x = "Iteration", y = "Probability vote is beneficial * electorate size") +
 theme_sv()  +
 ylim(c(0, 0.5))
 ggsave(here("output/figures/conj1.pdf"), device = cairo_pdf)
@@ -448,6 +449,47 @@ ggsave(here("output/figures/tatonnement_both.pdf"), paths,
        device = cairo_pdf, width = 6, height = 3)
 
 
+### Pattern of second preferences
+
+rcv_vec_df_mut <- rcv_vec_df %>% 
+  mutate(discrep = A * abs(.5 - (V1 / A)) + 
+                   B * abs(.5 - (V3 / B)) +
+                   C * abs(.5 - (V5 / C)),
+        system = "IRV") 
+
+plur_vec_df_mut <- plur_vec_df %>% 
+  mutate(discrep = A * abs(.5 - (V1 / A)) + 
+                   B * abs(.5 - (V3 / B)) +
+                   C * abs(.5 - (V5 / C)),
+        system = "Plurality") 
+
+df_mut_sec_pref <- rbind(rcv_vec_df_mut, plur_vec_df_mut)
+
+df_mut_agg <- df_mut_sec_pref %>% group_by(iter, system) %>%
+  summarise(mean = weighted.mean(discrep, weight = ctryweight))
+
+ggplot(df_mut_sec_pref %>% filter(system == "IRV"), 
+       aes(x = iter, y = discrep)) + 
+  geom_line(aes(group = interaction(system, case),
+                colour = system), alpha = 0.2) +
+  geom_line(data = df_mut_agg %>% filter(system == "IRV"),
+            aes(y = mean, group = system),
+            lwd = 2,
+            color = "#004C99") +
+  # geom_line(data = df_mut_agg %>% filter(system == "Plurality"),
+  #           aes(y = mean, group = system),
+  #           lwd = 2,
+  #           color = "#CC6600") +
+  theme_sv() +
+  labs(x = "Iteration", 
+       y = "Second preference discrepancy from Neutral") +
+  scale_color_manual(values = cbbPalette[c(3, 2)]) +
+  guides(colour = guide_legend(override.aes = list(alpha = 1)))
+ggsave(here("output/figures/neutral_disc.pdf"), device = cairo_pdf)
+
+# Save 'sincere profile' neutral 2pref divergence
+sincere_neutral <- df_mut_sec_pref %>% filter(system == "IRV" & iter == 1) %>% select(discrep) %>% unlist
+sincere_strategic <- df_mut_sec_pref %>% filter(system == "IRV" & iter == 60) %>% select(discrep) %>% unlist
 
 ###
 ### EXPECTED BENEFIT AND OTHERS
@@ -484,6 +526,7 @@ big_df <- rbind(big_rcv_sum3, big_plur_sum3)
 # Change axes
 hidden_scale_adj <- data.frame(iter = 3, Statistic = 0.69, type = "Prevalence")
 
+# Results plot
 plot_together <- ggplot(big_df,
                   aes(x = iter, y = Statistic)) +
                 geom_line(aes(color = System, 
@@ -502,6 +545,24 @@ plot_together <- ggplot(big_df,
                 theme(legend.position = "bottom", legend.direction = "horizontal")
 
 ggsave(here("output/figures/iterated_complete.pdf"), plot_together, device = cairo_pdf, width = 6, height = 6.5)
+
+# Ratio plot
+
+
+
+# Sincere by neutral pref plot
+
+sincere_eb <- big_df %>% filter(iter %in% c(1, 60) & Type == "ExpBenefit" & s == 85)
+sincere_eb$discrep <- rep(rep(c(sincere_neutral, sincere_strategic), each = 1), 2)
+
+ggplot(sincere_eb, aes(discrep, Statistic)) +
+  geom_point(aes(colour = System), alpha = 0.3) +
+  geom_smooth(aes(colour = System), method = "lm", se = FALSE) +
+  theme_sv() +
+  facet_grid(s ~ iter) +
+  scale_color_manual(values = cbbPalette[c(3, 2)]) +
+  labs(x = "Neutral 2nd pref divergence", y = "Expected Benefit")
+ggsave(here("output/figures/div_eb.pdf"), device = cairo_pdf)
 
 
 eb_rcv_agg <- as.data.frame(big_rcv_sum %>% group_by(k) %>% summarise(avg = weighted.mean(ExpBenefit, weights = country_weight, na.rm = TRUE)))
