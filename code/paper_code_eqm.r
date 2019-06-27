@@ -449,8 +449,55 @@ ggsave(here("output/figures/tatonnement_both.pdf"), paths,
        device = cairo_pdf, width = 6, height = 3)
 
 
-### Pattern of second preferences
+## ANALYISIS OF CONVERGENCE PATHS
 
+### Identify plurality outliers
+plur_out <- plur_vec_df %>% filter(iter == 60 & C > 0.05)
+# cases 50, 68, 138, 152 that are odd
+plur_vec_df %>% 
+  filter(case %in% c(50, 68, 138, 152) & iter == 1) %>% 
+  mutate(mB = V3 / (V3 + V4), 
+         mC = V5 / (V5 + V6))
+
+
+# Write function to identify BAC / CAB preference intensity
+get_pref_intensity <- function(u_df){
+  u_df$first_pref <- apply(u_df, 1, which.max)
+  u_df$last_pref <- apply(u_df[, 1:3], 1, which.min)
+  u_df$beta <- apply(u_df, 1, function(x) x[1:3][!(c(1, 2, 3) %in% x[4:5])])
+  return(u_df)
+}
+
+bac_cab_betas <- function(u_df){
+  case_int <- get_pref_intensity(u_df)
+  beta_sum <- case_int %>% filter((first_pref == 2 & last_pref == 3) | (first_pref == 3 & last_pref == 2)) %>% 
+  group_by(first_pref) %>% 
+  summarise(mean(beta))
+  return(beta_sum[1, 2] / beta_sum[2, 2])
+}
+
+beta_out <- sapply(big_list_na_omit, function(x) bac_cab_betas(x$U)) %>% as.numeric
+
+# ratio between second and third place in sincere profile
+sin_plur <- plur_vec_df %>% 
+              filter(iter == 1) %>%
+              mutate(outlier = FALSE,
+                     mB = V3 / (V3 + V4), 
+                     mC = V5 / (V5 + V6),
+                     BCrat = B / C,
+                     mrat = mB / mC)
+sin_plur$betarat <- beta_out
+sin_plur$outlier[c(50, 68, 138, 152)] <- TRUE
+
+ggplot(sin_plur, aes(BCrat, mrat)) +
+  geom_point(aes(shape = outlier, size = outlier, colour = betarat), 
+             alpha = .3) +
+  theme_sv() +
+  labs(x = "B/C ratio", y = '2nd pref ratio (BAC/BCA vs CAB/CBA)',
+       shape = "A/C eqm?", colour = "Beta ratio")
+ggsave(here("output/figures/investigate_plur_eqm.pdf"), device = cairo_pdf)
+
+### Pattern of second preferences
 rcv_vec_df_mut <- rcv_vec_df %>% 
   mutate(discrep = A * abs(.5 - (V1 / A)) + 
                    B * abs(.5 - (V3 / B)) +
@@ -490,6 +537,26 @@ ggsave(here("output/figures/neutral_disc.pdf"), device = cairo_pdf)
 # Save 'sincere profile' neutral 2pref divergence
 sincere_neutral <- df_mut_sec_pref %>% filter(system == "IRV" & iter == 1) %>% select(discrep) %>% unlist
 sincere_strategic <- df_mut_sec_pref %>% filter(system == "IRV" & iter == 60) %>% select(discrep) %>% unlist
+
+# Which ones are increasing?
+increase <- rcv_vec_df_mut %>% group_by(case) %>% summarise(increase = (discrep[iter == 60] - discrep[iter == 40] > 0.01) %>% unlist)
+
+rcv_vec_df_mut <- rcv_vec_df_mut %>% left_join(increase)
+
+# Check if they are special in any regard
+ggtern(rcv_vec_df_mut, aes(A, B, C)) + 
+  geom_line(aes(group = case, colour = increase), alpha = 0.5) + 
+  geom_line(data = line_df, 
+            lty = "dashed", 
+            colour = "grey",
+            aes(group = gr)) +
+  geom_point(data = rcv_vec_df_mut[rcv_vec_df_mut$iter == 1, ], 
+             alpha = 1,
+             colour = "red", 
+             size = 0.75) + 
+  theme_sv() +
+  theme(plot.margin = unit(c(0.01,-0.4,0.01,-0.4), "cm"))
+
 
 ###
 ### EXPECTED BENEFIT AND OTHERS
@@ -551,7 +618,6 @@ ggsave(here("output/figures/iterated_complete.pdf"), plot_together, device = cai
 
 
 # Sincere by neutral pref plot
-
 sincere_eb <- big_df %>% filter(iter %in% c(1, 60) & Type == "ExpBenefit" & s == 85)
 sincere_eb$discrep <- rep(rep(c(sincere_neutral, sincere_strategic), each = 1), 2)
 
@@ -564,6 +630,9 @@ ggplot(sincere_eb, aes(discrep, Statistic)) +
   labs(x = "Neutral 2nd pref divergence", y = "Expected Benefit")
 ggsave(here("output/figures/div_eb.pdf"), device = cairo_pdf)
 
+#
+# Separate main results
+#   
 
 eb_rcv_agg <- as.data.frame(big_rcv_sum %>% group_by(k) %>% summarise(avg = weighted.mean(ExpBenefit, weights = country_weight, na.rm = TRUE)))
 eb_plur_agg <- as.data.frame(big_plur_sum %>% group_by(k) %>% summarise(avg = weighted.mean(ExpBenefit, weights = country_weight, na.rm = TRUE)))

@@ -1,0 +1,2 @@
+\beamer@sectionintoc {1}{Qualitative description of strategic voting in Plurality and IRV (h/t Andy)}{39}{1}{1}
+\beamer@sectionintoc {2}{Further discussion of results}{57}{1}{2}
