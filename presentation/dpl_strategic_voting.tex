@@ -42,11 +42,11 @@
     \begin{itemize}[<+->]
     	\item Sometimes you can be better off by misrepresenting your true preferences in order to obtain a better outcome overall: you have an incentive to \textbf{vote strategically}.
     	\begin{itemize}
-    		\item {\color{gray} In 2000, Nader voters in Fla. had an incentive to vote for Gore instead}
+    		\item {\color{gray} In 2000, Nader voters in Fla. would have been \emph{ex post} better off had they voted for Gore}
     	\end{itemize}
-    	\item No electoral system is immune to strategic incentives. (Sattherthwaite 1975)
-    	\item How likely are these strategic incentives in the real world, with observed beliefs and preferences?
-    	\item Better educated citizens are more likely to act on their strategic incentives $\Rightarrow$ advantage in systems that strongly incentivise strategic voting
+    	\item No electoral system is immune to strategic voting. (Sattherthwaite 1975)
+    	\item How likely are \emph{ex ante} strategic incentives in the real world, with observed beliefs and preferences?
+    	\item Better educated citizens are more likely to act on their strategic incentives (Eggers \& Vivyan 2019)
     	\begin{itemize}
     		\item {\color{gray} also make results more difficult to interpret and impose additional costs on voters}
     	\end{itemize}
@@ -55,7 +55,7 @@
 
 \begin{frame}[t]\frametitle{Introduction: Plurality and IRV}
     \begin{itemize}[<+->]
-    \item Our focus is on two voting systems: plurality (FPTP) and IRV (ranked choice voting, alternative vote, ...)
+    \item Our focus is on two voting systems: plurality (FPTP) and instant-runoff voting (IRV, ranked choice voting, alternative vote, ...)
     \item In \textbf{plurality}, voters cast a ballot for one candidate.
     \begin{itemize}
     	\item The candidate with the most ballots wins.
@@ -69,6 +69,15 @@
     \item \textbf{This paper:} how do strategic incentives look like under either system, both qualitatively and quantitatively?
     \end{itemize}
     \hyperlink{strat_qual}{\beamerbutton{Types of strategic votes in electoral systems}}
+\end{frame}
+
+\begin{frame}[t]\frametitle{How does IRV work?}
+\begin{figure}[tb]
+	\centering
+	\includegraphics[width = 0.4\textwidth]{pres_fig/sf_election}
+	\caption{Distribution of votes in 2018 SF mayoral election}
+	\label{fig:sf}
+\end{figure}
 \end{frame}
 
 \begin{frame}[t]\frametitle{General Framework}
@@ -115,7 +124,7 @@ How to model utilities and beliefs / outcome probabilities?
 
 \begin{frame}[t]\frametitle{Modelling preferences and beliefs}
 
-We rely on CSES data to characterise preferences and beliefs -- election surveys from 160 cases (58 countries). We focus on the three largest parties in every reported survey.
+We rely on CSES data to characterise preferences and beliefs -- election surveys from 160 cases (58 countries). (230k voters in total). We focus on the three largest parties in every reported survey.
 \pause
 \begin{block}{Preferences}
 	Respondents' party like-dislike scores (on a scale from 0 to 10)
@@ -128,6 +137,16 @@ We rely on CSES data to characterise preferences and beliefs -- election surveys
 		f({\bf v}) = \text{Dir} (s \times {\bf v}_0)
 	\end{equation*}
 \end{block}
+\end{frame}
+
+\begin{frame}[t]\frametitle{Modelling preferences and beliefs}
+
+\begin{figure}[tb]
+	\centering
+	\includegraphics[width = 0.7\textwidth]{pres_fig/dirichlet_contour}
+	\caption{Example of a Dirichlet distribution}
+	\label{dirichlet}
+\end{figure}
 \end{frame}
 
 \begin{frame}[t]\frametitle{Modelling preferences and beliefs (cont'd)}
@@ -148,7 +167,7 @@ We rely on CSES data to characterise preferences and beliefs -- election surveys
 	\item It might seem unreasonable for voters to expect that everyone else votes sincerely -- equally they may not anticipate a full strategic equilibrium.
 	\item We `simulate' a series of polls for each survey case, starting with the sincere profile: 
 		\begin{itemize}
-			\item Give voters a poll of everyone's sincere preference and assume that a proportion $\lambda$ will best-respond by voting strategically
+			\item Give voters a poll of everyone's sincere preferences and assume that a proportion $\lambda$ will best-respond by voting strategically
 			\item Pass new poll with proportion $\lambda$ of best-responders and everyone else still voting sincerely to everyone and calculate new best response
 			\item Iterate until fixed point reached: best responses no longer change in light of polling information.
 		\end{itemize}
@@ -184,7 +203,7 @@ We rely on CSES data to characterise preferences and beliefs -- election surveys
 \item Only when others are expected to vote sincerely, and belief precision is high, is there high prevalence of strategic voting incentives in IRV (but still with low magnitude)
 \end{itemize}
 \end{alertblock}
-
+\pause
 Partial explanations:
 \begin{itemize}[<+->]
 	\item events that reward strategic vote in IRV are less likely
@@ -197,7 +216,9 @@ Partial explanations:
 
 \appendix
 
-\section{Qualitative description of strategic voting in Plurality and IRV (h/t Andy)}
+\section{Appendix}
+
+\subsection{Qualitative description of strategic voting in Plurality and IRV (h/t Andy)}
 \label{strat_qual}
 
 \begin{frame}{Strategic voting in FPTP} 
@@ -326,7 +347,7 @@ Two types of \textbf{strategic logic in IRV}:
 \end{frame} 
 
 
-\section{Further discussion of results}
+\subsection{Further discussion of results}
 \label{disc}
 
 \begin{frame}[t]\frametitle{Likelihood of `pivotal events'}
