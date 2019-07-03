@@ -197,12 +197,80 @@ for(prec in c(1, 4, 6)){
   big_plur_vec[[prec]] <- plur_vec
 }
 
-# save.image(here("output/intermediate2.Rdata"))
-# load(here("output/intermediate2.RData"))
+# How sensitive are these equilibria to starting points?
 
+uniform_ternary <- rdirichlet(10, rep(1, 6))
+
+big_rcv_sum <- list()
+big_plur_sum <- list()
+big_rcv_vec <- list()
+big_plur_vec <- list()
+piv_ratio_rcv <- list()
+piv_ratio_plur <- list()
+
+# Choice parameters
+lambda <- 0.05
+k <- 60
+
+for(rand_iter in 1:10){
+  prec <- 85
+  s_val <- 85
+  cat(paste0("\n === starting point = ", rand_iter, " =============== \n"))
+  rcv_sum <- list()
+  plur_sum <- list()
+  rcv_vec <- list()
+  plur_vec <- list()
+  rcv_piv <- list()
+  plur_piv <- list()
+  rand_v_vec <- uniform_ternary[rand_iter, ] %>% as.numeric
+  for (case in 1:160) {
+    cat(paste0(case, ": ", names(big_list_na_omit)[case], "   "))
+    out <- many_iterations(big_list_na_omit[[case]], rand_v_vec, lambda, s_val, k)
+    rcv_sum[[case]] <- out[[1]] %>% mutate(case = names(big_list_na_omit)[[case]])
+    plur_sum[[case]] <- out[[3]] %>% mutate(case = names(big_list_na_omit)[[case]])
+    rcv_vec[[case]] <- out[[2]] %>% mutate(rand_iter = rand_iter, 
+                       case = names(big_list_na_omit)[[case]],
+                       system = "IRV", 
+                       iter = 1:61)
+    plur_vec[[case]] <- out[[4]] %>% mutate(rand_iter = rand_iter, 
+                        case = names(big_list_na_omit)[[case]],
+                        system = "Plurality",
+                        iter = 1:61)
+    rcv_piv[[case]] <- piv_ratio(out[[1]])
+    plur_piv[[case]] <- piv_ratio(out[[3]])
+  }
+  rcv_sum <- do.call(rbind, rcv_sum)
+  rcv_sum$rand_case <- rand_iter
+  plur_sum <- do.call(rbind, plur_sum)
+  plur_sum$rand_case <- rand_iter
+  big_rcv_sum[[rand_iter]] <- rcv_sum
+  big_rcv_vec[[rand_iter]] <- rcv_vec
+  big_plur_sum[[rand_iter]] <- plur_sum
+  big_plur_vec[[rand_iter]] <- plur_vec
+}
+
+# Put all iterations together
 big_rcv_sum <- do.call(rbind, big_rcv_sum)
 big_plur_sum <- do.call(rbind, big_plur_sum)
+big_rcv_vvec <- lapply(big_rcv_vec, function(x) do.call(rbind, x)) %>%
+  do.call(rbind, .)
+big_plur_vvec <- lapply(big_plur_vec, function(x) do.call(rbind, x)) %>%
+  do.call(rbind, .)
+big_vvec <- rbind(big_rcv_vvec, big_plur_vvec)
 
+# Plot starting point and path
+ggtern(big_vvec, aes(V1 + V2, V3 + V4, V5 + V6)) +
+  geom_point(data = big_vvec %>% filter(iter %in% c(1, 61)),
+             aes(colour = interaction(iter, system))) +
+  geom_line(aes(group = interaction(rand_iter, system, case)),
+            alpha = 0.2) +
+  facet_wrap(~ rand_iter) +
+  theme_sv() +
+  theme(legend.position = "bottom") +
+  labs(x = "A", y = "B", z = "C", 
+       colour = "Iteration / System")
+ggsave(here("output/figures/iteration_sensitivity.pdf"),
+       device = cairo_pdf)
 
 ## QUANTITIES OF INTEREST
 
@@ -319,9 +387,6 @@ geom_line(aes(y = corr_q50, group = type, colour = type), alpha = 1) +
 geom_ribbon(aes(ymin = corr_q25, ymax = corr_q75, group = type, fill = type), alpha = 0.25) + 
 geom_hline(yintercept = 0, lty = "dashed") +
 theme_sv() 
-
-
-
 
 ###
 ### EUCLIDEAN DISTANCES

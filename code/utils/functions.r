@@ -735,6 +735,37 @@ many_iterations <- function(object, v_vec, lambda, s, k){
     return(list(rcv_sum, rcv_v_vec, plur_sum, plur_v_vec))
 }
 
+# Slimmed down functions for sensitivity analysis
+
+one_iteration_rcv_only <- function(object, v_vec, lambda, s){
+  obj <- object
+  tab <- convert_andy_to_sv_item_two(obj$U, obj$weights, s, v_vec)
+
+  strat_vec_rcv <- as.numeric(table(factor(tab$opt_rcv, 1:6))/nrow(tab))
+  new_vec_rcv <- lambda * strat_vec_rcv + (1 - lambda) * v_vec
+
+  return(list(df = tab,
+              rcv_vec = new_vec_rcv))
+}
+
+many_iterations_rcv_only <- function(object, v_vec, lambda, s, k){
+    rcv_df_list <- list()
+    rcv_v_vec_list <- list(v_vec)
+
+    # RCV loop
+    for (j in 1:k) {
+       out <- one_iteration_rcv_only(object, 
+                                     rcv_v_vec_list[[j]], 
+                                     lambda, 
+                                     s)
+       rcv_df_list[[j]] <- out$df %>% mutate(iter = j)
+       rcv_v_vec_list[[j + 1]] <- out$rcv_vec
+    }
+    rcv_sum <- as.data.frame(do.call(rbind, rcv_df_list))
+    rcv_v_vec <- as.data.frame(do.call(rbind, rcv_v_vec_list))
+
+    return(list(rcv_sum, rcv_v_vec))
+}
 
 piv_ratio <- function(x){
 	pprobs <- x[1, ] %>% select("AB":"BCp")
