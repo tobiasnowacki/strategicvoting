@@ -772,3 +772,26 @@ piv_ratio <- function(x){
 	prat <- sum(pprobs[13:15]) / sum(pprobs[1:12])
 	return(prat)
 }
+
+
+# Write a function to draw 100 v.vecs with distance smaller than original
+
+draw_restricted_vvecs <- function(orig_vvec, eqm_vvec, n){
+	orig_dist <- sqrt(sum((eqm_vvec - orig_vvec)^2))
+	first_draw <- rdirichlet(10 * n, as.numeric(orig_vvec) * 85)
+	smaller_dist <- apply(first_draw, 1, function(x) sqrt(sum((x - orig_vvec)^2)) < orig_dist)
+	new_df <- first_draw[smaller_dist, ]
+	i <- 1
+	while(nrow(new_df) < n){
+		print(nrow(new_df))
+		print(i)
+		i <- i + 1
+		another_draw <- rdirichlet(10 * n,  as.numeric(orig_vvec) * 85)
+		another_dist <- apply(another_draw, 1, function(x) sqrt(sum((x - orig_vvec)^2)) < orig_dist)
+		new_df <- rbind(new_df, another_draw[another_dist, ])
+	}
+	if(nrow(new_df) > n){
+		new_df <- new_df[1:n, ]
+	}
+	return(new_df)
+}
