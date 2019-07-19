@@ -43,6 +43,148 @@ theme_sv <- function(){
   )
 }
 
+# Packages for parallelisation.
+library(foreach)
+library(doParallel)
+
+
+#===================================================
+# Check convergence beyond 60 iterations.
+#===================================================
+
+big_rcv_sum <- list()
+big_plur_sum <- list()
+big_rcv_vec <- list()
+big_plur_vec <- list()
+piv_ratio_rcv <- list()
+piv_ratio_plur <- list()
+
+# Choice parameters
+lambda <- 0.05
+k <- 60
+writeLines(c(""), "log_convergence.txt")
+
+cl <- makeCluster(4)
+registerDoParallel(cl)
+
+# Loop over cases
+prec <- 6
+s_val <- s_list[[prec]]
+rcv_sum <- list()
+plur_sum <- list()
+rcv_vec <- list()
+plur_vec <- list()
+rcv_piv <- list()
+plur_piv <- list()
+cases_converge <- foreach(case = 1:160, 
+  	        .packages = c("gtools", "stringr", "tidyverse")
+  	        ) %dopar% {
+  		# sink("log_convergence.txt", append = TRUE)
+	    # cat(paste(case, " . ", "\n"))
+	    # need to adjust function (k is undefined)
+	    out <- many_iterations_until_convergence(big_list_na_omit[[case]], big_list_na_omit[[case]]$v_vec, lambda, s_val, 0.0001, 150)
+	    # rcv_sum <- out[[1]] %>% mutate(case = names(big_list_na_omit)[[case]])
+	    # plur_sum <- out[[3]] %>% mutate(case = names(big_list_na_omit)[[case]])
+	    # rcv_vec <- out[[2]]
+	    # plur_vec <- out[[4]]
+	    list(out)
+}
+
+stopCluster(cl)
+
+
+# Compute Euclidean distances
+
+conv_dist <- list()
+
+for (j in 1:160){
+	print(j)
+	df <- cases_converge[[j]][[1]][[2]] 
+	df_dist <- euclid_together(df) %>%
+	mutate(system = 'IRV',
+	       case = names(big_list_na_omit)[j],
+	       iter = 1:nrow(.))
+	conv_dist[[(2 * j) - 1]] <- df_dist
+
+	df <- cases_converge[[j]][[1]][[4]] 
+	df_dist <- euclid_together(df) %>%
+	mutate(system = 'Plurality',
+	       case = names(big_list_na_omit)[j],
+	       iter = 1:nrow(.))
+	conv_dist[[2 * j]] <- df_dist
+}
+
+conv_dist_df <- do.call(rbind, conv_dist)
+
+# IRV convergence
+ggplot(conv_dist_df %>% filter(system == "IRV"), aes(iter, log(diff))) +
+	geom_line(aes(group = interaction(case, system)), 
+	          alpha = 0.5) +
+	geom_hline(yintercept = log(0.0001), colour = "red") +
+	theme_sv()
+ggsave(here("output/figures/convergence_irv.pdf"), device = cairo_pdf)
+
+# Plurality convergence
+ggplot(conv_dist_df %>% filter(system == "Plurality"), aes(iter, log(diff))) +
+	geom_line(aes(group = interaction(case, system)), 
+	          alpha = 0.5) +
+	geom_hline(yintercept = log(0.0001), colour = "red") +
+	theme_sv()
+ggsave(here("output/figures/convergence_plur.pdf"), device = cairo_pdf)
+
+# Pull out cases that did not converge
+non_conv_cases <- conv_dist_df %>% filter(iter == 151) %>% select(case) %>% unlist
+non_conv_ids <- which(names(big_list_na_omit) %in% non_conv_cases)
+
+# Run 300+ iterations for these cases
+cl <- makeCluster(4)
+registerDoParallel(cl)
+
+prec <- 6
+s_val <- s_list[[prec]]
+
+non_convergent <- foreach(case = non_conv_ids, 
+  	        .packages = c("gtools", "stringr", "tidyverse")
+  	        ) %dopar% {
+  		# sink("log_convergence.txt", append = TRUE)
+	    # cat(paste(case, " . ", "\n"))
+	    # need to adjust function (k is undefined)
+	    out <- many_iterations_until_convergence(big_list_na_omit[[case]], big_list_na_omit[[case]]$v_vec, lambda, s_val, 0.0001, 300)
+	    return(out)
+}
+
+# add distance & iteration column to DF
+non_conv_dist <- lapply(non_convergent, function(x){
+	vvecs <- x[[2]]
+	dist_df <- euclid_together(vvecs) %>% mutate(iter = 1:nrow(.))
+	return(dist_df)
+})
+
+still_not <- which(lapply(non_conv_dist, nrow) == 301)
+non_conv_dist <- non_conv_dist[still_not]
+
+# add case number
+for(i in 1:length(non_conv_dist)){
+	non_conv_dist[[i]] <- non_conv_dist[[i]] %>% mutate(case = i)
+}
+
+non_conv_dist <- do.call(rbind, non_conv_dist)
+
+# plot path
+ggtern(non_conv_dist, aes(V1 + V2, V3 + V4, V5 + V6)) +
+	geom_line(aes(colour = iter, alpha = iter)) +
+	facet_wrap(~ case) +
+	theme_sv()
+ggsave(here("output/figures/non_conv_path.pdf"), device = cairo_pdf)
+
+# plot distance
+ggplot(non_conv_dist, aes(iter, log(diff))) +
+	geom_line(aes(group = case,  colour = case %>% as.factor)) +
+	theme_sv()
+ggsave(here("output/figures/non_conv_dist.pdf"), device = cairo_pdf)
+
+
+
 #===================================================
 # Other starting points analysis.
 #===================================================
@@ -60,47 +202,45 @@ big_rcv_vec_sense <- list()
 # This is marginally faster after I cut the functions down.
 
 # For each randomly generated v_vec, use this as a starting point and follow the IRV learning path.
-m <- 100 # number of random draws
+# m <- 100 # number of random draws
 
-for(rand_iter in 11:50){
-  prec <- 85
-  s_val <- 85
-  cat(paste0("\n === starting point = ", rand_iter, " =============== \n"))
-  # rcv_sum <- list()
-  rcv_vec <- list()
-  # rcv_piv <- list()
-  rand_v_vec <- uniform_ternary[rand_iter, ] %>% as.numeric
-  for (case in 1:160) {
-    cat(paste0(case, ": ", names(big_list_na_omit)[case], "   "))
-    out <- many_iterations_rcv_only(big_list_na_omit[[case]], rand_v_vec, lambda, s_val, k)
-    # rcv_sum[[case]] <- cbind(out[[1]], names(big_list_na_omit)[[case]], rand_iter)
-    rcv_vec[[case]] <- cbind(out, names(big_list_na_omit)[[case]],
-                       "IRV", 
-                       1:61)
-    # rcv_piv[[case]] <- piv_ratio(out[[1]])
-  }
-  # rcv_sum <- do.call(rbind, rcv_sum)
-  # big_rcv_sum_sense[[rand_iter]] <- rcv_sum
-  big_rcv_vec_sense[[rand_iter]] <- rcv_vec
-}
+# for(rand_iter in 11:50){
+#   prec <- 85
+#   s_val <- 85
+#   cat(paste0("\n === starting point = ", rand_iter, " =============== \n"))
+#   # rcv_sum <- list()
+#   rcv_vec <- list()
+#   # rcv_piv <- list()
+#   rand_v_vec <- uniform_ternary[rand_iter, ] %>% as.numeric
+#   for (case in 1:160) {
+#     cat(paste0(case, ": ", names(big_list_na_omit)[case], "   "))
+#     out <- many_iterations_rcv_only(big_list_na_omit[[case]], rand_v_vec, lambda, s_val, k)
+#     # rcv_sum[[case]] <- cbind(out[[1]], names(big_list_na_omit)[[case]], rand_iter)
+#     rcv_vec[[case]] <- cbind(out, names(big_list_na_omit)[[case]],
+#                        "IRV", 
+#                        1:61)
+#     # rcv_piv[[case]] <- piv_ratio(out[[1]])
+#   }
+#   # rcv_sum <- do.call(rbind, rcv_sum)
+#   # big_rcv_sum_sense[[rand_iter]] <- rcv_sum
+#   big_rcv_vec_sense[[rand_iter]] <- rcv_vec
+# }
 
-# convert list into DF
-iter_df <- do.call(rbind, lapply(big_rcv_vec_sense, function(x) do.call(rbind, x))) %>% as.data.frame
-iter_df$rand_iter <- rep(1:length(big_rcv_vec_sense), each = 9760)
+# # convert list into DF
+# iter_df <- do.call(rbind, lapply(big_rcv_vec_sense, function(x) do.call(rbind, x))) %>% as.data.frame
+# iter_df$rand_iter <- rep(1:length(big_rcv_vec_sense), each = 9760)
 
-# convert shares into numeric format
-iter_df[, c(1:6, 9)] <- apply(iter_df[, c(1:6, 9)], 2, as.numeric)
-names(iter_df)[c(7, 9)] <- c("case", "iter")
+# # convert shares into numeric format
+# iter_df[, c(1:6, 9)] <- apply(iter_df[, c(1:6, 9)], 2, as.numeric)
+# names(iter_df)[c(7, 9)] <- c("case", "iter")
 
-
-# Code using parallel cores
-library(foreach)
-library(doParallel)
 
 cl <- makeCluster(7)
 registerDoParallel(cl)
 
-out <- foreach(rand_iter = 51:100,
+
+# For loop -- every iteration is a random vvec
+out <- foreach(rand_iter = 1:100,
                .packages = c("gtools", "stringr")
                ) %dopar% {
 	prec <- 85
@@ -111,7 +251,6 @@ out <- foreach(rand_iter = 51:100,
 	for (case in 1:160) {
 	    cat(paste0(case, ": ", names(big_list_na_omit)[case], "   "))
 	    out <- many_iterations_rcv_only(big_list_na_omit[[case]], rand_v_vec, lambda, s_val, k)
-	    # rcv_sum[[case]] <- cbind(out[[1]], names(big_list_na_omit)[[case]], rand_iter)
 	    rcv_vec[[case]] <- cbind(out, names(big_list_na_omit)[[case]],
 	                       "IRV", 
 	                       1:61, rand_iter)
@@ -119,7 +258,6 @@ out <- foreach(rand_iter = 51:100,
 	rcv_vec
 }
 stopCluster(cl)
-
 
 # Unpack
 out2 <- lapply(out, function(x) do.call(rbind, x)) %>% do.call(rbind, .)
@@ -136,10 +274,6 @@ rcv_vec_df <- big_rcv_vec[[6]] %>% do.call(rbind, .) %>% mutate(case = rep(names
 # =====================================================
 # Plot iteration paths
 # =====================================================
-
-# out4 <- out3
-# out3 <- out4 %>% filter(case %in% c("AUS_2013", "AUT_2013", "BRA_2014"))
-
 
 ggtern(out3, aes(V1 + V2, V3 + V4, V5 + V6)) +
 	# Plot starting points
@@ -178,7 +312,9 @@ ggsave(here("output/figures/random_starting_iteration.pdf"), width = 20, height 
 save.image(here("output/manyiterations.Rdata"))
 
 
-# Only vvecs that are closer to sincerity than original eqm
+# =====================================================
+# Random vvecs with smaller distance
+# =====================================================
 
 cl <- makeCluster(7)
 registerDoParallel(cl)
@@ -210,5 +346,4 @@ stopCluster(cl)
 # Sensitivity to choice of lambda
 #===================================================
 
-
-# How to best do this without 
+# TODO still

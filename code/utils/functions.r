@@ -735,6 +735,44 @@ many_iterations <- function(object, v_vec, lambda, s, k){
     return(list(rcv_sum, rcv_v_vec, plur_sum, plur_v_vec))
 }
 
+many_iterations_until_convergence <- function(object, v_vec, lambda, s, thresh, max_iter){
+    rcv_df_list <- list()
+    rcv_v_vec_list <- list(v_vec)
+    plur_df_list <- list()
+    plur_v_vec_list <- list(v_vec)
+
+    # RCV loop
+    k_rcv <- 0
+    epsilon_rcv <- 1
+    while (epsilon_rcv > thresh & k_rcv < max_iter) {
+       k_rcv <- k_rcv + 1	
+       out <- one_iteration(object, rcv_v_vec_list[[k_rcv]], lambda, s)
+       rcv_df_list[[k_rcv]] <- out$df %>% mutate(iter = k_rcv)
+       rcv_v_vec_list[[k_rcv + 1]] <- out$rcv_vec
+       epsilon_rcv <- sqrt(sum((rcv_v_vec_list[[k_rcv + 1]] - rcv_v_vec_list[[k_rcv]])^2))
+
+    }
+    rcv_sum <- as.data.frame(do.call(rbind, rcv_df_list))
+    rcv_v_vec <- as.data.frame(do.call(rbind, rcv_v_vec_list))
+
+    k_plur <- 0
+    epsilon_plur <- 1
+
+    # Plurality loop
+    while (epsilon_plur > thresh & k_plur < max_iter) {
+       k_plur <- k_plur + 1	
+       out <- one_iteration(object, plur_v_vec_list[[k_plur]], lambda, s)
+       plur_df_list[[k_plur]] <- out$df %>% mutate(iter = k_plur)
+       plur_v_vec_list[[k_plur + 1]] <- out$plur_vec
+       epsilon_plur <- sqrt(sum((plur_v_vec_list[[k_plur + 1]] - plur_v_vec_list[[k_plur]])^2))
+    }
+
+    plur_sum <- as.data.frame(do.call(rbind, plur_df_list))
+    plur_v_vec <- as.data.frame(do.call(rbind, plur_v_vec_list))
+
+    return(list(rcv_sum, rcv_v_vec, plur_sum, plur_v_vec))
+}
+
 # Slimmed down functions for sensitivity analysis
 
 one_iteration_rcv_only <- function(object, v_vec, lambda, s){
@@ -794,4 +832,32 @@ draw_restricted_vvecs <- function(orig_vvec, eqm_vvec, n){
 		new_df <- new_df[1:n, ]
 	}
 	return(new_df)
+}
+
+# Euclidean distances
+
+euclid <- function(x) {
+  # Euclidean distance between one iteration and next
+  if (isdf <- is.data.frame(x)) {
+    x <- data.matrix(x)
+  }
+  dij <- c(NA, sqrt(rowSums((tail(x, -1) - head(x, -1))^2)))
+  x <- cbind(x, diff = dij)
+  if (isdf) {
+    x <- as.data.frame(x)
+  }
+  x
+}
+
+euclid_first <- function(df){
+  # Euclidean distance between one iteration and first
+  df_follow <- df[2:nrow(df), ]
+  dist <- apply(df_follow, 1, function(x) sqrt(sum((x - df[1, ])^2)))
+  return(dist)
+}
+
+euclid_together <- function(df){
+  a <- euclid(df)
+  b <- c(NA, euclid_first(df))
+  return(cbind(a, b))
 }
