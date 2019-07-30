@@ -23,18 +23,25 @@ nat_vote_mat <- function(sincere.vote.mat){
 ballot.mat.from.eu.mat = function(eu.mat, break.ties.with.sincerity = F, sincere.vote.mat = NULL){
   # this does not need weights. 
   
-  if(break.ties.with.sincerity){
-    if(is.null(sincere.vote.mat)){
-      cat("you must pass a sincere.vote.mat!\n")
-    }
-    eu.mat = eu.mat + nat_vote_mat(sincere.vote.mat) + sincere.vote.mat * 0.000001
-  }
+
   
   max.eus = apply(eu.mat, 1, max, na.rm = T)
   ballot.mat = matrix(NA, ncol = ncol(eu.mat), nrow = nrow(eu.mat))
   for(j in 1:ncol(eu.mat)){
     ballot.mat[,j] = as.integer(eu.mat[,j] == max.eus)
   }
+
+  if(break.ties.with.sincerity){
+    if(is.null(sincere.vote.mat)){
+      cat("you must pass a sincere.vote.mat!\n")
+    }
+    # get rows where ballot.mat has multiple entries
+    multi_ballot <- apply(ballot.mat, 1, sum) > 1
+    # replace with sincere vote
+    ballot.mat[multi_ballot, ] <- sincere.vote.mat[multi_ballot, ]
+    # problem here: no guarantee that ties include sincere option...
+  }
+
   colnames(ballot.mat) = colnames(eu.mat)
   ballot.mat       
 }

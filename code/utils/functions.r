@@ -415,11 +415,13 @@ convert_andy_to_sv_item_two <- function(U, w, s, v_vec){
   tau_plur <- as.numeric(out_plur$tau)
   tau_tilde_rcv <- as.numeric(tau_rcv/ psum_rcv)
   tau_tilde_plur <- as.numeric(tau_plur/ psum_plur)
-  # v_mat <- out_rcv$V.mat * nat_vote_mat(out_rcv$V0) + out_rcv$V0 * 0.000001
-  opt_rcv <- apply(out_rcv$V.mat, 1, function(x) {y <- which.max(x)
-		if(length(y) > 1){cat("More than one!")}
-		return(y)
-		})
+  sin_mat <- out_rcv$V0
+  rcv_mat <- out_rcv$V.mat
+  multi_ballot <- apply(rcv_mat, 1, sum) > 1
+    # replace with sincere vote
+  rcv_mat[multi_ballot, ] <- sin_mat[multi_ballot, ]
+    # problem here: no guarantee that ties include sincere option...
+  opt_rcv <- apply(rcv_mat, 1, function(x) which(x == 1)[1])
   opt_plur <- apply(out_plur$V.mat, 1, function(x) which(x == 1)[1])
   # opt_rcv <- out_rcv$opt.votes.strategic
   # opt_plur <- out_plur$opt.votes.strategic
@@ -427,6 +429,7 @@ convert_andy_to_sv_item_two <- function(U, w, s, v_vec){
   df <- as.data.frame(cbind(sin_rcv, sin_plur, tau_rcv, tau_plur, tau_tilde_rcv, tau_tilde_plur, opt_rcv, opt_plur, s, rcvpp_col, plurpp_col, w, U))
   return(df)
 }
+
 	
 
 retrieve_opt <- function(mat_row){
