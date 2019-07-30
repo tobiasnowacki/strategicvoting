@@ -270,32 +270,51 @@ table(cases_converge[[124]][[1]][[1]]$sin_rcv, factor(cases_converge[[124]][[1]]
 
 ## INVESTIGATING CODE-BASE / OTHER OUTPUT
 
-# Check what happens with Andy's function instead?
-test <- iterated_best_response_sequence(U = big_list_na_omit[[125]]$U %>% as.matrix, 
-                                s = 85, 
-                                weights = big_list_na_omit[[125]]$weights, 
-                                rule = "AV", 
-                                lambda = lambda, 
-                                until.convergence = F, max.iterations = 100, sincere.proportion = 0, candidates = c("a", "b", "c"), ballots = c("abc", "acb", "bac", "bca", "cab", "cba"), the.floor = 0, noisy = F)
-
-# any examples where V.mat is doubled?
-for(i in 1:150){
-	item <- test[[i]]$V.mat
-	print(sum(apply(item, 1, sum) > 1))
-}
-# Not with current testing.
-
-# Check if this happens for any other case?
+# Run Andy's function (with adapted fix) over all cases
 tie_test_list <- list()
-for(i in 106:106){
+for(i in 1:160){
 	print(i)
 	tie_test_list[[i]] <- iterated_best_response_sequence(U = big_list_na_omit[[i]]$U %>% as.matrix, 
                                 s = 85, 
                                 weights = big_list_na_omit[[i]]$weights, 
                                 rule = "AV", 
                                 lambda = lambda, 
-                                until.convergence = F, max.iterations = 100, sincere.proportion = 0, candidates = c("a", "b", "c"), ballots = c("abc", "acb", "bac", "bca", "cab", "cba"), the.floor = 0, noisy = F)
+                                until.convergence = T, max.iterations = 300, sincere.proportion = 0, candidates = c("a", "b", "c"), ballots = c("abc", "acb", "bac", "bca", "cab", "cba"), the.floor = 0, noisy = F)
 }
+
+# Create distance vector
+dist_list <- list()
+for(i in 1:160){
+	vec_dist <- do.call(rbind, lapply(tie_test_list[[i]], function(x) x$distance.from.last))
+	dist_df <- data.frame(dist = vec_dist, iter = 1:length(vec_dist), case = names(big_list_na_omit)[i])
+	dist_list[[i]] <- dist_df
+}
+
+big_dist_df <- do.call(rbind, dist_list)
+
+# get cases with no convergence
+non_conv_ids <- which(sapply(dist_list, function(x) nrow(x)) == 299)
+names(big_list_na_omit)[non_conv_ids]
+
+# Plot vvec distances
+ggplot(big_dist_df, aes(iter, log(dist))) +
+	geom_line(aes(group = case), alpha = 0.1) +
+	geom_line(data = big_dist_df %>% filter(case == "SWE_2014"), aes(group = case), colour = "red") +
+	theme_sv()
+
+# Check case AUT_2013 with amended functions.r code
+aut_ex <- many_iterations_until_convergence(big_list_na_omit[[32]], big_list_na_omit[[32]]$v_vec, lambda, s_val, 0.0001, 150) 
+
+aut_ex[[2]]
+tie_test_list[[32]][[149]]$v.vec
+
+
+
+# What is happening with odd cases?
+case_six <- tie_test_list[[6]][[1]]$V.mat %>% optimal.vote.from.V.mat
+case_six_sin <- tie_test_list[[6]][[1]]$sincere.vote.mat %>% optimal.vote.from.V.mat
+table(case_six) / sum(table(case_six))
+table(case_six_sin) / sum(table(case_six_sin))
 
 # Check case 2 where ties seem to occur.
 for(i in 1:100){
@@ -307,20 +326,18 @@ tied_rows <- which(apply(tie_test_list[[106]][[96]]$V.mat, 1, sum) > 1)
 tie_test_list[[106]][[96]]$V.mat[tied_rows, ]
 tie_test_list[[106]][[96]]$eu.by.ballot[tied_rows, ]
 
-tie_test_list[[106]][[1]]$best.response.v.vec
-tie_test_list[[106]][[2]]$v.vec
-# OK, still not resolving ties between two "natural" cases...
-
-
 # Let's see if the same happens if I run my old code?
-test_toby <- many_iterations_until_convergence(big_list_na_omit[[106]], big_list_na_omit[[106]]$v_vec, lambda, s_val, 0.0001, 50)
+test_toby <- many_iterations_until_convergence(big_list_na_omit[[6]], big_list_na_omit[[6]]$v_vec, lambda, s_val, 0.0001, 50)
 test_toby[[2]][2, ]
 test_toby_ties <- test_toby[[1]] %>% filter(iter == 95)
 
 test_first <- test_toby[[1]] %>% filter(iter == 1)
 table(test_first$opt_rcv) / sum(table(test_first$opt_rcv))
 
+# Check if they yield the same result
 test_one_iter <- one_iteration(big_list_na_omit[[106]], big_list_na_omit[[106]]$v_vec, 0.05, 85)
+tie_test_list[[106]][[1]]$best.response.v.vec
+tie_test_list[[106]][[2]]$v.vec
 
 ### ---
 
@@ -329,16 +346,23 @@ test_one_iter <- one_iteration(big_list_na_omit[[106]], big_list_na_omit[[106]]$
 
 # Do a little bit more testing...
 which(names(big_list_na_omit) == "NOR_2013")
-test <- sv(big_list_na_omit[[23]]$U, 
-   big_list_na_omit[[23]]$weights,
+test <- sv(big_list_na_omit[[6]]$U, 
+   big_list_na_omit[[6]]$weights,
    85,
    rule = "AV",
-   v.vec = big_list_na_omit[[23]]$v_vec)
+   v.vec = big_list_na_omit[[6]]$v_vec)
 
-test2 <- convert_andy_to_sv_item_two(big_list_na_omit[[23]]$U, 
-   big_list_na_omit[[23]]$weights,
+test_sin_vvec <- optimal.vote.from.V.mat(test$V0) %>% table()
+test_sin_vvec / sum(test_sin_vvec)
+
+test_str_vvec <- optimal.vote.from.V.mat(test$V.mat) %>% table()
+test_str_vvec / sum(test_str_vvec)
+
+
+test2 <- convert_andy_to_sv_item_two(big_list_na_omit[[6]]$U, 
+   big_list_na_omit[[6]]$weights,
    85,
-   big_list_na_omit[[23]]$v_vec)
+   big_list_na_omit[[6]]$v_vec)
 
 
 
