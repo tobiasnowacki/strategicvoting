@@ -287,7 +287,7 @@ for(i in 1:150){
 
 # Check if this happens for any other case?
 tie_test_list <- list()
-for(i in 1:2){
+for(i in 106:106){
 	print(i)
 	tie_test_list[[i]] <- iterated_best_response_sequence(U = big_list_na_omit[[i]]$U %>% as.matrix, 
                                 s = 85, 
@@ -306,11 +306,21 @@ for(i in 1:100){
 tied_rows <- which(apply(tie_test_list[[106]][[96]]$V.mat, 1, sum) > 1)
 tie_test_list[[106]][[96]]$V.mat[tied_rows, ]
 tie_test_list[[106]][[96]]$eu.by.ballot[tied_rows, ]
+
+tie_test_list[[106]][[1]]$best.response.v.vec
+tie_test_list[[106]][[2]]$v.vec
 # OK, still not resolving ties between two "natural" cases...
 
+
 # Let's see if the same happens if I run my old code?
-test_toby <- many_iterations_until_convergence(big_list_na_omit[[107]], big_list_na_omit[[107]]$v_vec, lambda, s_val, 0.0001, 150)
+test_toby <- many_iterations_until_convergence(big_list_na_omit[[106]], big_list_na_omit[[106]]$v_vec, lambda, s_val, 0.0001, 50)
+test_toby[[2]][2, ]
 test_toby_ties <- test_toby[[1]] %>% filter(iter == 95)
+
+test_first <- test_toby[[1]] %>% filter(iter == 1)
+table(test_first$opt_rcv) / sum(table(test_first$opt_rcv))
+
+test_one_iter <- one_iteration(big_list_na_omit[[106]], big_list_na_omit[[106]]$v_vec, 0.05, 85)
 
 ### ---
 
