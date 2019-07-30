@@ -21,6 +21,7 @@ source(here("code/utils/av_pivotal_probs_analytical_general_v2.r"))
 source(here("code/utils/plurality_pivotal_probabilities_analytical.r"))
 source(here("code/utils/general_iteration_simulation_approach.r"))
 source(here("code/utils/sv.r"))
+source(here("code/utils/refactored_functions.r"))
 
 # Load existing data
 load(here("output/manyiterations.RData"))
@@ -94,7 +95,6 @@ stopCluster(cl)
 
 
 # Compute Euclidean distances
-
 conv_dist <- list()
 
 for (j in 1:160){
@@ -116,7 +116,7 @@ for (j in 1:160){
 
 conv_dist_df <- do.call(rbind, conv_dist)
 
-# IRV convergence
+# Plot IRV convergence
 ggplot(conv_dist_df %>% filter(system == "IRV"), aes(iter, log(diff))) +
 	geom_line(aes(group = interaction(case, system)), 
 	          alpha = 0.5) +
@@ -124,7 +124,7 @@ ggplot(conv_dist_df %>% filter(system == "IRV"), aes(iter, log(diff))) +
 	theme_sv()
 ggsave(here("output/figures/convergence_irv.pdf"), device = cairo_pdf)
 
-# Plurality convergence
+# Plot plurality convergence
 ggplot(conv_dist_df %>% filter(system == "Plurality"), aes(iter, log(diff))) +
 	geom_line(aes(group = interaction(case, system)), 
 	          alpha = 0.5) +
@@ -132,9 +132,13 @@ ggplot(conv_dist_df %>% filter(system == "Plurality"), aes(iter, log(diff))) +
 	theme_sv()
 ggsave(here("output/figures/convergence_plur.pdf"), device = cairo_pdf)
 
+### What about cases that do not converge?
+
 # Pull out cases that did not converge
 non_conv_cases <- conv_dist_df %>% filter(iter == 151) %>% select(case) %>% unlist
 non_conv_ids <- which(names(big_list_na_omit) %in% non_conv_cases)
+
+names(big_list_na_omit)[non_conv_ids]
 
 # Run 300+ iterations for these cases
 cl <- makeCluster(4)
@@ -152,6 +156,9 @@ non_convergent <- foreach(case = non_conv_ids,
 	    out <- many_iterations_until_convergence(big_list_na_omit[[case]], big_list_na_omit[[case]]$v_vec, lambda, s_val, 0.0001, 300)
 	    return(out)
 }
+
+stopCluster(cl)
+
 
 # add distance & iteration column to DF
 non_conv_dist <- lapply(non_convergent, function(x){
@@ -172,7 +179,9 @@ non_conv_dist <- do.call(rbind, non_conv_dist)
 
 # plot path
 ggtern(non_conv_dist, aes(V1 + V2, V3 + V4, V5 + V6)) +
-	geom_line(aes(colour = iter, alpha = iter)) +
+	geom_line(alpha = .2) +
+	# geom_point(data = non_conv_dist %>% filter(iter == 1), colour = "blue") +
+	# geom_point(data = non_conv_dist %>% filter(iter == 299), colour = "red") +
 	facet_wrap(~ case) +
 	theme_sv()
 ggsave(here("output/figures/non_conv_path.pdf"), device = cairo_pdf)
@@ -183,7 +192,161 @@ ggplot(non_conv_dist, aes(iter, log(diff))) +
 	theme_sv()
 ggsave(here("output/figures/non_conv_dist.pdf"), device = cairo_pdf)
 
+# Examine what exactly is going on in these cases
+# Transition matrix from iteration to iteration...
 
+transition_matrix <- function(outdf, iter1, iter2, mat = FALSE){
+	df1 <- outdf %>% filter(iter == iter1)
+	df2 <- outdf %>% filter(iter == iter2)
+
+	trans <- table(factor(df1$opt_rcv),
+	               factor(df2$opt_rcv)) %>% prop.table(., 1) %>% as.data.frame %>% mutate(toiter = iter2)
+	trans[is.na(trans)] <- 0
+	if(mat == TRUE){
+		trans <- table(df1$opt_rcv %>% unlist,
+	               	   df2$opt_rcv %>% unlist)
+	}
+	return(trans) 
+
+}
+
+sincere_matrix <- function(outdf, iter1){
+	df1 <- outdf %>% filter(iter == iter1)
+	trans <- table(factor(df1$sin_rcv),
+	               factor(df1$opt_rcv, c("ABC", "ACB", "BAC", "BCA", "CAB", "CBA")))
+}
+
+
+# Check how voters switch (need to do for separate cases)
+plot_vote_changes <- function(df, n){
+	non_conv1 <- lapply(1:n, function(x) sincere_matrix(df, x) %>% as.data.frame %>% mutate(vote = interaction(Var1, Var2), iter = x)) %>% do.call(rbind, .)
+
+	# check which ones don't show up at all
+	votes_sum <- (non_conv1 %>% group_by(vote) %>% summarise(sum = sum(Freq)))
+	which_votes <- votes_sum$vote[votes_sum$sum > 0] 
+
+	plot_changes <- non_conv1[non_conv1$vote %in% which_votes, ]
+
+	plot <- ggplot(plot_changes, aes(iter, Freq)) +
+	geom_line(aes(colour = vote)) +
+	facet_wrap(~ Var1) +
+	theme_sv()
+	return(plot)
+}
+
+# Plot and save all non_convergent cases
+for(i in 1:length(non_convergent)){
+	px <- plot_vote_changes(non_convergent[[i]][[1]], 300)
+	fp <- paste0("output/figures/non_conv_vote_", as.character(i), ".pdf")
+	ggsave(here(fp), px, device = cairo_pdf)
+}
+
+# Plot and save all convergent cases
+for(i in 1:3){
+	px <- plot_vote_changes(cases_converge[[i]][[1]][[1]], max(cases_converge[[i]][[1]][[1]]$iter) - 1)
+	fp <- paste0("output/figures/conv_vote_", as.character(i), ".pdf")
+	ggsave(here(fp), px, device = cairo_pdf)
+}
+
+##
+## Investigating ties / potential fixes
+##
+
+## INVESTIGATING EXISTING CASES_CONVERGE
+
+# Investigating "unnatural" strategic votes
+sum_non_natural <- function(x){
+	c(x[1, 2], x[1, 4], x[1, 6], x[2, 1], x[2, 4], x[2, 6], x[3, 2], x[3, 4], x[3, 5], x[4, 2], x[4, 3], x[4, 5], x[5, 1], x[5, 3], x[5, 6], x[6, 1], x[6, 3], x[6, 5]) %>% sum
+}
+
+# render 6x6 sincere by optimal and check how many 'unnatural votes'
+for(i in 1:160){
+	x <- table(cases_converge[[i]][[1]][[1]]$sin_rcv, factor(cases_converge[[i]][[1]][[1]]$opt_rcv, c("ABC", "ACB", "BAC", "BCA", "CAB", "CBA")))
+	print(c(i, sum_non_natural(x)))
+}
+
+# 124th & 157th case have 'unnatural' strategic votes
+table(cases_converge[[124]][[1]][[1]]$sin_rcv, factor(cases_converge[[124]][[1]][[1]]$opt_rcv, c("ABC", "ACB", "BAC", "BCA", "CAB", "CBA")))
+
+## INVESTIGATING CODE-BASE / OTHER OUTPUT
+
+# Check what happens with Andy's function instead?
+test <- iterated_best_response_sequence(U = big_list_na_omit[[125]]$U %>% as.matrix, 
+                                s = 85, 
+                                weights = big_list_na_omit[[125]]$weights, 
+                                rule = "AV", 
+                                lambda = lambda, 
+                                until.convergence = F, max.iterations = 100, sincere.proportion = 0, candidates = c("a", "b", "c"), ballots = c("abc", "acb", "bac", "bca", "cab", "cba"), the.floor = 0, noisy = F)
+
+# any examples where V.mat is doubled?
+for(i in 1:150){
+	item <- test[[i]]$V.mat
+	print(sum(apply(item, 1, sum) > 1))
+}
+# Not with current testing.
+
+# Check if this happens for any other case?
+tie_test_list <- list()
+for(i in 1:2){
+	print(i)
+	tie_test_list[[i]] <- iterated_best_response_sequence(U = big_list_na_omit[[i]]$U %>% as.matrix, 
+                                s = 85, 
+                                weights = big_list_na_omit[[i]]$weights, 
+                                rule = "AV", 
+                                lambda = lambda, 
+                                until.convergence = F, max.iterations = 100, sincere.proportion = 0, candidates = c("a", "b", "c"), ballots = c("abc", "acb", "bac", "bca", "cab", "cba"), the.floor = 0, noisy = F)
+}
+
+# Check case 2 where ties seem to occur.
+for(i in 1:100){
+	item <- tie_test_list[[106]][[i]]$V.mat
+	print(sum(apply(item, 1, sum) > 1))
+}
+
+tied_rows <- which(apply(tie_test_list[[106]][[96]]$V.mat, 1, sum) > 1)
+tie_test_list[[106]][[96]]$V.mat[tied_rows, ]
+tie_test_list[[106]][[96]]$eu.by.ballot[tied_rows, ]
+# OK, still not resolving ties between two "natural" cases...
+
+# Let's see if the same happens if I run my old code?
+test_toby <- many_iterations_until_convergence(big_list_na_omit[[107]], big_list_na_omit[[107]]$v_vec, lambda, s_val, 0.0001, 150)
+test_toby_ties <- test_toby[[1]] %>% filter(iter == 95)
+
+### ---
+
+
+
+
+# Do a little bit more testing...
+which(names(big_list_na_omit) == "NOR_2013")
+test <- sv(big_list_na_omit[[23]]$U, 
+   big_list_na_omit[[23]]$weights,
+   85,
+   rule = "AV",
+   v.vec = big_list_na_omit[[23]]$v_vec)
+
+test2 <- convert_andy_to_sv_item_two(big_list_na_omit[[23]]$U, 
+   big_list_na_omit[[23]]$weights,
+   85,
+   big_list_na_omit[[23]]$v_vec)
+
+
+
+conv_test <- lapply(1:25, function(x) transition_matrix(cases_converge[[25]][[1]][[1]], x, x+1)) %>% 
+	do.call(rbind, .) %>% 
+	mutate(transition_type = interaction(Var1, Var2))
+
+ggplot(conv_test %>% filter(Var1 %in% c(1, 6)), aes(toiter, Freq)) +
+	geom_line(aes(colour = transition_type)) +
+	facet_wrap(~ Var1) +
+	theme_sv()
+
+# for each case:
+# 1. take RCV full df
+# 		write function generating trans matrix (vote_matrix f'n)
+# 2. for each step (i to i +1)
+#	- take opt_vote transition matrix
+# 3. think about visualisation...
 
 #===================================================
 # Other starting points analysis.

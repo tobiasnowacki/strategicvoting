@@ -415,11 +415,26 @@ convert_andy_to_sv_item_two <- function(U, w, s, v_vec){
   tau_plur <- as.numeric(out_plur$tau)
   tau_tilde_rcv <- as.numeric(tau_rcv/ psum_rcv)
   tau_tilde_plur <- as.numeric(tau_plur/ psum_plur)
+  if(max(apply(out_rcv$V.mat, 1, sum) > 1)){
+  	cat("Warning: V.mat has ties!")
+  }
   opt_rcv <- apply(out_rcv$V.mat, 1, function(x) which(x == 1)[1])
   opt_plur <- apply(out_plur$V.mat, 1, function(x) which(x == 1)[1])
+  # opt_rcv <- out_rcv$opt.votes.strategic
+  # opt_plur <- out_plur$opt.votes.strategic
   s <- rep(s, nrow(U))
   df <- as.data.frame(cbind(sin_rcv, sin_plur, tau_rcv, tau_plur, tau_tilde_rcv, tau_tilde_plur, opt_rcv, opt_plur, s, rcvpp_col, plurpp_col, w, U))
   return(df)
+}
+	
+
+retrieve_opt <- function(mat_row){
+	if(sum(mat_row) == 1){
+		out <- which(mat_row == 1)[1]
+	}
+	if(sum(mat_row > 1)){
+
+	}
 }
 
 level_two_props_cses <- function(v_vec, lambda_list, util, sv_df, s, w = c(rep(1, nrow(util)))){
@@ -530,7 +545,6 @@ classify.vec = function(v.vec, the.floor = .6, neutral.max = .1){
 }
 
 # Functions for Condorcet winner
-
 gen_v_zero <- function(sin_rcv){
 # takes RCV (6 factors) vector as input
   v_zero_mat_rcv <- matrix(0, nrow = length(sin_rcv), ncol = 6)
@@ -697,7 +711,7 @@ one_iteration <- function(object, v_vec, lambda, s){
   obj <- object
   tab <- convert_andy_to_sv_item_two(obj$U, obj$weights, s, v_vec)
 
-  strat_vec_rcv <- as.numeric(table(factor(tab$opt_rcv, 1:6))/nrow(tab))
+  strat_vec_rcv <- as.numeric(table(factor(tab$opt_rcv))/nrow(tab))
   new_vec_rcv <- lambda * strat_vec_rcv + (1 - lambda) * v_vec
 
   strat_vec_plur <- rep(as.numeric(table(factor(tab$opt_plur, 1:3))/nrow(tab)), each = 2) /2
