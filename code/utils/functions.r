@@ -415,10 +415,11 @@ convert_andy_to_sv_item_two <- function(U, w, s, v_vec){
   tau_plur <- as.numeric(out_plur$tau)
   tau_tilde_rcv <- as.numeric(tau_rcv/ psum_rcv)
   tau_tilde_plur <- as.numeric(tau_plur/ psum_plur)
-  if(max(apply(out_rcv$V.mat, 1, sum) > 1)){
-  	cat("Warning: V.mat has ties!")
-  }
-  opt_rcv <- apply(out_rcv$V.mat, 1, function(x) which(x == 1)[1])
+  # v_mat <- out_rcv$V.mat * nat_vote_mat(out_rcv$V0) + out_rcv$V0 * 0.000001
+  opt_rcv <- apply(out_rcv$V.mat, 1, function(x) {y <- which.max(x)
+		if(length(y) > 1){cat("More than one!")}
+		return(y)
+		})
   opt_plur <- apply(out_plur$V.mat, 1, function(x) which(x == 1)[1])
   # opt_rcv <- out_rcv$opt.votes.strategic
   # opt_plur <- out_plur$opt.votes.strategic
@@ -711,7 +712,7 @@ one_iteration <- function(object, v_vec, lambda, s){
   obj <- object
   tab <- convert_andy_to_sv_item_two(obj$U, obj$weights, s, v_vec)
 
-  strat_vec_rcv <- as.numeric(table(factor(tab$opt_rcv))/nrow(tab))
+  strat_vec_rcv <- as.numeric(table(factor(tab$opt_rcv, 1:6))/nrow(tab))
   new_vec_rcv <- lambda * strat_vec_rcv + (1 - lambda) * v_vec
 
   strat_vec_plur <- rep(as.numeric(table(factor(tab$opt_plur, 1:3))/nrow(tab)), each = 2) /2
@@ -719,6 +720,7 @@ one_iteration <- function(object, v_vec, lambda, s){
 
   return(list(df = tab,
               rcv_vec = new_vec_rcv,
+              rcv_best_response = strat_vec_rcv,
               plur_vec = new_vec_plur))
 }
 

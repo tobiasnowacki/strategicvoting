@@ -27,7 +27,7 @@ ballot.mat.from.eu.mat = function(eu.mat, break.ties.with.sincerity = F, sincere
     if(is.null(sincere.vote.mat)){
       cat("you must pass a sincere.vote.mat!\n")
     }
-    eu.mat = eu.mat + nat_vote_mat(sincere.vote.mat) + sincere.vote.mat * 0.0001
+    eu.mat = eu.mat + nat_vote_mat(sincere.vote.mat) + sincere.vote.mat * 0.000001
   }
   
   max.eus = apply(eu.mat, 1, max, na.rm = T)
