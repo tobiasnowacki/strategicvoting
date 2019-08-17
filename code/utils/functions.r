@@ -399,6 +399,7 @@ convert_andy_to_sv_item <- function(list_item, s, v_vec){
 }
 
 # write new function in terms of level_two_props_cases
+# need to re-write this
 convert_andy_to_sv_item_two <- function(U, w, s, v_vec){ 
   # Generates sv object from Andy's function and converts it into my data structure -- much faster!
 	n_obs <- nrow(U)
@@ -415,18 +416,18 @@ convert_andy_to_sv_item_two <- function(U, w, s, v_vec){
   tau_plur <- as.numeric(out_plur$tau)
   tau_tilde_rcv <- as.numeric(tau_rcv/ psum_rcv)
   tau_tilde_plur <- as.numeric(tau_plur/ psum_plur)
+  eu_mat_rcv <- out_rcv$eu.mat
+  eu_mat_plur <- out_plur$eu.mat
+  colnames(eu_mat_plur) <- c("EU_A", "EU_B", "EU_C")
   sin_mat <- out_rcv$V0
   rcv_mat <- out_rcv$V.mat
-  multi_ballot <- apply(rcv_mat, 1, sum) > 1
-    # replace with sincere vote
-  rcv_mat[multi_ballot, ] <- sin_mat[multi_ballot, ]
-    # problem here: no guarantee that ties include sincere option...
   opt_rcv <- apply(rcv_mat, 1, function(x) which(x == 1)[1])
+  # Throw error message
   opt_plur <- apply(out_plur$V.mat, 1, function(x) which(x == 1)[1])
   # opt_rcv <- out_rcv$opt.votes.strategic
   # opt_plur <- out_plur$opt.votes.strategic
   s <- rep(s, nrow(U))
-  df <- as.data.frame(cbind(sin_rcv, sin_plur, tau_rcv, tau_plur, tau_tilde_rcv, tau_tilde_plur, opt_rcv, opt_plur, s, rcvpp_col, plurpp_col, w, U))
+  df <- as.data.frame(cbind(sin_rcv, sin_plur, tau_rcv, tau_plur, tau_tilde_rcv, tau_tilde_plur, opt_rcv, opt_plur, s, rcvpp_col, plurpp_col, w, eu_mat_rcv, eu_mat_plur))
   return(df)
 }
 
@@ -715,16 +716,24 @@ one_iteration <- function(object, v_vec, lambda, s){
   obj <- object
   tab <- convert_andy_to_sv_item_two(obj$U, obj$weights, s, v_vec)
 
-  strat_vec_rcv <- as.numeric(table(factor(tab$opt_rcv, 1:6))/nrow(tab))
+  strat_vec_rcv <- wtd.table(x = factor(tab$opt_rcv, 1:6),
+                             weights = obj$weights) %>%
+  								as.numeric
+  strat_vec_rcv <- strat_vec_rcv / sum(strat_vec_rcv)
   new_vec_rcv <- lambda * strat_vec_rcv + (1 - lambda) * v_vec
 
-  strat_vec_plur <- rep(as.numeric(table(factor(tab$opt_plur, 1:3))/nrow(tab)), each = 2) /2
+  strat_plur_min <- wtd.table(x = factor(tab$opt_plur, 1:3),
+                             weights = obj$weights) %>%
+  								as.numeric
+  strat_vec_plur <- rep(strat_plur_min / sum(strat_plur_min)
+  						, each = 2) /2
   new_vec_plur <- lambda * strat_vec_plur + (1 - lambda) * v_vec
 
   return(list(df = tab,
               rcv_vec = new_vec_rcv,
               rcv_best_response = strat_vec_rcv,
-              plur_vec = new_vec_plur))
+              plur_vec = new_vec_plur,
+              plur_best_response = strat_vec_plur))
 }
 
 many_iterations <- function(object, v_vec, lambda, s, k){
@@ -757,39 +766,62 @@ many_iterations <- function(object, v_vec, lambda, s, k){
 many_iterations_until_convergence <- function(object, v_vec, lambda, s, thresh, max_iter){
     rcv_df_list <- list()
     rcv_v_vec_list <- list(v_vec)
+    rcv_br_v_vec <- list(v_vec)
     plur_df_list <- list()
     plur_v_vec_list <- list(v_vec)
+    plur_br_v_vec <- list(v_vec)
 
     # RCV loop
     k_rcv <- 0
     epsilon_rcv <- 1
-    while (epsilon_rcv > thresh & k_rcv < max_iter) {
+    thresh_ind <- 0
+    while (k_rcv < max_iter) {
        k_rcv <- k_rcv + 1	
        out <- one_iteration(object, rcv_v_vec_list[[k_rcv]], lambda, s)
-       rcv_df_list[[k_rcv]] <- out$df %>% mutate(iter = k_rcv)
+       rcv_df_list[[k_rcv]] <- out$df %>% mutate(iter = k_rcv, 
+                                                 converged = thresh_ind)
        rcv_v_vec_list[[k_rcv + 1]] <- out$rcv_vec
-       epsilon_rcv <- sqrt(sum((rcv_v_vec_list[[k_rcv + 1]] - rcv_v_vec_list[[k_rcv]])^2))
+       rcv_br_v_vec[[k_rcv + 1]] <- out$rcv_best_response
+       epsilon_rcv <- sqrt(sum((rcv_v_vec_list[[k_rcv + 1]] - rcv_br_v_vec[[k_rcv + 1]])^2))
+       if (epsilon_rcv < thresh){
+       	thresh_ind <- 1
+       }
 
     }
     rcv_sum <- as.data.frame(do.call(rbind, rcv_df_list))
     rcv_v_vec <- as.data.frame(do.call(rbind, rcv_v_vec_list))
+    rcv_convg <- thresh_ind
 
     k_plur <- 0
     epsilon_plur <- 1
+    thresh_ind <- 0
 
     # Plurality loop
-    while (epsilon_plur > thresh & k_plur < max_iter) {
+    while (k_plur < max_iter) {
        k_plur <- k_plur + 1	
        out <- one_iteration(object, plur_v_vec_list[[k_plur]], lambda, s)
-       plur_df_list[[k_plur]] <- out$df %>% mutate(iter = k_plur)
+       plur_df_list[[k_plur]] <- out$df %>% mutate(iter = k_plur,
+                                                   converged = thresh_ind)
        plur_v_vec_list[[k_plur + 1]] <- out$plur_vec
-       epsilon_plur <- sqrt(sum((plur_v_vec_list[[k_plur + 1]] - plur_v_vec_list[[k_plur]])^2))
+       plur_br_v_vec[[k_plur + 1]] <- out$plur_best_response
+       epsilon_plur <- sqrt(sum((plur_v_vec_list[[k_plur + 1]] - plur_br_v_vec[[k_plur + 1]])^2))
+       if(epsilon_plur < thresh){
+       	thresh_ind <- 1
+       }
     }
 
     plur_sum <- as.data.frame(do.call(rbind, plur_df_list))
     plur_v_vec <- as.data.frame(do.call(rbind, plur_v_vec_list))
+    plur_convg <- thresh_ind
 
-    return(list(rcv_sum, rcv_v_vec, plur_sum, plur_v_vec))
+    return(list(rcv_df = rcv_sum, 
+                rcv_v_vec = rcv_v_vec, 
+                plur_df = plur_sum, 
+                plur_v_vec = plur_v_vec, 
+                rcv_br = rcv_br_v_vec, 
+                plur_br = plur_br_v_vec,
+                rcv_convg = rcv_convg,
+                plur_convg = plur_convg))
 }
 
 # Slimmed down functions for sensitivity analysis
@@ -879,4 +911,198 @@ euclid_together <- function(df){
   a <- euclid(df)
   b <- c(NA, euclid_first(df))
   return(cbind(a, b))
+}
+
+
+### FUNCTIONS FOR BIG LOOPS
+
+get_vote_mat_df <- function(case_iter){
+  opt <- optimal.vote.from.V.mat(case_iter$V.mat) %>% as.vector
+  sin <- optimal.vote.from.V.mat(case_iter$sincere.vote.mat) %>% as.vector
+
+  tab <- table(sin, factor(opt, c("abc", "acb", "bac", "bca", "cab", "cba"))) %>% as.data.frame 
+  return(tab)
+}
+
+iter_wrapper <- function(case){
+  list_wrap <- lapply(case, function(x) get_vote_mat_df(x))
+  for(i in 1:length(list_wrap)){
+    list_wrap[[i]]$iter <- i
+    names(list_wrap[[i]])[2] <- "opt"
+  }
+  df_wrap <- do.call(rbind, list_wrap) %>% mutate(vote = interaction(sin, opt))
+  return(df_wrap)
+}
+
+plot_v_vec_distance <- function(obj, filepath, custom_red = 0.0001){
+	
+	cat("Calculating distances. \n")
+
+	conv_dist <- list()
+
+	for (j in 1:length(obj)){
+		# print(j)
+		df <- obj[[j]][[2]] 
+		df_dist <- euclid_together(df) %>%
+		mutate(system = 'IRV',
+		       case = names(obj)[j],
+		       iter = 1:nrow(.),
+		       converged = obj[[j]][[7]] %>% as.factor)
+		conv_dist[[(2 * j) - 1]] <- df_dist
+
+		df <- obj[[j]][[4]] 
+		df_dist <- euclid_together(df) %>%
+		mutate(system = 'Plurality',
+		       case = names(obj)[j],
+		       iter = 1:nrow(.),
+		       converged = obj[[j]][[8]] %>% as.factor)
+		conv_dist[[2 * j]] <- df_dist
+	}
+
+	conv_dist_df <- do.call(rbind, conv_dist)
+
+	cat("Distances done. Plotting now. \n")
+
+	# Plot IRV convergence
+	p1 <- ggplot(conv_dist_df %>% filter(system == "IRV"), aes(iter, log(diff))) +
+		geom_line(aes(group = interaction(case, system),
+		              colour = converged), 
+		          alpha = 0.2) +
+		geom_line(data = conv_dist_df %>% filter(converged == 1 &
+		                                         system == "IRV"),
+		          aes(group = interaction(case, system),
+		              colour = converged), 
+		          alpha = 0.5) +
+		geom_hline(yintercept = log(custom_red), colour = "red") +
+		theme_sv()
+	ggsave(here(paste0(filepath, "/dist_irv.pdf")), 
+	       p1, 
+	       device = cairo_pdf)
+
+	# Plot plurality convergence
+	p2 <- ggplot(conv_dist_df %>% filter(system == "Plurality"), aes(iter, log(diff))) +
+		geom_line(aes(group = interaction(case, system),
+		              colour = converged), 
+		          alpha = 0.2) +
+		geom_line(data = conv_dist_df %>% filter(converged == 1 &
+		                                         system == "Plurality"),
+		          aes(group = interaction(case, system),
+		              colour = converged), 
+		          alpha = 0.5) +
+		geom_hline(yintercept = log(custom_red), colour = "red") +
+		theme_sv()
+	ggsave(here(paste0(filepath, "/dist_plur.pdf")), 
+	       p2, 
+	       device = cairo_pdf)
+
+}
+
+# Combined v_vecs (IRV and plurality)
+joint_v_vec_plot <- function(obj, filepath){
+	rcv_df <- list()
+	plur_df <- list()
+	# Pull cases together into one DF
+	for (i in 1:length(obj)){
+		rcv_df[[i]] <- obj[[i]][[2]] %>% mutate(iter = 1:nrow(.),
+		                                   case = names(obj)[i],
+		                                   system = "IRV",
+		                                   state = c("first", rep("middle", nrow(.) - 2), "last"))
+		plur_df[[i]] <- obj[[i]][[4]] %>% mutate(iter = 1:nrow(.),
+		                                   case = names(obj)[i],
+		                                   system = "Plurality",
+		                                   state = c("first", rep("middle", nrow(.) - 2), "last"))
+	}
+	rcv_df <- do.call(rbind, rcv_df)
+	plur_df <- do.call(rbind, plur_df)
+	v_vec_df <- rbind(rcv_df, plur_df)
+
+	# Create plot
+	p1 <- ggtern(v_vec_df, aes(V1 + V2, V3 + V4, V5 + V6)) +
+	  geom_line(aes(group = interaction(system, case)),
+	            alpha = 0.2) +
+	  geom_point(data = v_vec_df %>% filter(state %in% c("first", "last")),
+	             aes(colour = state),
+	             size = 0.5,
+	             alpha = 0.6) +
+	  facet_wrap(~ system) +
+	  theme_sv() +
+	  theme(legend.position = "bottom") +
+	  labs(x = "A", y = "B", z = "C",
+	       colour = "Iteration")
+	 ggsave(here(paste0(filepath, "/v_vec_path.pdf")), 
+	       p1, 
+	       device = cairo_pdf)
+}
+
+non_conv_v_vec_plot <- function(obj, filepath, max_iter){
+	which_cases <- which(sapply(obj, function(x) x[[7]] == 0))
+	rcv_df <- list()
+
+	if(length(which_cases) < 1){
+		return(cat("No non-convergent cases"))
+	}
+
+	for(i in which_cases){
+		rcv_df[[i]] <- obj[[i]][[2]] %>% mutate(iter = 1:nrow(.),
+		                                   case = names(obj)[i],
+		                                   system = "IRV",
+		                                   state = c("first", rep("middle", nrow(.) - 2), "last"))
+	}
+	rcv_df <- do.call(rbind, rcv_df)
+	ggtern(rcv_df, aes(V1 + V2, V3 + V4, V5 + V6)) +
+		geom_line(alpha = .2) +
+		geom_point(data = rcv_df %>% filter(state %in% c("first", "last")), aes(colour = state)) +
+		facet_wrap(~ case) +
+		theme_sv() +
+		labs(x = "A", y = "B", z = "C",
+		     phase = "Iteration")
+
+}
+
+non_conv_strat_votes <- function(obj, filepath, max_iter, all_df = FALSE){
+
+	vote_tab <- lapply(obj, function(x){
+		x[[1]] %>% 
+			group_by(sin_rcv, opt_rcv, iter) %>% 
+			summarise(freq = sum(opt_rcv)) %>% 
+			filter(sin_rcv != opt_rcv)
+	})
+	for(i in 1:length(obj)){
+		vote_tab[[i]] <- vote_tab[[i]] %>% 
+			mutate(case = names(obj)[i])
+	}
+	vote_tab <- do.call(rbind, vote_tab)
+
+	if(all_df == FALSE){
+		which_cases <- which(sapply(obj, function(x) x[[7]] == 0))
+			if(length(which_cases) < 1){
+		return(cat("No non-convergent cases"))
+	}
+		vote_tab <- vote_tab %>% filter(case %in% names(obj)[which_cases])
+	}
+	return(vote_tab)
+}
+
+get_sum_stats <- function(obj){
+	list <- lapply(obj, function(x){
+		out <- list()
+		out[["irv"]] <- x[[1]] %>% 
+			group_by(iter) %>% 
+			summarise(Prevalence = mean(tau_rcv > 0), 
+			          Magnitude = mean(tau_rcv[tau_rcv > 0]), 
+			          ExpBenefit = Prevalence * Magnitude,
+			          System = "IRV")
+		out[["plur"]] <- x[[3]] %>%	
+			group_by(iter) %>% 
+			summarise(Prevalence = mean(tau_plur > 0), 
+			          Magnitude = mean(tau_plur[tau_plur > 0]), 
+			          ExpBenefit = Prevalence * Magnitude,
+			          System = "Plurality")
+		out <- do.call(rbind, out)
+	})
+	for(i in 1:length(obj)){
+		list[[i]] <- list[[i]] %>% mutate(case = names(obj)[i])
+	}
+	list <- do.call(rbind, list)
+	return(list)
 }
