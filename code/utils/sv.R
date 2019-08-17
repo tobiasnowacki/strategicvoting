@@ -42,7 +42,9 @@ sv = function(U, weights = NULL, v.vec = NULL, s, rule = "plurality", V0 = NULL)
   
   eu.by.ballot = t(P.mat%*%t(U))
   colnames(eu.by.ballot) = ballots
-  V.mat = ballot.mat.from.eu.mat(eu.by.ballot)
+  V.mat = ballot.mat.from.eu.mat(eu.by.ballot,
+                                 break.ties.with.sincerity = TRUE,
+                                 sincere.vote.mat = V0)
 
   # optimal vote
   opt.votes.strategic = optimal.vote.from.V.mat(V.mat)
@@ -52,9 +54,10 @@ sv = function(U, weights = NULL, v.vec = NULL, s, rule = "plurality", V0 = NULL)
   tau = get.tau.from.eu.by.ballot.and.V0(eu.by.ballot, V0)
   
   # now output 
-  list(opt.votes.strategic = opt.votes.strategic, opt.votes.sincere = opt.votes.sincere, piv.probs = pps, tau = tau, weights = weights, V.mat = V.mat, V0 = V0)
+  list(opt.votes.strategic = opt.votes.strategic, opt.votes.sincere = opt.votes.sincere, piv.probs = pps, tau = tau, weights = weights, V.mat = V.mat, V0 = V0, eu.mat = eu.by.ballot)
   
 }
+
 
 # one question is whether we want to assess the success of the *ex ante* CW, or the ex post. 
 # depends on how we think about the uncertainty. 

@@ -1,5 +1,5 @@
 
-#### See refactored code far below
+#### See refactored code below
 ### uses some of the functions at the top -- could still use some cleaning out. 
 
 library(stringr)
@@ -414,7 +414,7 @@ best_response_etc_given_U_v_vec_s = function(U, v.vec, s, weights = NULL, rule =
     stopifnot(length(v.vec) == 3)
     this.v.vec = v.vec + rep(the.floor, 3)
     pps = plurality.pivotal.probabilities(v.vec = this.v.vec/sum(this.v.vec), s = s)  
-    ballots = candidates
+    ballots = c("a", "b", "c")
   }
   P.mat = P_mat_at_pivotal_events(pps, rule = rule, ballots = ballots, normalize = normalize.P.mat)
   probability.pivotal = sum(P.mat[,1]) # unique(apply(P.mat, 2, sum))
@@ -465,7 +465,6 @@ iterated_best_response_sequence = function(U, s, weights = NULL, rule = "plurali
   out[[1]] = best_response_etc_given_U_v_vec_s(U = U, v.vec = sincere.v.vec, s = s, weights = weights, rule = rule, the.floor = the.floor, candidates = candidates, sincere.vote.mat = sincere.vote.mat)
 
   for(i in 2:max.iterations){
-    if(noisy){cat("Iteration ", i, "\n", sep ="")}
     strategic.v.vec.i = lambda*out[[i-1]]$best.response.v.vec + (1 - lambda)*out[[i-1]]$v.vec.before
     overall.v.vec.i = sincere.proportion*sincere.v.vec + (1-sincere.proportion)*strategic.v.vec.i
     out[[i]] = best_response_etc_given_U_v_vec_s(U = U, v.vec = overall.v.vec.i, s = s, weights = weights, rule = rule, the.floor = the.floor, candidates = candidates, sincere.vote.mat = sincere.vote.mat)

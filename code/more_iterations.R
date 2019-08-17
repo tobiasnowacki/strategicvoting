@@ -213,14 +213,13 @@ transition_matrix <- function(outdf, iter1, iter2, mat = FALSE){
 sincere_matrix <- function(outdf, iter1){
 	df1 <- outdf %>% filter(iter == iter1)
 	trans <- table(factor(df1$sin_rcv),
-	               factor(df1$opt_rcv, c("ABC", "ACB", "BAC", "BCA", "CAB", "CBA")))
+	               factor(df1$opt_rcv, 1:6))
 }
 
 
 # Check how voters switch (need to do for separate cases)
 plot_vote_changes <- function(df, n){
 	non_conv1 <- lapply(1:n, function(x) sincere_matrix(df, x) %>% as.data.frame %>% mutate(vote = interaction(Var1, Var2), iter = x)) %>% do.call(rbind, .)
-
 	# check which ones don't show up at all
 	votes_sum <- (non_conv1 %>% group_by(vote) %>% summarise(sum = sum(Freq)))
 	which_votes <- votes_sum$vote[votes_sum$sum > 0] 
@@ -302,11 +301,51 @@ ggplot(big_dist_df, aes(iter, log(dist))) +
 	geom_line(data = big_dist_df %>% filter(case == "SWE_2014"), aes(group = case), colour = "red") +
 	theme_sv()
 
-# Check case AUT_2013 with amended functions.r code
-aut_ex <- many_iterations_until_convergence(big_list_na_omit[[32]], big_list_na_omit[[32]]$v_vec, lambda, s_val, 0.0001, 150) 
+# INVESTIGATE OUTPUT
+# Check case 32 with amended functions.r code
+new_ex <- many_iterations_until_convergence(big_list_na_omit[[32]], big_list_na_omit[[32]]$v_vec, lambda, s_val, 0.0001, 150) 
 
-aut_ex[[2]]
-tie_test_list[[32]][[149]]$v.vec
+aut_ex[[2]][1:11, ]
+aut_ex_iter <- aut_ex[[1]] %>% filter(iter == 10)
+tie_test_list[[32]][[11]]$v.vec
+
+table(aut_ex_iter$sin_rcv, aut_ex_iter$opt_rcv)
+
+tie_test_iter <- optimal.vote.from.V.mat(tie_test_list[[32]][[10]]$V.mat)
+tie_test_iter_sin <- optimal.vote.from.V.mat(tie_test_list[[32]][[10]]$sincere.vote.mat)
+table(tie_test_iter_sin, tie_test_iter)
+
+# ugh odd ACB case...
+compare <- cbind(tie_test_iter, tie_test_iter_sin)
+which(compare[, 1] == "acb" & compare[, 2] == "abc")
+
+abc <- tie_test_list[[32]][[10]]$eu.by.ballot[126, ] 
+abc[2] - abc[1]
+print(abc[2])
+# Test whether there are truly no ties anymore, this seems odd...
+
+sapply(tie_test_list[[32]], function(x) sum(apply(x$V.mat, 1, sum) > 1))
+
+# get v_vec
+test_vvec <- tie_test_list[[32]][[10]]$v.vec %>% as.numeric
+
+# test sv
+out_sv <- sv(big_list_na_omit[[32]]$U, 
+             big_list_na_omit[[32]]$weights,
+             test_vvec, 
+             rule = "AV",
+             85)
+
+out_br <- best_response_etc_given_U_v_vec_s(big_list_na_omit[[32]]$U %>% as.matrix,
+                              test_vvec, 85,
+                              big_list_na_omit[[32]]$weights,
+                              rule = "AV",
+                              the.floor = 0,
+                              normalize.P.mat = TRUE)
+
+ballot.mat.from.eu.mat(tie_test_list[[32]][[10]]$eu.by.ballot, 
+                       break.ties.with.sincerity = TRUE, 
+                       sincere.vote.mat = tie_test_list[[32]][[10]]$sincere.vote.mat)[126, ]
 
 
 

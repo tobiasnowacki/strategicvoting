@@ -23,6 +23,13 @@ nat_vote_mat <- function(sincere.vote.mat){
 ballot.mat.from.eu.mat = function(eu.mat, break.ties.with.sincerity = F, sincere.vote.mat = NULL){
   # this does not need weights. 
   
+  if(break.ties.with.sincerity){
+    if(is.null(sincere.vote.mat)){
+      cat("you must pass a sincere.vote.mat!\n")
+    }
+    eu.mat <- eu.mat + sincere.vote.mat*(10^(-10))
+
+   }
 
   
   max.eus = apply(eu.mat, 1, max, na.rm = T)
