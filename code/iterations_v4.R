@@ -32,127 +32,133 @@ k_max <- 300
 
 # writeLines(c(""), "log_convergence.txt")
 
-
+save_out <- list()
 
 # temporary (later replaced by loop)
-lambda_counter <- 1
-lambda <- lambda_list[[lambda_counter]]
-for(s_loop_val in c(1, 3, 6)){
+# lambda_counter <- 1
+for(lambda_val in c(2)){
+	lambda <- lambda_list[[lambda_val]]
 
-  s_val <- s_list[[s_loop_val]]
+	cat(paste0("=== Beginning loop for lambda == ", lambda_val, ". === \n"))
 
-  cat(paste0("=== Beginning loop for s == ", s_val, ". === \n"))
+	save_out[[lambda_val]] <- list()
 
-  which_cases <- 1:160      # default is 1:160
-  max_iter_val <- 250
-  # which_cases <- 1:3        # for test purposes only!
+	for(s_loop_val in c(6)){
 
-  cat("Running parallel iterations. \n")
+	  s_val <- s_list[[s_loop_val]]
 
-  cl <- makeCluster(4)
-  registerDoParallel(cl)
-  # parallelise
-  cases_converge <- foreach(case = which_cases, 
-              .packages = c("gtools", "stringr", "tidyverse",
-                            "questionr")
-              ) %dopar% {
-              out <- many_iterations_until_convergence(
-                    big_list_na_omit[[case]], 
-                    big_list_na_omit[[case]]$v_vec, 
-                    lambda, 
-                    s_val, 
-                    0.001, 
-                    max_iter_val)
-              # sink("log_convergence.txt", append = TRUE)
-              # cat(paste(case, " done.", "\n"))
-              out
-  }
+	  cat(paste0("=== Beginning loop for s == ", s_val, ". === \n"))
 
-  stopCluster(cl)
+	  which_cases <- 1:160      # default is 1:160
+	  max_iter_val <- 250
+	  # which_cases <- 1:3        # for test purposes only!
 
-  cat("Done. \n")
+	  cat("Running parallel iterations. \n")
 
-  path <- paste0("output/figs_v2/", lambda_counter, "/", s_val)
+	  cl <- makeCluster(4)
+	  registerDoParallel(cl)
+	  # parallelise
+	  cases_converge <- foreach(case = which_cases, 
+	              .packages = c("gtools", "stringr", "tidyverse",
+	                            "questionr")
+	              ) %dopar% {
+	              out <- many_iterations_until_convergence(
+	                    big_list_na_omit[[case]], 
+	                    big_list_na_omit[[case]]$v_vec, 
+	                    lambda, 
+	                    s_val, 
+	                    0.001, 
+	                    max_iter_val)
+	              # sink("log_convergence.txt", append = TRUE)
+	              # cat(paste(case, " done.", "\n"))
+	              out
+	  }
 
-  # name list obj
-  names(cases_converge) <- names(big_list_na_omit)[which_cases]
+	  stopCluster(cl)
 
-  # produce iteration plot(s)
-  # will need to adjust euclid because now the distance is compared to best response v_vec!
-  plot_v_vec_distance(cases_converge, path)
+	  save_out[[lambda_val]][[paste0(s_val)]] <- cases_converge
 
-  cat("v_vec distance plotted. \n")
+	  cat("Done. \n")
 
-  # produce v_vec path plot(s)
-  # all together
-  joint_v_vec_plot(cases_converge, path)
+	  path <- paste0("output/figs_v2/", lambda_val, "/", s_val)
 
-  cat("v_vec paths plotted. \n")
+	  # name list obj
+	  names(cases_converge) <- names(big_list_na_omit)[which_cases]
 
-  # rcv separate ones by non_convergence
-  non_conv_v_vec_plot(cases_converge, path, max_iter_val)
-  vote_tally <- non_conv_strat_votes(cases_converge, path, max_iter_val)
+	  # produce iteration plot(s)
+	  # will need to adjust euclid because now the distance is compared to best response v_vec!
+	  plot_v_vec_distance(cases_converge, path)
 
-  # rcv plot non_convergent
-  unique_nc_cases <- unique(vote_tally$case)
+	  cat("v_vec distance plotted. \n")
 
-  for(i in unique_nc_cases){
-    ggplot(vote_tally %>% filter(case == i), 
-           aes(iter, freq)) +
-      geom_line(aes(group = opt_rcv, colour = opt_rcv %>% as.factor)) +
-      facet_grid(~ sin_rcv) +
-      theme_sv()
-      ggsave(here(paste0(path, "/nc_", i, ".pdf")),
-             device = cairo_pdf)
-  }
+	  # produce v_vec path plot(s)
+	  # all together
+	  joint_v_vec_plot(cases_converge, path)
 
-  cat("non-convergent cases plotted. \n")
+	  cat("v_vec paths plotted. \n")
 
-  # group expected benefit and the like
-  summary_stats <- get_sum_stats(cases_converge)
-  # todo here: (a) correct weights (just weighted means)
-  #        (b) produce averages across cases.
-  summary_stats_wide <- summary_stats %>% 
-    gather(., key = "Statistic", 
-           value = "Value", "Prevalence":"ExpBenefit")
+	  # rcv separate ones by non_convergence
+	  non_conv_v_vec_plot(cases_converge, path, max_iter_val)
+	  vote_tally <- non_conv_strat_votes(cases_converge, path, max_iter_val)
 
-  summary_agg <- summary_stats_wide %>% group_by(iter, Statistic, System) %>%
-    summarise(Value = mean(Value))
+	  # rcv plot non_convergent
+	  unique_nc_cases <- unique(vote_tally$case)
 
-  ggplot(summary_stats_wide, aes(iter, Value)) +
-    geom_line(aes(group = interaction(System, case, Statistic),
-                  colour = System), alpha = 0.3) +
-    geom_line(data = summary_agg %>% filter(System == "Plurality"),
-              aes(group = interaction(System, Statistic)), alpha = 1,
-              color = "#CC6600", lwd = 1.1) +
-    geom_line(data = summary_agg %>% filter(System == "IRV"),
-              aes(group = interaction(System, Statistic)), alpha = 1,
-              color = "#004C99", lwd = 1.1) +
-    scale_color_manual(values = cbbPalette[c(3, 2)]) +
-    facet_wrap(. ~ Statistic, scales = "free_y") +
-    theme_sv() +
-    guides(colour = guide_legend(override.aes = list(alpha = 1))) +
-                  theme(legend.position = "bottom", legend.direction = "horizontal") +
-    labs(x = "Degree of Strategicness (Iterations)")
-  ggsave(here(paste0(path, "/main_results.pdf")), 
-         device = cairo_pdf)
+	  for(i in unique_nc_cases){
+	    ggplot(vote_tally %>% filter(case == i), 
+	           aes(iter, freq)) +
+	      geom_line(aes(group = opt_rcv, colour = opt_rcv %>% as.factor)) +
+	      facet_grid(~ sin_rcv) +
+	      theme_sv()
+	      ggsave(here(paste0(path, "/nc_", i, ".pdf")),
+	             device = cairo_pdf)
+	  }
 
-  cat("Summary statistics plotted. \n")
+	  cat("non-convergent cases plotted. \n")
 
+	  # group expected benefit and the like
+	  summary_stats <- get_sum_stats(cases_converge)
+	  # todo here: (a) correct weights (just weighted means)
+	  #        (b) produce averages across cases.
+	  summary_stats_wide <- summary_stats %>% 
+	    gather(., key = "Statistic", 
+	           value = "Value", "Prevalence":"ExpBenefit")
+
+	  summary_agg <- summary_stats_wide %>% group_by(iter, Statistic, System) %>%
+	    summarise(Value = mean(Value))
+
+	  ggplot(summary_stats_wide, aes(iter, Value)) +
+	    geom_line(aes(group = interaction(System, case, Statistic),
+	                  colour = System), alpha = 0.3) +
+	    geom_line(data = summary_agg %>% filter(System == "Plurality"),
+	              aes(group = interaction(System, Statistic)), alpha = 1,
+	              color = "#CC6600", lwd = 1.1) +
+	    geom_line(data = summary_agg %>% filter(System == "IRV"),
+	              aes(group = interaction(System, Statistic)), alpha = 1,
+	              color = "#004C99", lwd = 1.1) +
+	    scale_color_manual(values = cbbPalette[c(3, 2)]) +
+	    facet_wrap(. ~ Statistic, scales = "free_y") +
+	    theme_sv() +
+	    guides(colour = guide_legend(override.aes = list(alpha = 1))) +
+	                  theme(legend.position = "bottom", legend.direction = "horizontal") +
+	    labs(x = "Degree of Strategicness (Iterations)")
+	  ggsave(here(paste0(path, "/main_results.pdf")), 
+	         device = cairo_pdf)
+
+	  cat("Summary statistics plotted. \n")
+
+	}
 }
-
-
-# OK -- ideally run iterations for all cases (but mark whether converged or not...), otherwise the benefit thing is screwed up
-
 
 # for each s in s_list
 ## run loop over cases => cases_converge
 ## get iteration plot
 ## get v_vec paths
 ## get non-convergent ones (SV type)
-## get expected benefit, magnitude, etc.
+## get expected benefit, magnitude, etc
+## Done!.
 
-# Need to wrap all of this into a bigger "s" function.
+# Need to wrap all of this into a bigger "lambda" function.
 
 
 ### ROBUSTNESS CHECKS
