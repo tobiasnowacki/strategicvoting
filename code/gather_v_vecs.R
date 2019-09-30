@@ -74,13 +74,13 @@ plur_d_list <- list()
 for(case in 1:160){
 	casename <- names_vec[case]
 	first_vec <- v_vec_df %>% 
-		filter(iter == 251 & 
+		filter(iter %in% c(101, 251) & 
 				params == "85_1" &
 				case == casename & 
 				system == "IRV")
 	# compute distance for IRV iterations
 	irv_vecs <- v_vec_df %>% 
-		filter(iter == 251,
+		filter(iter %in% c(101, 251),
 				case == casename &
 				system == "IRV")
 	joint_mat <- rbind(first_vec[1:6], irv_vecs[, 1:6])
@@ -90,7 +90,7 @@ for(case in 1:160){
 
 	# compute distance for plurality iterations
 	plur_vecs <- v_vec_df %>% 
-		filter(iter == 251,
+		filter(iter %in% c(101, 251),
 				case == casename &
 				system == "Plurality")
 	joint_mat <- rbind(first_vec[1:6], plur_vecs[, 1:6])
@@ -105,7 +105,7 @@ plur_d <- do.call(rbind, plur_d_list)
 # check that baseline case is unit mass at zero
 irv_d %>% filter(s == "s = 85", lambda == "lambda = 0.05") %>% summarise(sd(d_start))
 
-# boxplot
+# facet plot
 ggplot(irv_d %>% filter(params != "85_1"), aes(d_start)) +
 	geom_density(aes(y = ..scaled..), fill = "grey80") +
 	facet_grid(s ~ lambda) +
