@@ -51,8 +51,8 @@ cat("Done.")
 save.image(here("output/files/test.Rdata"))
 # ---
 
-# put together into one DF
-file_names <- c("31", "36", "37", "38", "40", "51", "60")
+# load and put together into one DF
+file_names <- c("4", "31", "36", "37", "38", "40", "51", "60", "63", "65", "95")
 merge_list <- list()
 for(name in file_names){
 	load(here(paste0("output/files/test_", name, ".Rdata")))
@@ -95,18 +95,48 @@ for(j in names_vec){
 dist_df <- do.call(rbind, dist_list)
 
 # print case by case
-for(case in names_vec){
-	print(case)
-	ggplot(dist_df %>% filter(case == "AUS_2013"), aes(iter, base_d)) +
+for(j in names_vec){
+	print(j)
+	ggplot(dist_df %>% filter(case == j), aes(iter, base_d)) +
 	geom_boxplot(aes(group = iter), 
 		fill = "grey80",
 		outlier.size = 0.5) +
 	theme_sv() +
 	labs(x = "Iteration", 
 		y = "Distance to voteshare at 250th (baseline)")
-	ggsave(here(paste0("output/figs_v2/algconv/", case, ".pdf")),
+	ggsave(here(paste0("output/figs_v2/algconv/", j, ".pdf")),
 	device = cairo_pdf)
 }
+
+# print altogether
+ggplot(dist_df, aes(iter, base_d)) +
+geom_boxplot(aes(group = iter), 
+	fill = "grey80",
+	outlier.size = 0.5) +
+theme_sv() +
+labs(x = "Iteration", 
+	y = "Distance to voteshare at 250th (baseline)") +
+facet_wrap(~ case)
+ggsave(here("output/figs_v2/algconv/joint.pdf"),
+device = cairo_pdf)
+
+# summarise quantiles and plot
+quant_df <- dist_df %>% group_by(case, iter) %>%
+	summarise(mean_d = mean(base_d), median = median(base_d),
+		uq = quantile(base_d, 0.9),
+		q95 = quantile(base_d, 0.95),
+		q99 = quantile(base_d), 0.99) %>% 
+	pivot_longer(uq:q99)
+
+
+ggplot(quant_df, aes(x = iter)) +
+	geom_line(aes(group = case, y = mean_d), alpha = 0.1) +
+	geom_(aes(group = case, y = uq), alpha = 0.1, colour = "blue",
+		lty = "dashed") +
+	theme_sv() +
+	labs(x = "Iteration", y = "Distance to baseline case at 250th iteration")
+ggsave(here("output/figs_v2/algconv/quantile_summary.pdf"),
+	device = cairo_pdf)
 
 
 # plot boxplots

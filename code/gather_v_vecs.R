@@ -70,48 +70,70 @@ v_vec_df %>% filter(iter %in% c(1, 251)) %>% head()
 
 irv_d_list <- list()
 plur_d_list <- list()
+comp_iter <- c(61, 101, 251)
+avg_lag <- 0
 
 for(case in 1:160){
 	casename <- names_vec[case]
-	first_vec <- v_vec_df %>% 
-		filter(iter %in% c(101, 251) & 
-				params == "85_1" &
-				case == casename & 
-				system == "IRV")
-	# compute distance for IRV iterations
-	irv_vecs <- v_vec_df %>% 
-		filter(iter %in% c(101, 251),
-				case == casename &
-				system == "IRV")
-	joint_mat <- rbind(first_vec[1:6], irv_vecs[, 1:6])
-	d <- dist(joint_mat) %>% as.matrix
-	irv_vecs <- irv_vecs %>% mutate(d_start = d[2:10, 1])
-	irv_d_list[[case]] <- irv_vecs
+	for(j in comp_iter){
+		list_case <- paste0(case, "_", j)
+		# get baseline vec -- always 250th iteration...
+		first_vec <- v_vec_df %>% 
+			filter(iter == 251 & 
+					params == "85_1" &
+					case == casename & 
+					system == "IRV")
+		# compute distance for IRV iterations
+		irv_vecs <- v_vec_df %>% 
+			filter(iter %in% ((j-avg_lag):j),
+					case == casename &
+					system == "IRV") %>%
+			group_by(s, lambda) %>%
+			summarise(V1 = mean(V1),
+				V2 = mean(V2),
+				V3 = mean(V3),
+				V4 = mean(V4),
+				V5 = mean(V5),
+				V6 = mean(V6))
+		joint_mat <- rbind(first_vec[1:6], irv_vecs[, 3:8])
+		d <- dist(joint_mat) %>% as.matrix
+		irv_vecs <- irv_vecs %>% as.data.frame %>% mutate(d_start = d[2:10, 1],
+			comp_iter = j)
+		irv_d_list[[list_case]] <- irv_vecs
 
-	# compute distance for plurality iterations
-	plur_vecs <- v_vec_df %>% 
-		filter(iter %in% c(101, 251),
-				case == casename &
-				system == "Plurality")
-	joint_mat <- rbind(first_vec[1:6], plur_vecs[, 1:6])
-	d <- dist(joint_mat) %>% as.matrix
-	plur_vecs <- plur_vecs %>% mutate(d_start = d[2:10, 1])
-	plur_d_list[[case]] <- plur_vecs
+		# compute distance for plurality iterations
+		plur_vecs <- v_vec_df %>% 
+			filter(iter == j,
+					case == casename &
+					system == "Plurality")
+		joint_mat <- rbind(first_vec[1:6], plur_vecs[, 1:6])
+		d <- dist(joint_mat) %>% as.matrix
+		plur_vecs <- plur_vecs %>% mutate(d_start = d[2:10, 1],
+			comp_iter = j)
+		plur_d_list[[list_case]] <- plur_vecs
+	}	
 }
 
 irv_d <- do.call(rbind, irv_d_list) %>% mutate(s = recode(s, "10" = "s = 10", "55" = "s = 55", "85" = "s = 85"), lambda = recode(lambda, "1" = "lambda = 0.05", "2" = "lambda = 0.1", "3" = "lambda = 0.01"))
 plur_d <- do.call(rbind, plur_d_list)
 
 # check that baseline case is unit mass at zero
-irv_d %>% filter(s == "s = 85", lambda == "lambda = 0.05") %>% summarise(sd(d_start))
+# no longer applies if we're taking distance to 250th iteration.
+# irv_d %>% filter(s == "s = 85", lambda == "lambda = 0.05") %>% summarise(sd(d_start))
 
 # facet plot
-ggplot(irv_d %>% filter(params != "85_1"), aes(d_start)) +
-	geom_density(aes(y = ..scaled..), fill = "grey80") +
+ggplot(irv_d %>% filter(!(s == "s = 85" & lambda == "lambda = 0.05")),
+						aes(d_start)) +
+	geom_density(aes(y = ..scaled..,
+		fill = as.factor(comp_iter)), 
+	alpha = 0.5) +
 	facet_grid(s ~ lambda) +
 	theme_sv() +
 	labs(x = "Distance to baseline case",
-		y = "(Normalised) density")
+		y = "(Normalised) density",
+		fill = "After ... iterations") +
+	theme(legend.position = "bottom",
+		legend.direction = "horizontal")
 ggsave(here("output/figs_v2/distance_to_baseline.pdf"),
 	device = cairo_pdf)
 
