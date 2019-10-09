@@ -133,88 +133,88 @@ for(lambda_val in l_choice){
 
 	  cat("v_vec paths plotted. \n")
 
-	  # # rcv separate ones by non_convergence
-	  # non_conv_v_vec_plot(cases_converge, path, max_iter_val)
-	  # vote_tally <- non_conv_strat_votes(cases_converge, path, max_iter_val)
+	  # rcv separate ones by non_convergence
+	  non_conv_v_vec_plot(cases_converge, path, max_iter_val)
+	  vote_tally <- non_conv_strat_votes(cases_converge, path, max_iter_val)
+	  save(vote_tally, file = here(paste0(path_files, "votetally_", lambda_val, "_", s_val, ".Rdata")))
 
-	  # # rcv plot non_convergent
-	  # unique_nc_cases <- unique(vote_tally$case)
 
-	  # # re-label as votes
-	  # vote_tally$sin_rcv <- recode(vote_tally$sin_rcv, "1" = "ABC", 
-	  # 	       			"2" = "ACB", 
-	  # 	       			"3" = "BAC", 
-	  # 	       			"4" = "BCA", 
-	  # 	       			"5" = "CAB", 
-	  # 	       			"6" = "CBA")
+	  # rcv plot non_convergent
+	  unique_nc_cases <- unique(vote_tally$case)
 
-	  # vote_tally$opt_rcv <-	recode(vote_tally$opt_rcv, "1" = "ABC", 
-	  # 	       			"2" = "ACB", 
-	  # 	       			"3" = "BAC", 
-	  # 	       			"4" = "BCA", 
-	  # 	       			"5" = "CAB", 
-	  # 	       			"6" = "CBA")
+	  # re-label as votes
+	  vote_tally$sin_rcv <- recode(vote_tally$sin_rcv, "1" = "ABC", 
+	  	       			"2" = "ACB", 
+	  	       			"3" = "BAC", 
+	  	       			"4" = "BCA", 
+	  	       			"5" = "CAB", 
+	  	       			"6" = "CBA")
 
-	  # # plot non-convergent cases in detail
-	  # for(i in unique_nc_cases){
-	  #   ggplot(vote_tally %>% filter(case == i), 
-	  #          aes(iter, freq)) +
-	  #     geom_line(aes(group = opt_rcv, colour = opt_rcv %>% as.factor)) +
-	  #     facet_grid(~ sin_rcv) +
-	  #     theme_sv() +
-	  #     labs(x = "Iteration",
-	  #          y = "Frequency", 
-	  #          colour = "Optimal Vote",
-	  #          title = i) +
-	  #     theme(legend.position = "bottom")
-	  #     ggsave(here(paste0(path, "/nc_", i, ".pdf")),
-	  #            device = cairo_pdf,
-	  #            width = 5,
-	  #            height = 5)
-	  # }
+	  vote_tally$opt_rcv <-	recode(vote_tally$opt_rcv, "1" = "ABC", 
+	  	       			"2" = "ACB", 
+	  	       			"3" = "BAC", 
+	  	       			"4" = "BCA", 
+	  	       			"5" = "CAB", 
+	  	       			"6" = "CBA")
 
-	  # cat("non-convergent cases plotted. \n")
+	  # plot non-convergent cases in detail
+	  for(i in unique_nc_cases){
+	    ggplot(vote_tally %>% filter(case == i), 
+	           aes(iter, freq)) +
+	      geom_line(aes(group = opt_rcv, colour = opt_rcv %>% as.factor)) +
+	      facet_grid(~ sin_rcv) +
+	      theme_sv() +
+	      labs(x = "Iteration",
+	           y = "Frequency", 
+	           colour = "Optimal Vote",
+	           title = i) +
+	      theme(legend.position = "bottom")
+	      ggsave(here(paste0(path, "/nc_", i, ".pdf")),
+	             device = cairo_pdf,
+	             width = 5,
+	             height = 5)
+	  }
 
-	  # # group expected benefit and the like
-	  # summary_stats <- get_sum_stats(cases_converge)
-	  # # todo here: (a) correct weights (just weighted means)
-	  # #        (b) produce averages across cases.
-	  # summary_stats_wide <- summary_stats %>% 
-	  #   gather(., key = "Statistic", 
-	  #          value = "Value", "Prevalence":"ExpBenefit")
+	  cat("non-convergent cases plotted. \n")
 
-	  # summary_agg <- summary_stats_wide %>% group_by(iter, Statistic, System) %>%
-	  #   summarise(Value = mean(Value))
+	  # group expected benefit and the like
+	  summary_stats <- get_sum_stats(cases_converge)
+	  # todo here: (a) correct weights (just weighted means)
+	  #        (b) produce averages across cases.
+	  summary_stats_wide <- summary_stats %>% 
+	    gather(., key = "Statistic", 
+	           value = "Value", "Prevalence":"ExpBenefit")
 
-	  # # Summary statistics
-	  # ggplot(summary_stats_wide, aes(iter, Value)) +
-	  #   geom_line(aes(group = interaction(System, case, Statistic),
-	  #                 colour = System), alpha = 0.3) +
-	  #   geom_line(data = summary_agg %>% filter(System == "Plurality"),
-	  #             aes(group = interaction(System, Statistic)), alpha = 1,
-	  #             color = "#CC6600", lwd = 1.1) +
-	  #   geom_line(data = summary_agg %>% filter(System == "IRV"),
-	  #             aes(group = interaction(System, Statistic)), alpha = 1,
-	  #             color = "#004C99", lwd = 1.1) +
-	  #   scale_color_manual(values = cbbPalette[c(3, 2)]) +
-	  #   facet_wrap(. ~ Statistic, scales = "free_y") +
-	  #   theme_sv() +
-	  #   guides(colour = guide_legend(override.aes = list(alpha = 1))) +
-	  #                 theme(legend.position = "bottom", legend.direction = "horizontal") +
-	  #   labs(x = "Degree of Strategicness (Iterations)")
-	  # ggsave(here(paste0(path, "/main_results.pdf")), 
-	  #        device = cairo_pdf)
+	  summary_agg <- summary_stats_wide %>% group_by(iter, Statistic, System) %>%
+	    summarise(Value = mean(Value))
 
-	  # cat("Summary statistics plotted. \n")
+	  # Summary statistics
+	  ggplot(summary_stats_wide, aes(iter, Value)) +
+	    geom_line(aes(group = interaction(System, case, Statistic),
+	                  colour = System), alpha = 0.3) +
+	    geom_line(data = summary_agg %>% filter(System == "Plurality"),
+	              aes(group = interaction(System, Statistic)), alpha = 1,
+	              color = "#CC6600", lwd = 1.1) +
+	    geom_line(data = summary_agg %>% filter(System == "IRV"),
+	              aes(group = interaction(System, Statistic)), alpha = 1,
+	              color = "#004C99", lwd = 1.1) +
+	    scale_color_manual(values = cbbPalette[c(3, 2)]) +
+	    facet_wrap(. ~ Statistic, scales = "free_y") +
+	    theme_sv() +
+	    guides(colour = guide_legend(override.aes = list(alpha = 1))) +
+	                  theme(legend.position = "bottom", legend.direction = "horizontal") +
+	    labs(x = "Degree of Strategicness (Iterations)")
+	  ggsave(here(paste0(path, "/main_results.pdf")), 
+	         device = cairo_pdf)
+
+	  cat("Summary statistics plotted. \n")
 
 	}
 }
 
 
 
-# ## MESSY STUFF: CONJECTURE TESTS
-
-
+# ## MESSY STUFF: CONJECTURE TESTS (but it seems to be working, albeit slowly...)
 
 # # Conjecture tests
 # big_rcv_sum <- list()

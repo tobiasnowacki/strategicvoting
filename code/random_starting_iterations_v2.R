@@ -52,7 +52,7 @@ save.image(here("output/files/test.Rdata"))
 # ---
 
 # load and put together into one DF
-file_names <- c("4", "31", "36", "37", "38", "40", "51", "60", "63", "65", "95")
+file_names <- c("4", "31", "37", "38", "40", "51", "60", "63", "65", "95")
 merge_list <- list()
 for(name in file_names){
 	load(here(paste0("output/files/test_", name, ".Rdata")))
@@ -84,6 +84,7 @@ baseline_df <- do.call(rbind, v_vec_list)
 # compare the two
 dist_list <- list()
 for(j in names_vec){
+	print(j)
 	rands <- full_df %>% filter(case == j)
 	base <- baseline_df %>% filter(case == j & iter == 251) %>% as.numeric
 	d_obj <- rbind(base[1:6], rands[, 1:6])
@@ -122,19 +123,22 @@ device = cairo_pdf)
 
 # summarise quantiles and plot
 quant_df <- dist_df %>% group_by(case, iter) %>%
-	summarise(mean_d = mean(base_d), median = median(base_d),
-		uq = quantile(base_d, 0.9),
+	summarise(mean_d = mean(base_d), Median = median(base_d),
+		"90th Percentile" = quantile(base_d, 0.9),
 		q95 = quantile(base_d, 0.95),
-		q99 = quantile(base_d), 0.99) %>% 
-	pivot_longer(uq:q99)
-
+		"99th Percentile" = quantile(base_d, 0.99)) %>%
+	pivot_longer(mean_d:'99th Percentile')
 
 ggplot(quant_df, aes(x = iter)) +
-	geom_line(aes(group = case, y = mean_d), alpha = 0.1) +
-	geom_(aes(group = case, y = uq), alpha = 0.1, colour = "blue",
+	geom_point(data = quant_df %>% filter(name %in% c("Median", "90th Percentile", "99th Percentile")),
+		aes(group = case, y = value, colour = name), alpha = 0.1,
 		lty = "dashed") +
 	theme_sv() +
-	labs(x = "Iteration", y = "Distance to baseline case at 250th iteration")
+	labs(x = "Iteration", y = "Distance to baseline case at 250th iteration",
+		colour = "Summary statistic") +
+	theme(legend.position = "bottom") +
+	guides(colour = guide_legend(override.aes = list(alpha = 1)))
+
 ggsave(here("output/figs_v2/algconv/quantile_summary.pdf"),
 	device = cairo_pdf)
 
@@ -152,3 +156,22 @@ ggsave(here("output/figs_v2/random_dist.pdf"),
 	device = cairo_pdf,
 	height = 14,
 	width = 6)
+
+
+# print selected cases
+select_cases <- c("AUS_2013", "GBR_2015", "DEU_2005", "FRA_2012")
+
+ggtern(full_df %>% filter(case %in% select_cases), aes(V1 + V2, V3 + V4, V5 + V6)) +
+	geom_line(aes(group = interaction(rand_iter, partition)),
+		alpha = 0.1) +
+	geom_point(data = full_df %>% filter(case %in% select_cases & iter == 61),
+		colour = "blue", alpha = 0.3, size = 1) +
+	geom_point(data = full_df %>% filter(case %in% select_cases & iter == 1),
+		colour = "red", alpha = 0.3, size = 1) +
+	theme_sv() +
+	labs(x = "A", y = "B", z = "C") +
+	facet_wrap(. ~ case)
+ggsave(here("output/figs_v2/random_select.pdf"),
+	device = cairo_pdf,
+	height = 8,
+	width = 8)
