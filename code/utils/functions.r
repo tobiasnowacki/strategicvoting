@@ -427,7 +427,7 @@ convert_andy_to_sv_item_two <- function(U, w, s, v_vec){
   # opt_rcv <- out_rcv$opt.votes.strategic
   # opt_plur <- out_plur$opt.votes.strategic
   s <- rep(s, nrow(U))
-  df <- as.data.frame(cbind(sin_rcv, sin_plur, tau_rcv, tau_plur, tau_tilde_rcv, tau_tilde_plur, opt_rcv, opt_plur, s, rcvpp_col, plurpp_col, w, eu_mat_rcv, eu_mat_plur))
+  df <- as.data.frame(cbind(sin_rcv, sin_plur, tau_rcv, tau_plur, tau_tilde_rcv, tau_tilde_plur, opt_rcv, opt_plur, s, rcvpp_col, plurpp_col, w, eu_mat_rcv, eu_mat_plur, U))
   return(df)
 }
 
@@ -824,6 +824,20 @@ many_iterations_until_convergence <- function(object, v_vec, lambda, s, thresh, 
                 plur_convg = plur_convg))
 }
 
+# This is a slimmed down version that only computes the v_vec path for RCV iterations.
+iteration_convergence_slim <- function(object, v_vec, lambda, s, max_iter){
+	rcv_v_vec_list <- list(v_vec)
+	rcv_br_list <- list(v_vec)
+	# iteration loop
+	for(i in 1:max_iter){
+		out <- one_iteration(object, rcv_v_vec_list[[i]], lambda, s)
+		rcv_v_vec_list[[i + 1]] <- out$rcv_vec
+		rcv_br_list[[i + 1]] <- out$rcv_br
+	}
+
+	return(rcv_v_vec_list)
+}
+
 # Slimmed down functions for sensitivity analysis
 
 one_iteration_rcv_only <- function(object, v_vec, lambda, s){
@@ -854,6 +868,23 @@ many_iterations_rcv_only <- function(object, v_vec, lambda, s, k){
     rcv_v_vec <- as.data.frame(do.call(rbind, rcv_v_vec_list))
 
     return(list(rcv_sum, rcv_v_vec))
+}
+
+many_iterations_rcv_only_light <- function(object, v_vec, lambda, s, k){
+    rcv_df_list <- list()
+    rcv_v_vec_list <- list(v_vec)
+
+    # RCV loop
+    for (j in 1:k) {
+       out <- one_iteration_rcv_only(object, 
+                                     rcv_v_vec_list[[j]], 
+                                     lambda, 
+                                     s)
+       rcv_v_vec_list[[j + 1]] <- out$rcv_vec
+    }
+    rcv_v_vec <- as.data.frame(do.call(rbind, rcv_v_vec_list))
+
+    return(rcv_v_vec)
 }
 
 piv_ratio <- function(x){
@@ -934,8 +965,36 @@ iter_wrapper <- function(case){
   return(df_wrap)
 }
 
-plot_v_vec_distance <- function(obj, filepath, custom_red = 0.0001){
-	
+calc_lag_dist <- function(df, n_lag, avg_span){
+	# calculates
+	sqsums <- rowSums(df^2)
+	max_dist <- nrow(df) - n_lag
+	d <- rep(NA, n_lag)
+	for(i in 1:max_dist){
+		avg_d <- sum(colMeans(df[i:(i + avg_span), ])^2) 
+		avg_d <- sqsums[i + n_lag - 1]
+		d[i + n_lag] <- sqrt(abs(avg_d - sqsums[i + n_lag]))
+	}
+	return(d)
+}
+
+plot_v_vec_distance <- function(obj, filepath, 
+                                custom_red = 0.0001, 
+                                n_lag = NULL,
+                                avg_span){
+
+################################################
+# Takes the full object and creates the following
+# six distance plots:
+# 	"/dist_irv" -- v-vec(t - 1) to v-vec(t) under IRV
+# 	"/dist_plur" -- v-vec(t - 1) to v-vec(t) under Plur
+# 	"/dist_irv_lagged" -- v-vec(lag) to v-vec(t) under IRV
+#   "/dist_plur_lagged" -- v-vec(lag) to v-vec(t) under Plur
+# 	"/dist_br" -- v-vec(t) to BR(t) under both
+#	"/dist_br_lagged" -- v-vec(t) to BR(t) under both
+################################################
+
+	cat("V.VEC TO V.VEC DISTANCE \n")
 	cat("Calculating distances. \n")
 
 	conv_dist <- list()
@@ -948,6 +1007,9 @@ plot_v_vec_distance <- function(obj, filepath, custom_red = 0.0001){
 		       case = names(obj)[j],
 		       iter = 1:nrow(.),
 		       converged = obj[[j]][[7]] %>% as.factor)
+		if(is.numeric(n_lag) == TRUE){
+			df_dist$avg_dist <- calc_lag_dist(df, n_lag, avg_span)
+		}
 		conv_dist[[(2 * j) - 1]] <- df_dist
 
 		df <- obj[[j]][[4]] 
@@ -956,6 +1018,9 @@ plot_v_vec_distance <- function(obj, filepath, custom_red = 0.0001){
 		       case = names(obj)[j],
 		       iter = 1:nrow(.),
 		       converged = obj[[j]][[8]] %>% as.factor)
+		if(is.numeric(n_lag) == TRUE){
+			df_dist$avg_dist <- calc_lag_dist(df, n_lag, avg_span)
+		}
 		conv_dist[[2 * j]] <- df_dist
 	}
 
@@ -965,35 +1030,118 @@ plot_v_vec_distance <- function(obj, filepath, custom_red = 0.0001){
 
 	# Plot IRV convergence
 	p1 <- ggplot(conv_dist_df %>% filter(system == "IRV"), aes(iter, log(diff))) +
-		geom_line(aes(group = interaction(case, system),
-		              colour = converged), 
-		          alpha = 0.2) +
-		geom_line(data = conv_dist_df %>% filter(converged == 1 &
-		                                         system == "IRV"),
-		          aes(group = interaction(case, system),
-		              colour = converged), 
-		          alpha = 0.5) +
-		geom_hline(yintercept = log(custom_red), colour = "red") +
-		theme_sv()
+		geom_line(aes(group = interaction(case, system)), 
+		          alpha = 0.1,
+		          color = "blue") +
+		theme_sv() +
+		labs(x = "Iteration (Strategic Responsiveness)",
+		     y = "ln(Distance)")
 	ggsave(here(paste0(filepath, "/dist_irv.pdf")), 
 	       p1, 
-	       device = cairo_pdf)
+	       device = cairo_pdf,
+	       width = 4, 
+	       height = 4)
+
+	# Plot distance to lagged average
+	p1_lag <- ggplot(conv_dist_df %>% filter(system == "IRV"), 
+	                 aes(iter, log(avg_dist))) +
+		geom_line(aes(group = interaction(case, system)), 
+		          alpha = 0.1,
+		          color = "blue") +
+		theme_sv() +
+		labs(x = "Iteration (Strategic Responsiveness)",
+		     y = "ln(Distance to lagged average)")
+	ggsave(here(paste0(filepath, "/dist_irv_lagged.pdf")), 
+	       p1_lag, 
+	       device = cairo_pdf,
+	       width = 4,
+	       height = 4)
 
 	# Plot plurality convergence
 	p2 <- ggplot(conv_dist_df %>% filter(system == "Plurality"), aes(iter, log(diff))) +
-		geom_line(aes(group = interaction(case, system),
-		              colour = converged), 
-		          alpha = 0.2) +
-		geom_line(data = conv_dist_df %>% filter(converged == 1 &
-		                                         system == "Plurality"),
-		          aes(group = interaction(case, system),
-		              colour = converged), 
-		          alpha = 0.5) +
-		geom_hline(yintercept = log(custom_red), colour = "red") +
-		theme_sv()
+		geom_line(aes(group = interaction(case, system)), 
+		          alpha = 0.1, 
+		          color = "blue") +
+		theme_sv() + 
+		labs(x = "Iteration (Strategic Responsiveness)",
+		     y = "ln(Distance)")
 	ggsave(here(paste0(filepath, "/dist_plur.pdf")), 
 	       p2, 
-	       device = cairo_pdf)
+	       device = cairo_pdf,
+	       width = 4,
+	       height = 4)
+
+	################################################
+
+	cat("V.VEC TO BEST RESPONSE DISTANCE \n")
+	cat("Distances done. Plotting now. \n")
+
+	# compare best response vector to polling v_vec
+	br_dist_list <- list()
+	for(c in 1:length(cases_converge)){
+		case_name <- names(big_list_na_omit)[c]
+		br_dist_list[[c]] <- br_distance(cases_converge[[c]],
+		                                 n_lag = 20,
+		                                 avg_span = 10,
+		                                 case = case_name)
+	}
+	br_dist <- do.call(rbind, br_dist_list)
+	names(br_dist)[1] <- 'd'
+	
+	# plot results
+
+	# t to t-1
+	plot_br_1 <- ggplot(br_dist %>% filter(iter > 0), aes(iter, log(d))) +
+		geom_line(aes(group = case), alpha = 0.1) +
+		facet_wrap(. ~ system) +
+		labs(x = "Iteration", y = "ln(Distance)") +
+		theme_sv()
+	ggsave(here(paste0(filepath, "/dist_br.pdf")),
+	            plot_br_1,
+	            height = 4,
+	            width = 8,
+	            device = cairo_pdf)
+
+	# t to avg(t-10 : t-20)
+	plot_br_2 <- ggplot(br_dist %>% filter(iter > 0), aes(iter, log(l_avg))) +
+		geom_line(aes(group = case), alpha = 0.1) +
+		facet_wrap(. ~ system) +
+		labs(x = "Iteration", y = "ln(Lagged Distance)") +
+		theme_sv()
+	ggsave(here(paste0(filepath, "/dist_br_lag.pdf")),
+	            plot_br_2,
+	            height = 4,
+	            width = 8,
+	            device = cairo_pdf)
+
+	# linear, rather than logged
+	plot_br_3 <- ggplot(br_dist %>% filter(iter > 0), aes(iter, d)) +
+		geom_line(aes(group = case), alpha = 0.1) +
+		facet_wrap(. ~ system) +
+		labs(x = "Iteration", y = "Distance") +
+		theme_sv()
+	ggsave(here(paste0(filepath, "/dist_br_lin.pdf")),
+	            plot_br_3,
+	            height = 4,
+	            width = 8,
+	            device = cairo_pdf)
+
+	plot_br_2 <- ggplot(br_dist %>% filter(iter > 0), aes(iter, l_avg)) +
+		geom_line(aes(group = case), alpha = 0.1) +
+		facet_wrap(. ~ system) +
+		labs(x = "Iteration", y = "Lagged Distance") +
+		theme_sv()
+	ggsave(here(paste0(filepath, "/dist_br_lag_lin.pdf")),
+	            plot_br_4,
+	            height = 4,
+	            width = 8,
+	            device = cairo_pdf)
+
+	save(out, file = here(paste0(filepath, "v_vecs_br.Rdata")))
+
+	# if(is.numeric(n_lag) == TRUE ){
+	# 	return(conv_dist_df)
+	# }
 
 }
 
@@ -1031,7 +1179,9 @@ joint_v_vec_plot <- function(obj, filepath){
 	       colour = "Iteration")
 	 ggsave(here(paste0(filepath, "/v_vec_path.pdf")), 
 	       p1, 
-	       device = cairo_pdf)
+	       device = cairo_pdf,
+	       height = 4,
+	       width = 6)
 }
 
 non_conv_v_vec_plot <- function(obj, filepath, max_iter){
@@ -1105,4 +1255,71 @@ get_sum_stats <- function(obj){
 	}
 	list <- do.call(rbind, list)
 	return(list)
+}
+
+# can I do this somehow more efficiently?
+# necessary for conjectures (adjusted to cases_converge)
+
+# TODO: fix utilities (since now appended to main 
+rearrange <- function(x){
+  voter <- as.numeric(x[1])
+  order_utils <- unlist(c(cmat_u[voter, ]))
+  utils <- x[35:37]
+  utils <- utils[order_utils]
+  order_pprobs <- unlist(c(cmat_plur[voter, ]))
+  order_pprobs_rcv <- unlist(c(cmat_rcv[voter, ]))
+  pprobs_plur <- x[22:24]
+  pprobs_plur <- unlist(c(pprobs_plur[order_pprobs]))
+  pprobs_rcv <- x[10:21]
+  pprobs_rcv <- unlist(c(pprobs_rcv[order_pprobs_rcv]))
+  out <- unlist(c(utils, pprobs_plur, pprobs_rcv))
+  names(out) <- c("uA", "uB", "uC", "ABpo", "ACpo", "BCpo", "ABo", "ACo", "BCo", "AB_ABo", "AB_ACo", "AB_CBo", "AC_ACo", "AC_ABo", "AC_BCo", "BC_BCo", "BC_BAo", "BC_ACo")
+  return(out)
+}
+
+# produce a vector of distance elements for each row of a given v_vec DF
+get_distance_by_row <- function(df){
+	out <- df^2 %>% rowSums %>% sqrt
+	return(out)
+}
+
+# produce DF with averaged values
+get_lagged_avg <- function(df, avg_span, n_lag){
+	new_mat <- matrix(NA, nrow = nrow(df), ncol = ncol(df))
+	for(i in 1:(nrow(df) - n_lag)){
+		new_mat[i + n_lag, ] <- colMeans(df[i:(i + avg_span), ])
+	}
+	return(new_mat)
+}
+
+# Neat function to calculate distances: vvec and best response
+# could modify to accommodate vvec to vvec too...
+br_distance <- function(obj, n_lag, avg_span, case = "NA"){
+	br_rcv <- obj[[5]] %>% do.call(rbind, .)
+	d_rcv <- (obj[[2]] - br_rcv) %>%
+		get_distance_by_row(.) %>%
+		as.data.frame %>%
+		mutate(iter = 0:(length(.) - 1),
+		       system = "IRV",
+		       case = case)
+	avg_rcv <- get_lagged_avg(obj[[2]], 
+	                          avg_span = avg_span, 
+	                          n_lag = n_lag)
+	d_rcv_avg <- (avg_rcv - br_rcv) %>% 
+		get_distance_by_row(.)
+	d_rcv$l_avg <- d_rcv_avg
+
+	br_plur <- obj[[6]] %>% do.call(rbind, .)
+	d_plur <- (obj[[4]] - br_plur) %>%
+		get_distance_by_row(.) %>%
+		as.data.frame %>%
+		mutate(iter = 0:(length(.) - 1),
+		       system = "Plurality",
+		       case = case)	  	
+	avg_plur <- get_lagged_avg(obj[[4]],
+	                           avg_span = avg_span,
+	                           n_lag = n_lag)
+	d_plur$l_avg <- (avg_plur - br_plur) %>%
+		get_distance_by_row(.)
+	return(rbind(d_rcv, d_plur))
 }

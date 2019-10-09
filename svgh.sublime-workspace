@@ -8,18 +8,10 @@
 	"buffers":
 	[
 		{
-			"file": "code/random_starting_iterations_v2.R",
+			"contents": "DN0a22ec81:strategicvoting tnowacki$ R\n\nR version 3.6.1 (2019-07-05) -- \"Action of the Toes\"\nCopyright (C) 2019 The R Foundation for Statistical Computing\nPlatform: x86_64-apple-darwin15.6.0 (64-bit)\n\nR is free software and comes with ABSOLUTELY NO WARRANTY.\nYou are welcome to redistribute it under certain conditions.\nType 'license()' or 'licence()' for distribution details.\n\n  Natural language support but running in an English locale\n\nR is a collaborative project with many contributors.\nType 'contributors()' for more information and\n'citation()' on how to cite R or R packages in publications.\n\nType 'demo()' for some demos, 'help()' for on-line help, or\n'help.start()' for an HTML browser interface to help.\nType 'q()' to quit R.\n\n> \nDN0a22ec81:strategicvoting tnowacki$ R\n\nR version 3.6.1 (2019-07-05) -- \"Action of the Toes\"\nCopyright (C) 2019 The R Foundation for Statistical Computing\nPlatform: x86_64-apple-darwin15.6.0 (64-bit)\n\nR is free software and comes with ABSOLUTELY NO WARRANTY.\nYou are welcome to redistribute it under certain conditions.\nType 'license()' or 'licence()' for distribution details.\n\n  Natural language support but running in an English locale\n\nR is a collaborative project with many contributors.\nType 'contributors()' for more information and\n'citation()' on how to cite R or R packages in publications.\n\nType 'demo()' for some demos, 'help()' for on-line help, or\n'help.start()' for an HTML browser interface to help.\nType 'q()' to quit R.\n\n> file_names <- c(\"4\", \"31\", \"37\", \"38\", \"40\", \"51\", \"60\", \"63\", \"65\", \"95\")                 \n> merge_list <- list()\n> for(name in file_names){\n+     load(here(paste0(\"output/files/test_\", name, \".Rdata\")))\n+     for(i in 1:length(out)){\n+         out[[i]] <- do.call(rbind, out[[i]])\n+         names(out[[i]])[7:10] <- c(\"case\", \"system\", \"iter\", \"rand_iter\")\n+     }\n+     full_df <- do.call(rbind, out) %>% mutate(partition = name)\n+     merge_list[[name]] <- full_df\n+ }\nError in here(paste0(\"output/files/test_\", name, \".Rdata\")) : \n  could not find function \"here\"\n> full_df <- do.call(rbind, merge_list)\n> \n> # load baseline case and put into one table\n> load(here(\"output/files/1/85v_vecs_1_85.Rdata\"))\nError in here(\"output/files/1/85v_vecs_1_85.Rdata\") : \n  could not find function \"here\"\n> \n> v_vec_list <- list()\n> for(n in 1:160){\n+     item1 <- out[[n]][[1]] %>% mutate(iter = 1:251,\n+                              case = names_vec[n],\n+                              system = \"IRV\",\n+                              s = 85,\n+                              lambda = 0.05)\n+     v_vec_list[[names_vec[n]]] <- item1\n+ }\nError in out[[n]][[1]] %>% mutate(iter = 1:251, case = names_vec[n], system = \"IRV\",  : \n  could not find function \"%>%\"\n> baseline_df <- do.call(rbind, v_vec_list)\n> library(here)                       # to get dir\nhere() starts at /Users/tnowacki/github/strategicvoting\n> source(here(\"code/full_header.R\"))  # fn's and data\nPackages loaded. \n\nAttaching package: ‘gtools’\n\nThe following objects are masked from ‘package:boot’:\n\n    inv.logit, logit\n\nFunctions loaded. \nData imported. \nReady for analysis. \n> source(here(\"code/prep_cses.R\"))    # data prep\nbig_list_na_omit prepared. \n> \n> names_vec <- names(big_list_na_omit)\n> v_vec_list <- list()\n> file_names <- c(\"4\", \"31\", \"37\", \"38\", \"40\", \"51\", \"60\", \"63\", \"65\", \"95\")\n> merge_list <- list()\n> for(name in file_names){\n+     load(here(paste0(\"output/files/test_\", name, \".Rdata\")))\n+     for(i in 1:length(out)){\n+         out[[i]] <- do.call(rbind, out[[i]])\n+         names(out[[i]])[7:10] <- c(\"case\", \"system\", \"iter\", \"rand_iter\")\n+     }\n+     full_df <- do.call(rbind, out) %>% mutate(partition = name)\n+     merge_list[[name]] <- full_df\n+ }\n> full_df <- do.call(rbind, merge_list)\n> head(full_df)\n           V1         V2        V3        V4         V5         V6     case\n4.1 0.4528452 0.06354160 0.1427579 0.1985621 0.09752848 0.04476471 AUS_2013\n4.2 0.4453623 0.06986776 0.1411141 0.1886340 0.09425843 0.06076351 AUS_2013\n4.3 0.4382534 0.07581012 0.1395524 0.1801877 0.09121937 0.07497696 AUS_2013\n4.4 0.4314865 0.08123937 0.1380824 0.1736351 0.08854825 0.08700835 AUS_2013\n4.5 0.4250445 0.08619468 0.1366993 0.1725263 0.08621317 0.09332208 AUS_2013\n4.6 0.4189246 0.09069974 0.1353854 0.1750230 0.08419733 0.09576990 AUS_2013\n    system iter rand_iter partition\n4.1    IRV    1         1         4\n4.2    IRV    2         1         4\n4.3    IRV    3         1         4\n4.4    IRV    4         1         4\n4.5    IRV    5         1         4\n4.6    IRV    6         1         4\n> ggtern(full_df %>% filter(case == \"AUS_2013\"), aes(V1 + V2, V3 + V4, V5 + V6)) +\n+     geom_line(aes(group = interaction(rand_iter, partition)))\n> ggtern(full_df %>% filter(case == \"AUS_2013\"), aes(V1 + V2, V3 + V4, V5 + V6)) +\n+     geom_line(aes(group = interaction(rand_iter, partition)),\n+         alpha = 0.1)\n> max(full_df$iteR)\n[1] -Inf\nWarning message:\nIn max(full_df$iteR) : no non-missing arguments to max; returning -Inf\n> max(full_df$iter)                                                                          \n[1] 61\n> ggtern(full_df %>% filter(case == \"AUS_2013\"), aes(V1 + V2, V3 + V4, V5 + V6)) +\n+     geom_line(aes(group = interaction(rand_iter, partition)),\n+         alpha = 0.1) +\n+     geom_point(data = full_df %>% filter(case == \"AUS_2013\" & iter == 61),\n+         colour = \"blue\")\n>         alpha = 0.1) +\nError: unexpected ')' in \"        alpha = 0.1)\"\n>     geom_point(data = full_df %>% filter(case == \"AUS_2013\" & iter == 61),\n+ )))\nError: unexpected ')' in:\n\"    geom_point(data = full_df %>% filter(case == \"AUS_2013\" & iter == 61),\n))\"\n> ggtern(full_df %>% filter(case == \"AUS_2013\"), aes(V1 + V2, V3 + V4, V5 + V6)) +\n+     geom_line(aes(group = interaction(rand_iter, partition)),\n+         alpha = 0.1) +\n+     geom_point(data = full_df %>% filter(case == \"AUS_2013\" & iter == 61),\n+         colour = \"blue\", alpha = 0.3, size = 0.5)\n> ggtern(full_df %>% filter(case == \"AUS_2013\"), aes(V1 + V2, V3 + V4, V5 + V6)) +\n+     geom_line(aes(group = interaction(rand_iter, partition)),\n+         alpha = 0.1) +\n+     geom_point(data = full_df %>% filter(case == \"AUS_2013\" & iter == 61),\n+         colour = \"blue\", alpha = 0.3, size = 1) +\n+     geom_point(data = full_df %>% filter(case == \"AUS_2013\" & iter == 1),\n+         colour = \"red\", alpha = 0.3, size = 1) +\n+     theme_sv() +\n+     labs(X = \"A\", Y = \"B\", Z = \"C\")\n> ggtern(full_df %>% filter(case == \"AUS_2013\"), aes(V1 + V2, V3 + V4, V5 + V6)) +\n+     geom_line(aes(group = interaction(rand_iter, partition)),\n+         alpha = 0.1) +\n+     geom_point(data = full_df %>% filter(case == \"AUS_2013\" & iter == 61),\n+         colour = \"blue\", alpha = 0.3, size = 1) +\n+     geom_point(data = full_df %>% filter(case == \"AUS_2013\" & iter == 1),\n+         colour = \"red\", alpha = 0.3, size = 1) +\n+     theme_sv() +\n+     labs(\"A\", \"B\", \"C\")\n> ggtern(full_df %>% filter(case == \"AUS_2013\"), aes(V1 + V2, V3 + V4, V5 + V6)) +\n+     geom_line(aes(group = interaction(rand_iter, partition)),\n+         alpha = 0.1) +\n+     geom_point(data = full_df %>% filter(case == \"AUS_2013\" & iter == 61),\n+         colour = \"blue\", alpha = 0.3, size = 1) +\n+     geom_point(data = full_df %>% filter(case == \"AUS_2013\" & iter == 1),\n+         colour = \"red\", alpha = 0.3, size = 1) +\n+     theme_sv() +\n+     labs(x = \"A\", \"B\", \"C\")\n> select_cases <- c(\"AUS_2013\", \"GBR_2010\", \"GER_2005\", \"SWE_2014\")\n> ggtern(full_df %>% filter(case %in% select_cases), aes(V1 + V2, V3 + V4, V5 + V6)) +\n+     geom_line(aes(group = interaction(rand_iter, partition)),\n+         alpha = 0.1) +\n+     geom_point(data = full_df %>% filter(case %in% select_cases & iter == 61),\n+         colour = \"blue\", alpha = 0.3, size = 1) +\n+     geom_point(data = full_df %>% filter(case %in% select_cases & iter == 1),\n+         colour = \"red\", alpha = 0.3, size = 1) +\n+     theme_sv() +\n+     labs(x = \"A\", y = \"B\", z = \"C\")\n> ggtern(full_df %>% filter(case %in% select_cases), aes(V1 + V2, V3 + V4, V5 + V6)) +\n+     geom_line(aes(group = interaction(rand_iter, partition)),\n+         alpha = 0.1) +\n+     geom_point(data = full_df %>% filter(case %in% select_cases & iter == 61),\n+         colour = \"blue\", alpha = 0.3, size = 1) +\n+     geom_point(data = full_df %>% filter(case %in% select_cases & iter == 1),\n+         colour = \"red\", alpha = 0.3, size = 1) +\n+     theme_sv() +\n+     labs(x = \"A\", y = \"B\", z = \"C\") +\n+     facet_wrap(. ~ case)\n> names_vec\n  [1] \"AUS_2013\" \"AUT_2013\" \"BRA_2014\" \"BGR_2014\" \"CAN_2011\" \"TWN_2012\"\n  [7] \"CZE_2013\" \"FIN_2015\" \"FRA_2012\" \"DEU_2013\" \"GRC_2012\" \"HKG_2012\"\n [13] \"ISL_2013\" \"IRL_2011\" \"ISR_2013\" \"JPN_2013\" \"KEN_2013\" \"KOR_2012\"\n [19] \"MEX_2012\" \"MEX_2015\" \"MNE_2012\" \"NZL_2014\" \"NZL_2011\" \"NOR_2013\"\n [25] \"POL_2011\" \"PRT_2015\" \"ROU_2012\" \"SRB_2012\" \"SVK_2016\" \"SVN_2011\"\n [31] \"ZAF_2014\" \"SWE_2014\" \"CHE_2011\" \"THA_2011\" \"TUR_2015\" \"GBR_2015\"\n [37] \"AUS_2007\" \"AUT_2008\" \"BRA_2006\" \"BRA_2010\" \"CAN_2008\" \"CHE_2007\"\n [43] \"CHL_2009\" \"CZE_2006\" \"CZE_2010\" \"DEU_2005\" \"DEU_2009\" \"DNK_2007\"\n [49] \"ESP_2008\" \"EST_2011\" \"FIN_2007\" \"FIN_2011\" \"FRA_2007\" \"GRC_2009\"\n [55] \"HKG_2008\" \"HRV_2007\" \"IRL_2007\" \"ISL_2007\" \"ISL_2009\" \"ISR_2006\"\n [61] \"JPN_2007\" \"KOR_2008\" \"LVA_2010\" \"MEX_2006\" \"MEX_2009\" \"NLD_2006\"\n [67] \"NLD_2010\" \"NOR_2005\" \"NOR_2009\" \"NZL_2008\" \"PER_2011\" \"PHL_2010\"\n [73] \"POL_2005\" \"POL_2007\" \"PRT_2009\" \"ROU_2009\" \"SVK_2010\" \"SVN_2008\"\n [79] \"SWE_2006\" \"THA_2007\" \"TUR_2011\" \"URY_2009\" \"ZAF_2009\" \"ALB_2005\"\n [85] \"AUS_2004\" \"BEL_2003\" \"BGR_2001\" \"BRA_2002\" \"CAN_2004\" \"CHE_2003\"\n [91] \"CHL_2005\" \"CZE_2002\" \"DEU12002\" \"DEU22002\" \"DNK_2001\" \"ESP_2004\"\n [97] \"FIN_2003\" \"FRA_2002\" \"GBR_2005\" \"HKG_2004\" \"HUN_2002\" \"IRL_2002\"\n[103] \"ISL_2003\" \"ISR_2003\" \"ITA_2006\" \"JPN_2004\" \"KGZ_2005\" \"KOR_2004\"\n[109] \"MEX_2003\" \"NLD_2002\" \"NOR_2001\" \"NZL_2002\" \"PER_2006\" \"PHL_2004\"\n[115] \"POL_2001\" \"PRT_2002\" \"PRT_2005\" \"ROU_2004\" \"RUS_2004\" \"SVN_2004\"\n[121] \"SWE_2002\" \"TWN_2001\" \"TWN_2004\" \"USA_2004\" \"AUS_1996\" \"BELF1999\"\n[127] \"BELW1999\" \"CAN_1997\" \"CHE_1999\" \"CHL_1999\" \"CZE_1996\" \"DEU_1998\"\n[133] \"DNK_1998\" \"ESP_1996\" \"ESP_2000\" \"GBR_1997\" \"HKG_1998\" \"HKG_2000\"\n[139] \"HUN_1998\" \"ISL_1999\" \"ISR_1996\" \"JPN_1996\" \"KOR_2000\" \"MEX_1997\"\n[145] \"MEX_2000\" \"NLD_1998\" \"NOR_1997\" \"NZL_1996\" \"PER_2000\" \"PER_2001\"\n[151] \"POL_1997\" \"ROU_1996\" \"RUS_1999\" \"RUS_2000\" \"SVN_1996\" \"SWE_1998\"\n[157] \"THA_2001\" \"TWN_1996\" \"UKR_1998\" \"USA_1996\"\n> select_cases <- c(\"AUS_2013\", \"GBR_2015\", \"DEU_2005\", \"FRA_2012\")\n> \n> ggtern(full_df %>% filter(case %in% select_cases), aes(V1 + V2, V3 + V4, V5 + V6)) +\n+     geom_line(aes(group = interaction(rand_iter, partition)),\n+         alpha = 0.1) +\n+     geom_point(data = full_df %>% filter(case %in% select_cases & iter == 61),\n+         colour = \"blue\", alpha = 0.3, size = 1) +\n+     geom_point(data = full_df %>% filter(case %in% select_cases & iter == 1),\n+         colour = \"red\", alpha = 0.3, size = 1) +\n+     theme_sv() +\n+     labs(x = \"A\", y = \"B\", z = \"C\") +\n+     facet_wrap(. ~ case)\n> ggsave(here(\"output/figs_v2/random_select.pdf\"),\n+     device = cairo_pdf,\n+     height = 12,\n+     width = 12)\n> ggsave(here(\"output/figs_v2/random_select.pdf\"),\n+     device = cairo_pdf,\n+     height = 8,\n+     width = 8)\n> ",
 			"settings":
 			{
-				"buffer_size": 4297,
-				"line_ending": "Unix"
-			}
-		},
-		{
-			"contents": "DN0a22ec81:strategicvoting tnowacki$ R\n\nR version 3.6.1 (2019-07-05) -- \"Action of the Toes\"\nCopyright (C) 2019 The R Foundation for Statistical Computing\nPlatform: x86_64-apple-darwin15.6.0 (64-bit)\n\nR is free software and comes with ABSOLUTELY NO WARRANTY.\nYou are welcome to redistribute it under certain conditions.\nType 'license()' or 'licence()' for distribution details.\n\n  Natural language support but running in an English locale\n\nR is a collaborative project with many contributors.\nType 'contributors()' for more information and\n'citation()' on how to cite R or R packages in publications.\n\nType 'demo()' for some demos, 'help()' for on-line help, or\n'help.start()' for an HTML browser interface to help.\nType 'q()' to quit R.\n\n> ",
-			"settings":
-			{
-				"buffer_size": 741,
+				"buffer_size": 11216,
 				"line_ending": "Unix",
 				"name": "Login Shell",
 				"scratch": true
@@ -267,6 +259,7 @@
 	],
 	"file_history":
 	[
+		"/Users/tnowacki/github/strategicvoting/code/random_starting_iterations_v2.R",
 		"/Users/tnowacki/Dropbox/coursework/ps450_d/pset1/450d_pset1_nowacki.rnw",
 		"/Users/tnowacki/Dropbox/Archive Study 2018-19/ps450c/pset3/450c_pset3_nowacki.rnw",
 		"/Users/tnowacki/Dropbox/coursework/ps450_d/pset1/450c_pset2_nowacki.rnw",
@@ -310,195 +303,8 @@
 	"groups":
 	[
 		{
-			"selected": 0,
 			"sheets":
 			[
-				{
-					"buffer": 0,
-					"file": "code/random_starting_iterations_v2.R",
-					"semi_transient": true,
-					"settings":
-					{
-						"buffer_size": 4297,
-						"regions":
-						{
-						},
-						"selection":
-						[
-							[
-								0,
-								0
-							]
-						],
-						"settings":
-						{
-							"SL.38.region_keys":
-							[
-							],
-							"bracket_highlighter.busy": false,
-							"bracket_highlighter.clone": 38,
-							"bracket_highlighter.clone_locations":
-							{
-								"close":
-								{
-								},
-								"icon":
-								{
-								},
-								"open":
-								{
-								},
-								"unmatched":
-								{
-								}
-							},
-							"bracket_highlighter.clone_regions":
-							[
-								"bh_square",
-								"bh_square_center",
-								"bh_square_open",
-								"bh_square_close",
-								"bh_square_content",
-								"bh_angle",
-								"bh_angle_center",
-								"bh_angle_open",
-								"bh_angle_close",
-								"bh_angle_content",
-								"bh_round",
-								"bh_round_center",
-								"bh_round_open",
-								"bh_round_close",
-								"bh_round_content",
-								"bh_single_quote",
-								"bh_single_quote_center",
-								"bh_single_quote_open",
-								"bh_single_quote_close",
-								"bh_single_quote_content",
-								"bh_regex",
-								"bh_regex_center",
-								"bh_regex_open",
-								"bh_regex_close",
-								"bh_regex_content",
-								"bh_unmatched",
-								"bh_unmatched_center",
-								"bh_unmatched_open",
-								"bh_unmatched_close",
-								"bh_unmatched_content",
-								"bh_c_define",
-								"bh_c_define_center",
-								"bh_c_define_open",
-								"bh_c_define_close",
-								"bh_c_define_content",
-								"bh_tag",
-								"bh_tag_center",
-								"bh_tag_open",
-								"bh_tag_close",
-								"bh_tag_content",
-								"bh_double_quote",
-								"bh_double_quote_center",
-								"bh_double_quote_open",
-								"bh_double_quote_close",
-								"bh_double_quote_content",
-								"bh_curly",
-								"bh_curly_center",
-								"bh_curly_open",
-								"bh_curly_close",
-								"bh_curly_content",
-								"bh_default",
-								"bh_default_center",
-								"bh_default_open",
-								"bh_default_close",
-								"bh_default_content"
-							],
-							"bracket_highlighter.locations":
-							{
-								"close":
-								{
-								},
-								"icon":
-								{
-								},
-								"open":
-								{
-								},
-								"unmatched":
-								{
-								}
-							},
-							"bracket_highlighter.regions":
-							[
-								"bh_square",
-								"bh_square_center",
-								"bh_square_open",
-								"bh_square_close",
-								"bh_square_content",
-								"bh_angle",
-								"bh_angle_center",
-								"bh_angle_open",
-								"bh_angle_close",
-								"bh_angle_content",
-								"bh_round",
-								"bh_round_center",
-								"bh_round_open",
-								"bh_round_close",
-								"bh_round_content",
-								"bh_single_quote",
-								"bh_single_quote_center",
-								"bh_single_quote_open",
-								"bh_single_quote_close",
-								"bh_single_quote_content",
-								"bh_regex",
-								"bh_regex_center",
-								"bh_regex_open",
-								"bh_regex_close",
-								"bh_regex_content",
-								"bh_unmatched",
-								"bh_unmatched_center",
-								"bh_unmatched_open",
-								"bh_unmatched_close",
-								"bh_unmatched_content",
-								"bh_c_define",
-								"bh_c_define_center",
-								"bh_c_define_open",
-								"bh_c_define_close",
-								"bh_c_define_content",
-								"bh_tag",
-								"bh_tag_center",
-								"bh_tag_open",
-								"bh_tag_close",
-								"bh_tag_content",
-								"bh_double_quote",
-								"bh_double_quote_center",
-								"bh_double_quote_open",
-								"bh_double_quote_close",
-								"bh_double_quote_content",
-								"bh_curly",
-								"bh_curly_center",
-								"bh_curly_open",
-								"bh_curly_close",
-								"bh_curly_content",
-								"bh_default",
-								"bh_default_center",
-								"bh_default_open",
-								"bh_default_close",
-								"bh_default_content"
-							],
-							"lsp_active": true,
-							"lsp_language":
-							{
-								"rlang": "r"
-							},
-							"show_definitions": false,
-							"syntax": "Packages/R/R.sublime-syntax",
-							"translate_tabs_to_spaces": false
-						},
-						"translation.x": 0.0,
-						"translation.y": 0.0,
-						"zoom_level": 1.0
-					},
-					"stack_index": 1,
-					"type": "text"
-				}
 			]
 		},
 		{
@@ -506,19 +312,19 @@
 			"sheets":
 			[
 				{
-					"buffer": 1,
+					"buffer": 0,
 					"semi_transient": false,
 					"settings":
 					{
-						"buffer_size": 741,
+						"buffer_size": 11216,
 						"regions":
 						{
 						},
 						"selection":
 						[
 							[
-								741,
-								741
+								11216,
+								11216
 							]
 						],
 						"settings":
@@ -569,11 +375,11 @@
 							"terminus_view.natural_keyboard": true,
 							"terminus_view.panel_name": null,
 							"terminus_view.tag": null,
-							"terminus_view.viewport_y": 0.0,
+							"terminus_view.viewport_y": 3672.0,
 							"word_wrap": false
 						},
 						"translation.x": 0.0,
-						"translation.y": 0.0,
+						"translation.y": 3672.0,
 						"zoom_level": 1.0
 					},
 					"stack_index": 0,
@@ -666,7 +472,7 @@
 		],
 		"width": 0.0
 	},
-	"selected_group": 1,
+	"selected_group": 0,
 	"settings":
 	{
 	},

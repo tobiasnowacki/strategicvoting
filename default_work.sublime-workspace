@@ -8,18 +8,10 @@
 	"buffers":
 	[
 		{
-			"file": "code/random_starting_iterations_v2.R",
+			"contents": "DN0a22ec81:strategicvoting tnowacki$ R\n\nR version 3.6.1 (2019-07-05) -- \"Action of the Toes\"\nCopyright (C) 2019 The R Foundation for Statistical Computing\nPlatform: x86_64-apple-darwin15.6.0 (64-bit)\n\nR is free software and comes with ABSOLUTELY NO WARRANTY.\nYou are welcome to redistribute it under certain conditions.\nType 'license()' or 'licence()' for distribution details.\n\n  Natural language support but running in an English locale\n\nR is a collaborative project with many contributors.\nType 'contributors()' for more information and\n'citation()' on how to cite R or R packages in publications.\n\nType 'demo()' for some demos, 'help()' for on-line help, or\n'help.start()' for an HTML browser interface to help.\nType 'q()' to quit R.\n\n> library(here)                       # to get dir\nhere() starts at /Users/tnowacki/github/strategicvoting\n> source(here(\"code/full_header.R\"))  # fn's and data\nPackages loaded. \n\nAttaching package: ‘gtools’\n\nThe following objects are masked from ‘package:boot’:\n\n    inv.logit, logit\n\nFunctions loaded. \nData imported. \nReady for analysis. \n> source(here(\"code/prep_cses.R\"))    # data prep\nbig_list_na_omit prepared. \n> \n> names_vec <- names(big_list_na_omit)\n> v_vec_list <- list()\n> \n> uniform_ternary <- rdirichlet(100, rep(1, 6))\n> \n> # Set up lists.\n> big_rcv_sum_sense <- list()\n> big_rcv_vec_sense <- list()\n> \n> # Set up parameters.\n> lambda <- 0.05\n> s_val <- 85\n> file_names <- c(\"4\", \"31\", \"36\", \"37\", \"38\", \"40\", \"51\", \"60\", \"63\", \"64\", \"95\")\n> merge_list <- list()\n> for(name in file_names){\n+     load(here(paste0(\"output/files/test_\", name, \".Rdata\")))\n+     for(i in 1:length(out)){\n+         out[[i]] <- do.call(rbind, out[[i]])\n+         names(out[[i]])[7:10] <- c(\"case\", \"system\", \"iter\", \"rand_iter\")\n+     }\n+     full_df <- do.call(rbind, out) %>% mutate(partition = name)\n+     merge_list[[name]] <- full_df\n+ }\nError in readChar(con, 5L, useBytes = TRUE) : cannot open the connection\nIn addition: Warning message:\nIn readChar(con, 5L, useBytes = TRUE) :\n  cannot open compressed file '/Users/tnowacki/github/strategicvoting/output/files/test_64.Rd​‌​\nata', probable reason 'No such file or directory'\n> file_names <- c(\"4\", \"31\", \"36\", \"37\", \"38\", \"40\", \"51\", \"60\", \"63\", \"65\", \"95\")\n> merge_list <- list()\n> for(name in file_names){\n+     load(here(paste0(\"output/files/test_\", name, \".Rdata\")))\n+     for(i in 1:length(out)){\n+         out[[i]] <- do.call(rbind, out[[i]])\n+         names(out[[i]])[7:10] <- c(\"case\", \"system\", \"iter\", \"rand_iter\")\n+     }\n+     full_df <- do.call(rbind, out) %>% mutate(partition = name)\n+     merge_list[[name]] <- full_df\n+ }\n> full_df <- do.call(rbind, merge_list)\n\n# load baseline case and put into one table\nload(here(\"output/files/1/85v_vecs_1_85.Rdata\"))\n> \n> # load baseline case and put into one table\n> load(here(\"output/files/1/85v_vecs_1_85.Rdata\"))\n> v_vec_list <- list()\n> for(n in 1:160){\n+     item1 <- out[[n]][[1]] %>% mutate(iter = 1:251,\n+                              case = names_vec[n],\n+                              system = \"IRV\",\n+                              s = 85,\n+                              lambda = 0.05)\n+     v_vec_list[[names_vec[n]]] <- item1\n+ }\n> baseline_df <- do.call(rbind, v_vec_list)\n> dist_list <- list()\n> for(j in names_vec){\n+     rands <- full_df %>% filter(case == j)\n+     base <- baseline_df %>% filter(case == j & iter == 251) %>% as.numeric\n+     d_obj <- rbind(base[1:6], rands[, 1:6])\n+     d_mat <- dist(d_obj) %>% as.matrix\n+     rands <- rands %>% mutate(base_d = d_mat[-1, 1])\n+     dist_list[[j]] <- rands\n+ }\n^C\nThere were 50 or more warnings (use warnings() to see the first 50)\n> table(full_df)\n^[c^C^C^C^C^CError in table(full_df) : attempt to make a table with >= 2^31 elements\n> \n> \n> \n> head(full_df)                                                                              \n           V1         V2        V3        V4         V5         V6     case\n4.1 0.4528452 0.06354160 0.1427579 0.1985621 0.09752848 0.04476471 AUS_2013\n4.2 0.4453623 0.06986776 0.1411141 0.1886340 0.09425843 0.06076351 AUS_2013\n4.3 0.4382534 0.07581012 0.1395524 0.1801877 0.09121937 0.07497696 AUS_2013\n4.4 0.4314865 0.08123937 0.1380824 0.1736351 0.08854825 0.08700835 AUS_2013\n4.5 0.4250445 0.08619468 0.1366993 0.1725263 0.08621317 0.09332208 AUS_2013\n4.6 0.4189246 0.09069974 0.1353854 0.1750230 0.08419733 0.09576990 AUS_2013\n    system iter rand_iter partition\n4.1    IRV    1         1         4\n4.2    IRV    2         1         4\n4.3    IRV    3         1         4\n4.4    IRV    4         1         4\n4.5    IRV    5         1         4\n4.6    IRV    6         1         4\n> table(interaction(full_df$rand_iter, full_df$partition))                                   \n\n 1.31  2.31  3.31  4.31  5.31  6.31  7.31  8.31  9.31 10.31  1.36  2.36  3.36 \n 9760  9760  9760  9760  9760  9760  9760  9760  9760  9760  9760  9760  9760 \n 4.36  5.36  6.36  7.36  8.36  9.36 10.36  1.37  2.37  3.37  4.37  5.37  6.37 \n 9760  9760  9760  9760  9760  9760  9760  9760  9760  9760  9760  9760  9760 \n 7.37  8.37  9.37 10.37  1.38  2.38  3.38  4.38  5.38  6.38  7.38  8.38  9.38 \n 9760  9760  9760  9760  9760  9760  9760  9760  9760  9760  9760  9760  9760 \n10.38   1.4   2.4   3.4   4.4   5.4   6.4   7.4   8.4   9.4  10.4  1.40  2.40 \n 9760  9760  9760  9760  9760  9760  9760  9760  9760  9760  9760  9760  9760 \n 3.40  4.40  5.40  6.40  7.40  8.40  9.40 10.40  1.51  2.51  3.51  4.51  5.51 \n 9760  9760  9760  9760  9760  9760  9760  9760  9760  9760  9760  9760  9760 \n 6.51  7.51  8.51  9.51 10.51  1.60  2.60  3.60  4.60  5.60  6.60  7.60  8.60 \n 9760  9760  9760  9760  9760  9760  9760  9760  9760  9760  9760  9760  9760 \n 9.60 10.60  1.63  2.63  3.63  4.63  5.63  6.63  7.63  8.63  9.63 10.63  1.65 \n 9760  9760  9760  9760  9760  9760  9760  9760  9760  9760  9760  9760  9760 \n 2.65  3.65  4.65  5.65  6.65  7.65  8.65  9.65 10.65  1.95  2.95  3.95  4.95 \n 9760  9760  9760  9760  9760  9760  9760  9760  9760  9760  9760  9760  9760 \n 5.95  6.95  7.95  8.95  9.95 10.95 \n 9760  9760  9760  9760  9760  9760 \n> table(interaction(full_df$rand_iter, full_df$partition)) %>% length\n[1] 110\n> file_names <- c(\"4\", \"31\", \"37\", \"38\", \"40\", \"51\", \"60\", \"63\", \"65\", \"95\")\n> merge_list <- list()\n> for(name in file_names){\n+     load(here(paste0(\"output/files/test_\", name, \".Rdata\")))\n+     for(i in 1:length(out)){\n+         out[[i]] <- do.call(rbind, out[[i]])\n+         names(out[[i]])[7:10] <- c(\"case\", \"system\", \"iter\", \"rand_iter\")\n+     }\n+     full_df <- do.call(rbind, out) %>% mutate(partition = name)\n+     merge_list[[name]] <- full_df\n+ }\n> full_df <- do.call(rbind, merge_list)\n> dist_list <- list()\n> for(j in names_vec){\n+     print(j)\n+     rands <- full_df %>% filter(case == j)\n+     base <- baseline_df %>% filter(case == j & iter == 251) %>% as.numeric\n+     d_obj <- rbind(base[1:6], rands[, 1:6])\n+     d_mat <- dist(d_obj) %>% as.matrix\n+     rands <- rands %>% mutate(base_d = d_mat[-1, 1])\n+     dist_list[[j]] <- rands\n+ }\n[1] \"AUS_2013\"\n[1] \"AUT_2013\"\n[1] \"BRA_2014\"\n[1] \"BGR_2014\"\n[1] \"CAN_2011\"\n[1] \"TWN_2012\"\n[1] \"CZE_2013\"\n[1] \"FIN_2015\"\n[1] \"FRA_2012\"\n[1] \"DEU_2013\"\n[1] \"GRC_2012\"\n[1] \"HKG_2012\"\n[1] \"ISL_2013\"\n[1] \"IRL_2011\"\n[1] \"ISR_2013\"\n[1] \"JPN_2013\"\n[1] \"KEN_2013\"\n[1] \"KOR_2012\"\n[1] \"MEX_2012\"\n[1] \"MEX_2015\"\n[1] \"MNE_2012\"\n[1] \"NZL_2014\"\n[1] \"NZL_2011\"\n[1] \"NOR_2013\"\n[1] \"POL_2011\"\n[1] \"PRT_2015\"\n[1] \"ROU_2012\"\n[1] \"SRB_2012\"\n[1] \"SVK_2016\"\n[1] \"SVN_2011\"\n[1] \"ZAF_2014\"\n[1] \"SWE_2014\"\n[1] \"CHE_2011\"\n[1] \"THA_2011\"\n[1] \"TUR_2015\"\n[1] \"GBR_2015\"\n[1] \"AUS_2007\"\n[1] \"AUT_2008\"\n[1] \"BRA_2006\"\n[1] \"BRA_2010\"\n[1] \"CAN_2008\"\n[1] \"CHE_2007\"\n[1] \"CHL_2009\"\n[1] \"CZE_2006\"\n[1] \"CZE_2010\"\n[1] \"DEU_2005\"\n[1] \"DEU_2009\"\n[1] \"DNK_2007\"\n[1] \"ESP_2008\"\n[1] \"EST_2011\"\n[1] \"FIN_2007\"\n[1] \"FIN_2011\"\n[1] \"FRA_2007\"\n[1] \"GRC_2009\"\n[1] \"HKG_2008\"\n[1] \"HRV_2007\"\n[1] \"IRL_2007\"\n[1] \"ISL_2007\"\n[1] \"ISL_2009\"\n[1] \"ISR_2006\"\n[1] \"JPN_2007\"\n[1] \"KOR_2008\"\n[1] \"LVA_2010\"\n[1] \"MEX_2006\"\n[1] \"MEX_2009\"\n[1] \"NLD_2006\"\n[1] \"NLD_2010\"\n[1] \"NOR_2005\"\n[1] \"NOR_2009\"\n[1] \"NZL_2008\"\n[1] \"PER_2011\"\n[1] \"PHL_2010\"\n[1] \"POL_2005\"\n[1] \"POL_2007\"\n[1] \"PRT_2009\"\n[1] \"ROU_2009\"\n[1] \"SVK_2010\"\n[1] \"SVN_2008\"\n[1] \"SWE_2006\"\n[1] \"THA_2007\"\n[1] \"TUR_2011\"\n[1] \"URY_2009\"\n[1] \"ZAF_2009\"\n[1] \"ALB_2005\"\n[1] \"AUS_2004\"\n[1] \"BEL_2003\"\n[1] \"BGR_2001\"\n[1] \"BRA_2002\"\n[1] \"CAN_2004\"\n[1] \"CHE_2003\"\n[1] \"CHL_2005\"\n[1] \"CZE_2002\"\n[1] \"DEU12002\"\n[1] \"DEU22002\"\n[1] \"DNK_2001\"\n[1] \"ESP_2004\"\n[1] \"FIN_2003\"\n[1] \"FRA_2002\"\n[1] \"GBR_2005\"\n[1] \"HKG_2004\"\n[1] \"HUN_2002\"\n[1] \"IRL_2002\"\n[1] \"ISL_2003\"\n[1] \"ISR_2003\"\n[1] \"ITA_2006\"\n[1] \"JPN_2004\"\n[1] \"KGZ_2005\"\n[1] \"KOR_2004\"\n[1] \"MEX_2003\"\n[1] \"NLD_2002\"\n[1] \"NOR_2001\"\n[1] \"NZL_2002\"\n[1] \"PER_2006\"\n[1] \"PHL_2004\"\n[1] \"POL_2001\"\n[1] \"PRT_2002\"\n[1] \"PRT_2005\"\n[1] \"ROU_2004\"\n[1] \"RUS_2004\"\n[1] \"SVN_2004\"\n[1] \"SWE_2002\"\n[1] \"TWN_2001\"\n[1] \"TWN_2004\"\n[1] \"USA_2004\"\n[1] \"AUS_1996\"\n[1] \"BELF1999\"\n[1] \"BELW1999\"\n[1] \"CAN_1997\"\n[1] \"CHE_1999\"\n[1] \"CHL_1999\"\n[1] \"CZE_1996\"\n[1] \"DEU_1998\"\n[1] \"DNK_1998\"\n[1] \"ESP_1996\"\n[1] \"ESP_2000\"\n[1] \"GBR_1997\"\n[1] \"HKG_1998\"\n[1] \"HKG_2000\"\n[1] \"HUN_1998\"\n[1] \"ISL_1999\"\n[1] \"ISR_1996\"\n[1] \"JPN_1996\"\n[1] \"KOR_2000\"\n[1] \"MEX_1997\"\n[1] \"MEX_2000\"\n[1] \"NLD_1998\"\n[1] \"NOR_1997\"\n[1] \"NZL_1996\"\n[1] \"PER_2000\"\n[1] \"PER_2001\"\n[1] \"POL_1997\"\n[1] \"ROU_1996\"\n[1] \"RUS_1999\"\n[1] \"RUS_2000\"\n[1] \"SVN_1996\"\n[1] \"SWE_1998\"\n[1] \"THA_2001\"\n[1] \"TWN_1996\"\n[1] \"UKR_1998\"\n[1] \"USA_1996\"\nThere were 50 or more warnings (use warnings() to see the first 50)\n> dist_df <- do.call(rbind, dist_list)\n> quant_df <- dist_df %>% group_by(case, iter) %>%\n+     summarise(mean_d = mean(base_d), median = median(base_d),\n+         uq = quantile(base_d, 0.9),\n+         q95 = quantile(base_d, 0.95),\n+         q99 = quantile(base_d), 0.99) %>% \n+     pivot_longer(uq:q99)\nError: Column `q99` must be length 1 (a summary value), not 5\n> quant_df <- dist_df %>% group_by(case, iter) %>%\n+     summarise(mean_d = mean(base_d), median = median(base_d),\n+         uq = quantile(base_d, 0.9),\n+         q95 = quantile(base_d, 0.95),\n+         q99 = quantile(base_d), 0.99)\nError: Column `q99` must be length 1 (a summary value), not 5\n> quant_df <- dist_df %>% group_by(case, iter) %>%\n+     summarise(mean_d = mean(base_d), median = median(base_d),\n+         uq = quantile(base_d, 0.9),\n+         q95 = quantile(base_d, 0.95),\n+         q99 = quantile(base_d), 0.99))\nError: unexpected ')' in:\n\"        q95 = quantile(base_d, 0.95),\n        q99 = quantile(base_d), 0.99))\"\n> quant_df <- dist_df %>% group_by(case, iter) %>%\n+     summarise(mean_d = mean(base_d), median = median(base_d),\n+         uq = quantile(base_d, 0.9),\n+         q95 = quantile(base_d, 0.95),\n+         q99 = quantile(base_d, 0.99))\n> quant_df <- dist_df %>% group_by(case, iter) %>%\n+     summarise(mean_d = mean(base_d), median = median(base_d),\n+         uq = quantile(base_d, 0.9),\n+         q95 = quantile(base_d, 0.95),\n+         q99 = quantile(base_d, 0.99)) %>% \n+     pivot_wider(uq:u99)\nError in `$<-.data.frame`(`*tmp*`, \".name\", value = \"_\") : \n  replacement has 1 row, data has 0\n> quant_df <- dist_df %>% group_by(case, iter) %>%\n+     summarise(mean_d = mean(base_d), median = median(base_d),\n+         uq = quantile(base_d, 0.9),\n+         q95 = quantile(base_d, 0.95),\n+         q99 = quantile(base_d, 0.99))\n> head(quant_df)\n# A tibble: 6 x 7\n# Groups:   case [1]\n  case      iter mean_d median    uq   q95   q99\n  <fct>    <int>  <dbl>  <dbl> <dbl> <dbl> <dbl>\n1 AUS_2013     1  0.366  0.348 0.530 0.613 0.723\n2 AUS_2013     2  0.343  0.325 0.490 0.577 0.682\n3 AUS_2013     3  0.322  0.302 0.464 0.543 0.645\n4 AUS_2013     4  0.304  0.283 0.437 0.512 0.615\n5 AUS_2013     5  0.288  0.266 0.415 0.488 0.585\n6 AUS_2013     6  0.273  0.252 0.395 0.460 0.556\n> pivot_wider(quant_df, uq:q99) %>% head\nError in `$<-.data.frame`(`*tmp*`, \".name\", value = \"_\") : \n  replacement has 1 row, data has 0\n> ?pivot_longer(quant_df, uq:q99) %>% head\nHelp on topic ‘%>%’ was found in the following packages:\n\n  Package               Library\n  stringr               /Library/Frameworks/R.framework/Versions/3.6/Resources/library\n  dplyr                 /Library/Frameworks/R.framework/Versions/3.6/Resources/library\n  magrittr              /Library/Frameworks/R.framework/Versions/3.6/Resources/library\n  promises              /Library/Frameworks/R.framework/Versions/3.6/Resources/library\n  ggpubr                /Library/Frameworks/R.framework/Versions/3.6/Resources/library\n  purrr                 /Library/Frameworks/R.framework/Versions/3.6/Resources/library\n  tidyr                 /Library/Frameworks/R.framework/Versions/3.6/Resources/library\n\n%>%                   package:tidyr                    R Documentation\n\nPipe operator\n\nDescription:\n\n     See ‘%>%’ for more details.\n\nUsage:\n\n     lhs %>% rhs\n     \n\n> pivot_longer(quant_df, uq:q99) %>% head                                                    \n# A tibble: 6 x 6\n# Groups:   case [160]\n  case      iter mean_d median name  value\n  <fct>    <int>  <dbl>  <dbl> <chr> <dbl>\n1 AUS_2013     1  0.366  0.348 uq    0.530\n2 AUS_2013     1  0.366  0.348 q95   0.613\n3 AUS_2013     1  0.366  0.348 q99   0.723\n4 AUS_2013     2  0.343  0.325 uq    0.490\n5 AUS_2013     2  0.343  0.325 q95   0.577\n6 AUS_2013     2  0.343  0.325 q99   0.682\n> pivot_longer(quant_df, mean_d:q99) %>% head\n# A tibble: 6 x 4\n# Groups:   case [160]\n  case      iter name   value\n  <fct>    <int> <chr>  <dbl>\n1 AUS_2013     1 mean_d 0.366\n2 AUS_2013     1 median 0.348\n3 AUS_2013     1 uq     0.530\n4 AUS_2013     1 q95    0.613\n5 AUS_2013     1 q99    0.723\n6 AUS_2013     2 mean_d 0.343\n> quant_df <- dist_df %>% group_by(case, iter) %>%\n+     summarise(mean_d = mean(base_d), median = median(base_d),\n+         uq = quantile(base_d, 0.9),\n+         q95 = quantile(base_d, 0.95),\n+         q99 = quantile(base_d, 0.99)) %>%\n+     pivot_longer(quant_df, mean_d:q99)\nError: `quant_df` must evaluate to column positions or names, not a list\nCall `rlang::last_error()` to see a backtrace\n> quant_df <- dist_df %>% group_by(case, iter) %>%\n+     summarise(mean_d = mean(base_d), median = median(base_d),\n+         uq = quantile(base_d, 0.9),\n+         q95 = quantile(base_d, 0.95),\n+         q99 = quantile(base_d, 0.99)) %>%\n+     pivot_longer(mean_d:q99)\n> ggplot(quant_df, aes(x = iter)) +\n+     geom_line(data = quant_df %>% filter(name = median),\n+         aes(group = case, y = value), alpha = 0.1) +\n+     geom_point(data = quant_df %>% filter(name %in% c(\"uq\", \"q99\"))\n+         aes(group = case, y = value), alpha = 0.1, colour = name,\nError: unexpected symbol in:\n\"    geom_point(data = quant_df %>% filter(name %in% c(\"uq\", \"q99\"))\n        aes\"\n>         lty = \"dashed\") +\nError: unexpected ')' in \"        lty = \"dashed\")\"\n>     theme_sv() +\n+     labs(x = \"Iteration\", y = \"Distance to baseline case at 250th iteration\")\nError: Don't know how to add labs(x = \"Iteration\", y = \"Distance to baseline case at 250th it​‌​\neration\") to a theme object\n> ggplot(quant_df, aes(x = iter)) +\n+     geom_line(data = quant_df %>% filter(name = median),\n+         aes(group = case, y = value), alpha = 0.1) +\n+     geom_point(data = quant_df %>% filter(name %in% c(\"uq\", \"q99\"))\n+         aes(group = case, y = value), alpha = 0.1, colour = name,\nError: unexpected symbol in:\n\"    geom_point(data = quant_df %>% filter(name %in% c(\"uq\", \"q99\"))\n        aes\"\n>         lty = \"dashed\") +\nError: unexpected ')' in \"        lty = \"dashed\")\"\n>     theme_sv() +\n+     labs(x = \"Iteration\", y = \"Distance to baseline case at 250th iteration\")\nError: Don't know how to add labs(x = \"Iteration\", y = \"Distance to baseline case at 250th it​‌​\neration\") to a theme object\n> ggplot(quant_df, aes(x = iter)) +\n+     geom_line(data = quant_df %>% filter(name = median),\n+         aes(group = case, y = value), alpha = 0.1) +\n+     geom_point(data = quant_df %>% filter(name %in% c(\"uq\", \"q99\")),\n+         aes(group = case, y = value), alpha = 0.1, colour = name,\n+         lty = \"dashed\") +\n+     theme_sv() +\n+     labs(x = \"Iteration\", y = \"Distance to baseline case at 250th iteration\")\nError: `name` (`name = median`) must not be named, do you need `==`?\nCall `rlang::last_error()` to see a backtrace\n> ggplot(quant_df, aes(x = iter)) +\n+     geom_line(data = quant_df %>% filter(name == median),\n+         aes(group = case, y = value), alpha = 0.1) +\n+     geom_point(data = quant_df %>% filter(name %in% c(\"uq\", \"q99\")),\n+         aes(group = case, y = value), alpha = 0.1, colour = name,\n+         lty = \"dashed\") +\n+     theme_sv() +\n+     labs(x = \"Iteration\", y = \"Distance to baseline case at 250th iteration\")\nError in name == median : \n  comparison (1) is possible only for atomic and list types\n> head(quant_df)\n# A tibble: 6 x 4\n# Groups:   case [160]\n  case      iter name   value\n  <fct>    <int> <chr>  <dbl>\n1 AUS_2013     1 mean_d 0.366\n2 AUS_2013     1 median 0.348\n3 AUS_2013     1 uq     0.530\n4 AUS_2013     1 q95    0.613\n5 AUS_2013     1 q99    0.723\n6 AUS_2013     2 mean_d 0.343\n> ggplot(quant_df, aes(x = iter)) +\n+     geom_line(data = quant_df %>% filter(name == \"median\"),\n+         aes(group = case, y = value), alpha = 0.1) +\n+     geom_point(data = quant_df %>% filter(name %in% c(\"uq\", \"q99\")),\n+         aes(group = case, y = value), alpha = 0.1, colour = name,\n+         lty = \"dashed\") +\n+     theme_sv() +\n+     labs(x = \"Iteration\", y = \"Distance to baseline case at 250th iteration\")\nWarning: Ignoring unknown parameters: linetype\n> ggplot(quant_df, aes(x = iter)) +\n+     geom_line(data = quant_df %>% filter(name == \"median\"),\n+         aes(group = case, y = value), alpha = 0.1) +\n+     geom_point(data = quant_df %>% filter(name %in% c(\"uq\", \"q99\")),\n+         aes(group = case, y = value, colour = name), alpha = 0.1,\n+         lty = \"dashed\") +\n+     theme_sv() +\n+     labs(x = \"Iteration\", y = \"Distance to baseline case at 250th iteration\")\nWarning: Ignoring unknown parameters: linetype\n> ggplot(quant_df, aes(x = iter)) +\n+     geom_point(data = quant_df %>% filter(name == \"median\"),\n+         aes(group = case, y = value), alpha = 0.1) +\n+     geom_point(data = quant_df %>% filter(name %in% c(\"uq\", \"q99\")),\n+         aes(group = case, y = value, colour = name), alpha = 0.1,\n+         lty = \"dashed\") +\n+     theme_sv() +\n+     labs(x = \"Iteration\", y = \"Distance to baseline case at 250th iteration\")\nWarning: Ignoring unknown parameters: linetype\n> ggplot(quant_df, aes(x = iter)) +\n+     geom_point(data = quant_df %>% filter(name == \"median\"),\n+         aes(group = case, y = value), alpha = 0.05) +\n+     geom_point(data = quant_df %>% filter(name %in% c(\"uq\", \"q99\")),\n+         aes(group = case, y = value, colour = name), alpha = 0.1,\n+         lty = \"dashed\") +\n+     theme_sv() +\n+     labs(x = \"Iteration\", y = \"Distance to baseline case at 250th iteration\")\nWarning: Ignoring unknown parameters: linetype\n> quant_df <- dist_df %>% group_by(case, iter) %>%\n+     summarise(mean_d = mean(base_d), Median = median(base_d),\n+         \"90th Percentile\" = quantile(base_d, 0.9),\n+         q95 = quantile(base_d, 0.95),\n+         \"99th Percentile\" = quantile(base_d, 0.99)) %>%\n+     pivot_longer(mean_d:'99th Percentile')\n> ggplot(quant_df, aes(x = iter)) +\n+     geom_point(data = quant_df %>% filter(name %in% c(\"Median\", \"90th Percentile\", \"99th Pe​‌​\nrcentile\")),\n+         aes(group = case, y = value, colour = name), alpha = 0.1,\n+         lty = \"dashed\") +\n+     theme_sv() +\n+     labs(x = \"Iteration\", y = \"Distance to baseline case at 250th iteration\")\nWarning: Ignoring unknown parameters: linetype\n> ggplot(quant_df, aes(x = iter)) +\n+     geom_point(data = quant_df %>% filter(name %in% c(\"Median\", \"90th Percentile\", \"99th Pe​‌​\nrcentile\")),\n+         aes(group = case, y = value, colour = name), alpha = 0.1,\n+         lty = \"dashed\") +\n+     theme_sv() +\n+     labs(x = \"Iteration\", y = \"Distance to baseline case at 250th iteration\",\n+         colour = \"Summary statistic\") +\n+     theme(legend.position = \"bottom\", legend.orientation = \"horizontal\") +\n+     guides(colour = guide_legend(override.aes = list(alpha = 1)))\nWarning: Ignoring unknown parameters: linetype\nError in (function (el, elname)  : \n  \"legend.orientation\" is not a valid theme element name.\n> ggplot(quant_df, aes(x = iter)) +\n+     geom_point(data = quant_df %>% filter(name %in% c(\"Median\", \"90th Percentile\", \"99th Pe​‌​\nrcentile\")),\n+         aes(group = case, y = value, colour = name), alpha = 0.1,\n+         lty = \"dashed\") +\n+     theme_sv() +\n+     labs(x = \"Iteration\", y = \"Distance to baseline case at 250th iteration\",\n+         colour = \"Summary statistic\") +\n+     theme(legend.position = \"bottom\") +\n+     guides(colour = guide_legend(override.aes = list(alpha = 1)))\nWarning: Ignoring unknown parameters: linetype\n> ggsave(here(\"output/figs_v2/algconv/quantile_summary.pdf\"),\n+     device = cairo_pdf)\nSaving 7 x 7.2 in image\n> ",
 			"settings":
 			{
-				"buffer_size": 4297,
-				"line_ending": "Unix"
-			}
-		},
-		{
-			"contents": "DN0a22ec81:strategicvoting tnowacki$ R\n\nR version 3.6.1 (2019-07-05) -- \"Action of the Toes\"\nCopyright (C) 2019 The R Foundation for Statistical Computing\nPlatform: x86_64-apple-darwin15.6.0 (64-bit)\n\nR is free software and comes with ABSOLUTELY NO WARRANTY.\nYou are welcome to redistribute it under certain conditions.\nType 'license()' or 'licence()' for distribution details.\n\n  Natural language support but running in an English locale\n\nR is a collaborative project with many contributors.\nType 'contributors()' for more information and\n'citation()' on how to cite R or R packages in publications.\n\nType 'demo()' for some demos, 'help()' for on-line help, or\n'help.start()' for an HTML browser interface to help.\nType 'q()' to quit R.\n\n> ",
-			"settings":
-			{
-				"buffer_size": 741,
+				"buffer_size": 20891,
 				"line_ending": "Unix",
 				"name": "Login Shell",
 				"scratch": true
@@ -267,6 +259,7 @@
 	],
 	"file_history":
 	[
+		"/Users/tnowacki/github/strategicvoting/code/random_starting_iterations_v2.R",
 		"/Users/tnowacki/Dropbox/coursework/ps450_d/pset1/450d_pset1_nowacki.rnw",
 		"/Users/tnowacki/Dropbox/Archive Study 2018-19/ps450c/pset3/450c_pset3_nowacki.rnw",
 		"/Users/tnowacki/Dropbox/coursework/ps450_d/pset1/450c_pset2_nowacki.rnw",
@@ -310,195 +303,8 @@
 	"groups":
 	[
 		{
-			"selected": 0,
 			"sheets":
 			[
-				{
-					"buffer": 0,
-					"file": "code/random_starting_iterations_v2.R",
-					"semi_transient": true,
-					"settings":
-					{
-						"buffer_size": 4297,
-						"regions":
-						{
-						},
-						"selection":
-						[
-							[
-								0,
-								0
-							]
-						],
-						"settings":
-						{
-							"SL.38.region_keys":
-							[
-							],
-							"bracket_highlighter.busy": false,
-							"bracket_highlighter.clone": 38,
-							"bracket_highlighter.clone_locations":
-							{
-								"close":
-								{
-								},
-								"icon":
-								{
-								},
-								"open":
-								{
-								},
-								"unmatched":
-								{
-								}
-							},
-							"bracket_highlighter.clone_regions":
-							[
-								"bh_square",
-								"bh_square_center",
-								"bh_square_open",
-								"bh_square_close",
-								"bh_square_content",
-								"bh_angle",
-								"bh_angle_center",
-								"bh_angle_open",
-								"bh_angle_close",
-								"bh_angle_content",
-								"bh_round",
-								"bh_round_center",
-								"bh_round_open",
-								"bh_round_close",
-								"bh_round_content",
-								"bh_single_quote",
-								"bh_single_quote_center",
-								"bh_single_quote_open",
-								"bh_single_quote_close",
-								"bh_single_quote_content",
-								"bh_regex",
-								"bh_regex_center",
-								"bh_regex_open",
-								"bh_regex_close",
-								"bh_regex_content",
-								"bh_unmatched",
-								"bh_unmatched_center",
-								"bh_unmatched_open",
-								"bh_unmatched_close",
-								"bh_unmatched_content",
-								"bh_c_define",
-								"bh_c_define_center",
-								"bh_c_define_open",
-								"bh_c_define_close",
-								"bh_c_define_content",
-								"bh_tag",
-								"bh_tag_center",
-								"bh_tag_open",
-								"bh_tag_close",
-								"bh_tag_content",
-								"bh_double_quote",
-								"bh_double_quote_center",
-								"bh_double_quote_open",
-								"bh_double_quote_close",
-								"bh_double_quote_content",
-								"bh_curly",
-								"bh_curly_center",
-								"bh_curly_open",
-								"bh_curly_close",
-								"bh_curly_content",
-								"bh_default",
-								"bh_default_center",
-								"bh_default_open",
-								"bh_default_close",
-								"bh_default_content"
-							],
-							"bracket_highlighter.locations":
-							{
-								"close":
-								{
-								},
-								"icon":
-								{
-								},
-								"open":
-								{
-								},
-								"unmatched":
-								{
-								}
-							},
-							"bracket_highlighter.regions":
-							[
-								"bh_square",
-								"bh_square_center",
-								"bh_square_open",
-								"bh_square_close",
-								"bh_square_content",
-								"bh_angle",
-								"bh_angle_center",
-								"bh_angle_open",
-								"bh_angle_close",
-								"bh_angle_content",
-								"bh_round",
-								"bh_round_center",
-								"bh_round_open",
-								"bh_round_close",
-								"bh_round_content",
-								"bh_single_quote",
-								"bh_single_quote_center",
-								"bh_single_quote_open",
-								"bh_single_quote_close",
-								"bh_single_quote_content",
-								"bh_regex",
-								"bh_regex_center",
-								"bh_regex_open",
-								"bh_regex_close",
-								"bh_regex_content",
-								"bh_unmatched",
-								"bh_unmatched_center",
-								"bh_unmatched_open",
-								"bh_unmatched_close",
-								"bh_unmatched_content",
-								"bh_c_define",
-								"bh_c_define_center",
-								"bh_c_define_open",
-								"bh_c_define_close",
-								"bh_c_define_content",
-								"bh_tag",
-								"bh_tag_center",
-								"bh_tag_open",
-								"bh_tag_close",
-								"bh_tag_content",
-								"bh_double_quote",
-								"bh_double_quote_center",
-								"bh_double_quote_open",
-								"bh_double_quote_close",
-								"bh_double_quote_content",
-								"bh_curly",
-								"bh_curly_center",
-								"bh_curly_open",
-								"bh_curly_close",
-								"bh_curly_content",
-								"bh_default",
-								"bh_default_center",
-								"bh_default_open",
-								"bh_default_close",
-								"bh_default_content"
-							],
-							"lsp_active": true,
-							"lsp_language":
-							{
-								"rlang": "r"
-							},
-							"show_definitions": false,
-							"syntax": "Packages/R/R.sublime-syntax",
-							"translate_tabs_to_spaces": false
-						},
-						"translation.x": 0.0,
-						"translation.y": 0.0,
-						"zoom_level": 1.0
-					},
-					"stack_index": 1,
-					"type": "text"
-				}
 			]
 		},
 		{
@@ -506,19 +312,19 @@
 			"sheets":
 			[
 				{
-					"buffer": 1,
+					"buffer": 0,
 					"semi_transient": false,
 					"settings":
 					{
-						"buffer_size": 741,
+						"buffer_size": 20891,
 						"regions":
 						{
 						},
 						"selection":
 						[
 							[
-								741,
-								741
+								20891,
+								20891
 							]
 						],
 						"settings":
@@ -541,6 +347,7 @@
 							"is_widget": true,
 							"scroll_past_end": true,
 							"syntax": "Packages/Text/Plain text.tmLanguage",
+							"terminus.highlight_counter": 420,
 							"terminus_view": true,
 							"terminus_view.args":
 							{
@@ -569,11 +376,11 @@
 							"terminus_view.natural_keyboard": true,
 							"terminus_view.panel_name": null,
 							"terminus_view.tag": null,
-							"terminus_view.viewport_y": 0.0,
+							"terminus_view.viewport_y": 9792.0,
 							"word_wrap": false
 						},
 						"translation.x": 0.0,
-						"translation.y": 0.0,
+						"translation.y": 9792.0,
 						"zoom_level": 1.0
 					},
 					"stack_index": 0,
@@ -615,7 +422,7 @@
 		"rows":
 		[
 			0.0,
-			0.5,
+			0.815562338292,
 			1.0
 		]
 	},
@@ -654,6 +461,10 @@
 		"last_filter": "",
 		"selected_items":
 		[
+			[
+				"",
+				"~/github/strategicvoting/default_work.sublime-workspace"
+			]
 		],
 		"width": 380.0
 	},
@@ -666,7 +477,7 @@
 		],
 		"width": 0.0
 	},
-	"selected_group": 1,
+	"selected_group": 0,
 	"settings":
 	{
 	},
