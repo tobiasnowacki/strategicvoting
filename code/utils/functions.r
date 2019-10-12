@@ -1126,7 +1126,7 @@ plot_v_vec_distance <- function(obj, filepath,
 	            width = 8,
 	            device = cairo_pdf)
 
-	plot_br_2 <- ggplot(br_dist %>% filter(iter > 0), aes(iter, l_avg)) +
+	plot_br_4 <- ggplot(br_dist %>% filter(iter > 0), aes(iter, l_avg)) +
 		geom_line(aes(group = case), alpha = 0.1) +
 		facet_wrap(. ~ system) +
 		labs(x = "Iteration", y = "Lagged Distance") +
@@ -1137,7 +1137,7 @@ plot_v_vec_distance <- function(obj, filepath,
 	            width = 8,
 	            device = cairo_pdf)
 
-	save(out, file = here(paste0(filepath, "v_vecs_br.Rdata")))
+	save(br_dist, file = here(paste0(filepath, "v_vecs_br.Rdata")))
 
 	# if(is.numeric(n_lag) == TRUE ){
 	# 	return(conv_dist_df)
