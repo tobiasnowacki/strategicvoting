@@ -181,12 +181,15 @@ for(lambda_val in l_choice){
 	  summary_stats <- get_sum_stats(cases_converge)
 	  # todo here: (a) correct weights (just weighted means)
 	  #        (b) produce averages across cases.
+  	  save(summary_stats, file = here(paste0(path_files, "summary_", lambda_val, "_", s_val, ".Rdata")))
+
 	  summary_stats_wide <- summary_stats %>% 
 	    gather(., key = "Statistic", 
 	           value = "Value", "Prevalence":"ExpBenefit")
 
+	  # weight by case weight
 	  summary_agg <- summary_stats_wide %>% group_by(iter, Statistic, System) %>%
-	    summarise(Value = mean(Value))
+	    summarise(Value = wtd.mean(Value, case_weight_tbl$case_weight))
 
 	  # Summary statistics
 	  ggplot(summary_stats_wide, aes(iter, Value)) +

@@ -159,18 +159,22 @@ ggsave(here("output/figs_v2/random_dist.pdf"),
 
 
 # print selected cases
-select_cases <- c("AUS_2013", "GBR_2015", "DEU_2005", "FRA_2012")
+select_cases <- tibble(case = c("AUS_2013", "GBR_2015", "DEU_2005", "FRA_2012"),
+	full_case = c("Australia (2013)", "United Kingdom (2015)", "Germany (2005)", "France (2012)"))
 
-ggtern(full_df %>% filter(case %in% select_cases), aes(V1 + V2, V3 + V4, V5 + V6)) +
+select_df <- full_df %>% 
+	right_join(select_cases) 
+
+ggtern(select_df, aes(V1 + V2, V3 + V4, V5 + V6)) +
 	geom_line(aes(group = interaction(rand_iter, partition)),
 		alpha = 0.1) +
-	geom_point(data = full_df %>% filter(case %in% select_cases & iter == 61),
+	geom_point(data = select_df %>% filter(iter == 61),
 		colour = "blue", alpha = 0.3, size = 1) +
-	geom_point(data = full_df %>% filter(case %in% select_cases & iter == 1),
+	geom_point(data = select_df %>% filter(iter == 1),
 		colour = "red", alpha = 0.3, size = 1) +
 	theme_sv() +
 	labs(x = "A", y = "B", z = "C") +
-	facet_wrap(. ~ case)
+	facet_wrap(. ~ full_case)
 ggsave(here("output/figs_v2/random_select.pdf"),
 	device = cairo_pdf,
 	height = 8,

@@ -771,6 +771,8 @@ many_iterations_until_convergence <- function(object, v_vec, lambda, s, thresh, 
     plur_v_vec_list <- list(v_vec)
     plur_br_v_vec <- list(v_vec)
 
+    w <- object$weights
+
     # RCV loop
     k_rcv <- 0
     epsilon_rcv <- 1
@@ -821,7 +823,8 @@ many_iterations_until_convergence <- function(object, v_vec, lambda, s, thresh, 
                 rcv_br = rcv_br_v_vec, 
                 plur_br = plur_br_v_vec,
                 rcv_convg = rcv_convg,
-                plur_convg = plur_convg))
+                plur_convg = plur_convg,
+                weights = w))
 }
 
 # This is a slimmed down version that only computes the v_vec path for RCV iterations.
@@ -1233,19 +1236,22 @@ non_conv_strat_votes <- function(obj, filepath, max_iter, all_df = FALSE){
 	return(vote_tab)
 }
 
+# TODO: 1. create list of cases and weights;
+# 2. add weighted means
 get_sum_stats <- function(obj){
 	list <- lapply(obj, function(x){
+		w <- x[[9]]
 		out <- list()
 		out[["irv"]] <- x[[1]] %>% 
 			group_by(iter) %>% 
-			summarise(Prevalence = mean(tau_rcv > 0), 
-			          Magnitude = mean(tau_rcv[tau_rcv > 0]), 
+			summarise(Prevalence = wtd.mean(tau_rcv > 0, w), 
+			          Magnitude = wtd.mean(tau_rcv[tau_rcv > 0], w[tau_rcv > 0]), 
 			          ExpBenefit = Prevalence * Magnitude,
 			          System = "IRV")
 		out[["plur"]] <- x[[3]] %>%	
 			group_by(iter) %>% 
-			summarise(Prevalence = mean(tau_plur > 0), 
-			          Magnitude = mean(tau_plur[tau_plur > 0]), 
+			summarise(Prevalence = wtd.mean(tau_plur > 0, w), 
+			          Magnitude = wtd.mean(tau_plur[tau_plur > 0], w[tau_plur > 0]), 
 			          ExpBenefit = Prevalence * Magnitude,
 			          System = "Plurality")
 		out <- do.call(rbind, out)

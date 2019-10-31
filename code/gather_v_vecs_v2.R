@@ -39,27 +39,27 @@ table(v_vec_df$params)
 # first: plot v_vec paths
 for(val in unique(v_vec_df$params)){
 	print(val)
-	sub_df <- v_vec_df %>% filter(params == val)
+	sub_df <- v_vec_df %>% filter(params == val & iter %in% c(1, 251)) %>% 
+		mutate(Iteration = ifelse(iter == 1, "First", "Last"))
 	ll <- substr(val, 4, 4)
 	ss <- substr(val, 1, 2)
 	figpath <- paste0("/output/figs_v2/", ll, "/", ss, "/v_vec_path_v2.pdf")
 	ggtern(sub_df, aes(V1 + V2, V3 + V4, V5 + V6)) +
 		geom_line(aes(group = interaction(case)),
 			alpha = 0.1) +
-		geom_point(data = sub_df %>% filter(iter == 1),
-			size = 0.7, 
-			colour = "red",
-			alpha = .2) +
-		geom_point(data = sub_df %>% filter(iter == 251),
-			size = 0.7, 
-			colour = "blue",
-			alpha = .2) +
+		geom_point(data = sub_df,
+			aes(colour = Iteration),
+			size = 1.2,
+			alpha = .5) +
 		facet_wrap(~ system) +
 		theme_sv() +
 		labs(x = "A", y = "B", z = "C") +
-		theme(panel.spacing = unit(0, "lines"),
-			plot.margin = unit(c(0.1, 0.1, 0.1, 0.1), "cm"))
-	ggsave(here(figpath), width = 8, height = 6,
+		scale_colour_manual(values = c("red", "blue")) +
+		theme(panel.spacing = unit(0, "cm"),
+			plot.margin = unit(c(0.1, 0.1, 0.1, 0.1), "cm"),
+			legend.position = "bottom",
+			legend.direction = "horizontal")
+	ggsave(here(figpath), width = 8, height = 3,
 		device = cairo_pdf)
 
 }

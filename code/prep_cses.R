@@ -14,4 +14,9 @@ for(i in 1:length(sin_vote_list)){
 big_list_na_omit[[39]] <- NULL
 big_list_na_omit[[144]] <- NULL
 
+case_weight_tbl <- tibble(case = names(big_list_na_omit),
+	cntry = substr(case, 1, 3)) %>%
+	inner_join(vap) %>% 
+	mutate(case_weight = VAP / Freq)
+
 cat("big_list_na_omit prepared. \n")
