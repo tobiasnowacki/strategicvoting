@@ -21,8 +21,6 @@ source(here("code/prep_cses.R")) 	# data prep
 cmd_line_args <- commandArgs(trailingOnly = TRUE)
 cat(cmd_line_args, sep = "n")
 
-start_time <- proc.time()
-
 s_list <- as.list(c(10, 25, 40, 55, 70, 85)) # precision (s)
 lambda_list <- as.list(c(0.05, 0.1, 0.01))	 # responsiveness ()
 epsilon_thresh <- 0.001						 # threshold (epsilon)
@@ -40,15 +38,12 @@ ifelse(length(cmd_line_args >= 2),
 ### RUN ITERATIONS
 
 # For loop over values of s
-save_out <- list()
 
 # for(lambda_val in 1:3){
 for(lambda_val in l_choice){
 	lambda <- lambda_list[[lambda_val]]
 
 	cat(paste0("=== Beginning loop for lambda == ", lambda, ". === \n"))
-
-	save_out[[lambda_val]] <- list()
 
 	# for(s_loop_val in c(1)){ 
 	for(s_loop_val in s_choice){ 
