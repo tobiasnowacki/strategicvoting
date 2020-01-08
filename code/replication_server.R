@@ -71,7 +71,7 @@ for(lambda_val in l_choice){
 
 	  cat("Done. \n")
 
-	  path <- paste0("output/figs_v2/", lambda_val, "/", s_val)
+	  path <- paste0("output/figures/", lambda_val, "/", s_val)
 	  path_files <- paste0("output/files/", lambda_val, "/", s_val)
 
 	  # name list obj
@@ -93,50 +93,6 @@ for(lambda_val in l_choice){
 	  joint_v_vec_plot(cases_converge, path)
 
 	  cat("v_vec paths plotted. \n")
-
-	  # rcv separate ones by non_convergence
-	  non_conv_v_vec_plot(cases_converge, path, max_iter_val)
-	  vote_tally <- non_conv_strat_votes(cases_converge, path, max_iter_val)
-	  save(vote_tally, file = here(paste0(path_files, "votetally_", lambda_val, "_", s_val, ".Rdata")))
-
-
-	  # rcv plot non_convergent
-	  unique_nc_cases <- unique(vote_tally$case)
-
-	  # re-label as votes
-	  vote_tally$sin_rcv <- recode(vote_tally$sin_rcv, "1" = "ABC", 
-	  	       			"2" = "ACB", 
-	  	       			"3" = "BAC", 
-	  	       			"4" = "BCA", 
-	  	       			"5" = "CAB", 
-	  	       			"6" = "CBA")
-
-	  vote_tally$opt_rcv <-	recode(vote_tally$opt_rcv, "1" = "ABC", 
-	  	       			"2" = "ACB", 
-	  	       			"3" = "BAC", 
-	  	       			"4" = "BCA", 
-	  	       			"5" = "CAB", 
-	  	       			"6" = "CBA")
-
-	  # plot non-convergent cases in detail
-	  for(i in unique_nc_cases){
-	    ggplot(vote_tally %>% filter(case == i), 
-	           aes(iter, freq)) +
-	      geom_line(aes(group = opt_rcv, colour = opt_rcv %>% as.factor)) +
-	      facet_grid(~ sin_rcv) +
-	      theme_sv() +
-	      labs(x = "Iteration",
-	           y = "Frequency", 
-	           colour = "Optimal Vote",
-	           title = i) +
-	      theme(legend.position = "bottom")
-	      ggsave(here(paste0(path, "/nc_", i, ".pdf")),
-	             device = cairo_pdf,
-	             width = 5,
-	             height = 5)
-	  }
-
-	  cat("non-convergent cases plotted. \n")
 
 	  # group expected benefit and the like
 	  summary_stats <- get_sum_stats(cases_converge)
@@ -175,7 +131,53 @@ for(lambda_val in l_choice){
 
 	  if(s_choice == 6 & l_choice == 1){
 
+	  	# rcv separate ones by non_convergence
+	  	non_conv_v_vec_plot(cases_converge, path, max_iter_val)
+	  	vote_tally <- non_conv_strat_votes(cases_converge, path, max_iter_val)
+	  	save(vote_tally, file = here(paste0(path_files, "votetally_", lambda_val, "_", s_val, ".Rdata")))
+
+
+	  	# rcv plot non_convergent
+	  	unique_nc_cases <- unique(vote_tally$case)
+
+	  	# re-label as votes
+	  	vote_tally$sin_rcv <- recode(vote_tally$sin_rcv, "1" = "ABC", 
+	  		       			"2" = "ACB", 
+	  		       			"3" = "BAC", 
+	  		       			"4" = "BCA", 
+	  		       			"5" = "CAB", 
+	  		       			"6" = "CBA")
+
+	  	vote_tally$opt_rcv <-	recode(vote_tally$opt_rcv, "1" = "ABC", 
+	  		       			"2" = "ACB", 
+	  		       			"3" = "BAC", 
+	  		       			"4" = "BCA", 
+	  		       			"5" = "CAB", 
+	  		       			"6" = "CBA")
+
+	  	# plot non-convergent cases in detail
+	  	for(i in unique_nc_cases){
+	  	  ggplot(vote_tally %>% filter(case == i), 
+	  	         aes(iter, freq)) +
+	  	    geom_line(aes(group = opt_rcv, colour = opt_rcv %>% as.factor)) +
+	  	    facet_grid(~ sin_rcv) +
+	  	    theme_sv() +
+	  	    labs(x = "Iteration",
+	  	         y = "Frequency", 
+	  	         colour = "Optimal Vote",
+	  	         title = i) +
+	  	    theme(legend.position = "bottom")
+	  	    ggsave(here(paste0(path, "/nc_", i, ".pdf")),
+	  	           device = cairo_pdf,
+	  	           width = 5,
+	  	           height = 5)
+	  	}
+
+	  	cat("non-convergent cases plotted. \n")
+
 	  	# Conjecture tests
+
+	  	cat("starting conjecture tests. \n")
 
 	  	# Prepare data
 	  	big_rcv_sum <- list()
@@ -290,6 +292,7 @@ for(lambda_val in l_choice){
 	  	# save conjdf
 	  	save(conjdf, file = here(paste0(path_files, "conjdf.Rdata")))
 
+	  	cat("plotting conjecture figures. \n")
 
 	  	# Pprobs plot (raw)
 	  	ggplot(conjdf, aes(x = iter)) +

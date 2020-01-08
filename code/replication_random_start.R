@@ -10,6 +10,8 @@ library(here)						# to get dir
 source(here("code/full_header.R")) 	# fn's and data
 source(here("code/prep_cses.R")) 	# data prep
 
+set.seed(01012020)
+
 names_vec <- names(big_list_na_omit)
 v_vec_list <- list()
 
@@ -27,7 +29,7 @@ cl <- makeCluster(7)
 registerDoParallel(cl)
 
 # For loop -- every iteration is a random vvec
-out <- foreach(rand_iter = 1:2,
+out <- foreach(rand_iter = 1:100,
                .packages = c("gtools", "stringr", "tidyverse")
                ) %dopar% {
 	prec <- 85
@@ -48,23 +50,15 @@ stopCluster(cl)
 
 cat("Done.")
 
-save.image(here("output/files/test.Rdata"))
+save.image(here("output/files/random_v_vecs.Rdata"))
 # ---
 
 # load and put together into one DF
-# todo: automate / make this generic
-file_names <- c("4", "31", "37", "38", "40", "51", "60", "63", "65", "95")
-merge_list <- list()
-for(name in file_names){
-	load(here(paste0("output/files/test_", name, ".Rdata")))
-	for(i in 1:length(out)){
-		out[[i]] <- do.call(rbind, out[[i]])
-		names(out[[i]])[7:10] <- c("case", "system", "iter", "rand_iter")
-	}
-	full_df <- do.call(rbind, out) %>% mutate(partition = name)
-	merge_list[[name]] <- full_df
+for(i in 1:length(out)){
+	out[[i]] <- do.call(rbind, out[[i]])
+	names(out[[i]])[7:10] <- c("case", "system", "iter", "rand_iter")
 }
-full_df <- do.call(rbind, merge_list)
+full_df <- do.call(rbind, out) %>% mutate(partition = name)
 
 # load baseline case and put into one table
 load(here("output/files/1/85v_vecs_1_85.Rdata"))
@@ -106,7 +100,7 @@ for(j in names_vec){
 	theme_sv() +
 	labs(x = "Iteration", 
 		y = "Distance to voteshare at 250th (baseline)")
-	ggsave(here(paste0("output/figs_v2/algconv/", j, ".pdf")),
+	ggsave(here(paste0("output/figsures/algconv/", j, ".pdf")),
 	device = cairo_pdf)
 }
 
@@ -119,7 +113,7 @@ theme_sv() +
 labs(x = "Iteration", 
 	y = "Distance to voteshare at 250th (baseline)") +
 facet_wrap(~ case)
-ggsave(here("output/figs_v2/algconv/joint.pdf"),
+ggsave(here("output/figures/algconv/joint.pdf"),
 device = cairo_pdf)
 
 # summarise quantiles and plot
@@ -140,7 +134,7 @@ ggplot(quant_df, aes(x = iter)) +
 	theme(legend.position = "bottom") +
 	guides(colour = guide_legend(override.aes = list(alpha = 1)))
 
-ggsave(here("output/figs_v2/algconv/quantile_summary.pdf"),
+ggsave(here("output/figures/algconv/quantile_summary.pdf"),
 	device = cairo_pdf)
 
 
@@ -153,7 +147,7 @@ ggplot(dist_df, aes(case, base_d)) +
 	theme_sv() +
 	theme(axis.text.y = element_text(size = rel(0.5))) +
 	labs(x = "Distances to baseline case", y = "Case")
-ggsave(here("output/figs_v2/random_dist.pdf"),
+ggsave(here("output/figures/random_dist.pdf"),
 	device = cairo_pdf,
 	height = 14,
 	width = 6)
@@ -176,7 +170,7 @@ ggtern(select_df, aes(V1 + V2, V3 + V4, V5 + V6)) +
 	theme_sv() +
 	labs(x = "A", y = "B", z = "C") +
 	facet_wrap(. ~ full_case)
-ggsave(here("output/figs_v2/random_select.pdf"),
+ggsave(here("output/figures/random_select.pdf"),
 	device = cairo_pdf,
 	height = 8,
 	width = 8)
