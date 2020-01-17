@@ -18,7 +18,7 @@ s_list <- as.list(c(10, 25, 40, 55, 70, 85)) # precision (s)
 lambda_list <- as.list(c(0.05, 0.1, 0.01))	 # responsiveness ()
 epsilon_thresh <- 0.001						 # threshold (epsilon)
 max_iter_val <- 250							 # no of iterations
-which_cases <- 1:160						 # which cases?
+which_cases <- 1:160					 # which cases?
 
 ifelse(length(cmd_line_args >= 1),
        s_choice <- as.numeric(cmd_line_args[1]),
@@ -30,18 +30,12 @@ ifelse(length(cmd_line_args >= 2),
 ### ---
 ### RUN ITERATIONS
 
-# For loop over values of s
-save_out <- list()
-
 # for(lambda_val in 1:3){
 for(lambda_val in l_choice){
 	lambda <- lambda_list[[lambda_val]]
 
 	cat(paste0("=== Beginning loop for lambda == ", lambda, ". === \n"))
 
-	save_out[[lambda_val]] <- list()
-
-	# for(s_loop_val in c(1)){ 
 	for(s_loop_val in s_choice){ 
 
 	  s_val <- s_list[[s_loop_val]]
@@ -50,7 +44,8 @@ for(lambda_val in l_choice){
 
 	  cat("Running parallel iterations. \n")
 
-	  cl <- makeCluster(6)
+	  clno <- detectCores()
+	  cl <- makeCluster(clno)
 	  registerDoParallel(cl)
 	  # parallelise
 	  cases_converge <- foreach(case = which_cases, 
@@ -140,37 +135,41 @@ for(lambda_val in l_choice){
 	  	# rcv plot non_convergent
 	  	unique_nc_cases <- unique(vote_tally$case)
 
-	  	# re-label as votes
-	  	vote_tally$sin_rcv <- recode(vote_tally$sin_rcv, "1" = "ABC", 
-	  		       			"2" = "ACB", 
-	  		       			"3" = "BAC", 
-	  		       			"4" = "BCA", 
-	  		       			"5" = "CAB", 
-	  		       			"6" = "CBA")
+	  	if(!is.null(vote_tally)){
 
-	  	vote_tally$opt_rcv <-	recode(vote_tally$opt_rcv, "1" = "ABC", 
-	  		       			"2" = "ACB", 
-	  		       			"3" = "BAC", 
-	  		       			"4" = "BCA", 
-	  		       			"5" = "CAB", 
-	  		       			"6" = "CBA")
+		  	# re-label as votes
+		  	vote_tally$sin_rcv <- recode(vote_tally$sin_rcv, "1" = "ABC", 
+		  		       			"2" = "ACB", 
+		  		       			"3" = "BAC", 
+		  		       			"4" = "BCA", 
+		  		       			"5" = "CAB", 
+		  		       			"6" = "CBA")
 
-	  	# plot non-convergent cases in detail
-	  	for(i in unique_nc_cases){
-	  	  ggplot(vote_tally %>% filter(case == i), 
-	  	         aes(iter, freq)) +
-	  	    geom_line(aes(group = opt_rcv, colour = opt_rcv %>% as.factor)) +
-	  	    facet_grid(~ sin_rcv) +
-	  	    theme_sv() +
-	  	    labs(x = "Iteration",
-	  	         y = "Frequency", 
-	  	         colour = "Optimal Vote",
-	  	         title = i) +
-	  	    theme(legend.position = "bottom")
-	  	    ggsave(here(paste0(path, "/nc_", i, ".pdf")),
-	  	           device = cairo_pdf,
-	  	           width = 5,
-	  	           height = 5)
+		  	vote_tally$opt_rcv <-	recode(vote_tally$opt_rcv, "1" = "ABC", 
+		  		       			"2" = "ACB", 
+		  		       			"3" = "BAC", 
+		  		       			"4" = "BCA", 
+		  		       			"5" = "CAB", 
+		  		       			"6" = "CBA")
+
+		  	# plot non-convergent cases in detail
+		  	for(i in unique_nc_cases){
+		  	  ggplot(vote_tally %>% filter(case == i), 
+		  	         aes(iter, freq)) +
+		  	    geom_line(aes(group = opt_rcv, colour = opt_rcv %>% as.factor)) +
+		  	    facet_grid(~ sin_rcv) +
+		  	    theme_sv() +
+		  	    labs(x = "Iteration",
+		  	         y = "Frequency", 
+		  	         colour = "Optimal Vote",
+		  	         title = i) +
+		  	    theme(legend.position = "bottom")
+		  	    ggsave(here(paste0(path, "/nc_", i, ".pdf")),
+		  	           device = cairo_pdf,
+		  	           width = 5,
+		  	           height = 5)
+		  	}
+
 	  	}
 
 	  	cat("non-convergent cases plotted. \n")
@@ -183,11 +182,11 @@ for(lambda_val in l_choice){
 	  	big_rcv_sum <- list()
 	  	big_plur_sum <- list()
 	  	for(i in which_cases){
-	  		mini_list1 <- cases_converge[[i]][[1]]
+	  		mini_list1 <- cases_converge[[i]][[1]] %>% filter(iter < 61)
 	  		mini_list1$case <- names(big_list_na_omit)[i]
 	  		mini_list1$system <- "IRV"
 	  		big_rcv_sum[[i]] <- mini_list1
-	  		mini_list2 <- cases_converge[[i]][[3]]
+	  		mini_list2 <- cases_converge[[i]][[3]] %>% filter(iter < 61)
 	  		mini_list2$case <- names(big_list_na_omit)[i]
 	  		mini_list2$system <- "Plurality"
 	  		big_plur_sum[[i]] <- mini_list2

@@ -10,55 +10,18 @@ library(here)						# to get dir
 source(here("code/full_header.R")) 	# fn's and data
 source(here("code/prep_cses.R")) 	# data prep
 
-set.seed(01012020)
-
-names_vec <- names(big_list_na_omit)
-v_vec_list <- list()
-
-uniform_ternary <- rdirichlet(100, rep(1, 6))
-
-# Set up lists.
-big_rcv_sum_sense <- list()
-big_rcv_vec_sense <- list()
-
-# Set up parameters.
-lambda <- 0.05
-s_val <- 85
-
-cl <- makeCluster(7)
-registerDoParallel(cl)
-
-# For loop -- every iteration is a random vvec
-out <- foreach(rand_iter = 1:100,
-               .packages = c("gtools", "stringr", "tidyverse")
-               ) %dopar% {
-	prec <- 85
-	s_val <- 85
-	cat(paste0("\n === starting point = ", rand_iter, " =============== \n"))
-	rcv_vec <- list()
-	rand_v_vec <- uniform_ternary[rand_iter, ] %>% as.numeric
-	for (case in 1:160) {
-	    cat(paste0(case, ": ", names(big_list_na_omit)[case], "   "))
-	    out <- many_iterations_rcv_only_light(big_list_na_omit[[case]], rand_v_vec, lambda, s_val, 60)
-	    rcv_vec[[case]] <- cbind(out, names(big_list_na_omit)[[case]],
-	                       "IRV", 
-	                       1:61, rand_iter)
+file_names <- 1:10 %>% as.character
+merge_list <- list()
+for(name in file_names){
+	load(here(paste0("output/files/random_", name, ".Rdata")))
+	for(i in 1:length(out)){
+		out[[i]] <- do.call(rbind, out[[i]])
+		names(out[[i]])[7:10] <- c("case", "system", "iter", "rand_iter")
 	}
-	rcv_vec
+	full_df <- do.call(rbind, out) %>% mutate(partition = name)
+	merge_list[[name]] <- full_df
 }
-stopCluster(cl)
-
-cat("Done.")
-
-save.image(here("output/files/random_v_vecs.Rdata"))
-# ---
-
-# load and put together into one DF
-for(i in 1:length(out)){
-	out[[i]] <- do.call(rbind, out[[i]])
-	names(out[[i]])[7:10] <- c("case", "system", "iter", "rand_iter")
-}
-full_df <- do.call(rbind, out) %>% mutate(partition = name)
+full_df <- do.call(rbind, merge_list)
 
 # load baseline case and put into one table
 load(here("output/files/1/85v_vecs_1_85.Rdata"))
@@ -100,7 +63,7 @@ for(j in names_vec){
 	theme_sv() +
 	labs(x = "Iteration", 
 		y = "Distance to voteshare at 250th (baseline)")
-	ggsave(here(paste0("output/figsures/algconv/", j, ".pdf")),
+	ggsave(here(paste0("output/figures/algconv/", j, ".pdf")),
 	device = cairo_pdf)
 }
 
