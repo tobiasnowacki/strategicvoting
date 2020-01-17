@@ -43,7 +43,7 @@ for(val in unique(v_vec_df$params)){
 		mutate(Iteration = ifelse(iter == 1, "First", "Last"))
 	ll <- substr(val, 4, 4)
 	ss <- substr(val, 1, 2)
-	figpath <- paste0("/output/figures/", ll, "/", ss, "/v_vec_path_v2.pdf")
+	figpath <- paste0("output/figures/", ll, "/", ss, "/v_vec_path_v2.pdf")
 	ggtern(sub_df, aes(V1 + V2, V3 + V4, V5 + V6)) +
 		geom_line(aes(group = interaction(case)),
 			alpha = 0.1) +
@@ -52,15 +52,14 @@ for(val in unique(v_vec_df$params)){
 			size = 1.2,
 			alpha = .5) +
 		facet_wrap(~ system) +
-		theme_sv() +
+		#theme_sv() +
 		labs(x = "A", y = "B", z = "C") +
 		scale_colour_manual(values = c("red", "blue")) +
 		theme(panel.spacing = unit(0, "cm"),
 			plot.margin = unit(c(0.1, 0.1, 0.1, 0.1), "cm"),
 			legend.position = "bottom",
 			legend.direction = "horizontal")
-	ggsave(here(figpath), width = 8, height = 3,
-		device = cairo_pdf)
+	ggsave(here(figpath), width = 8, height = 3)
 
 }
 
@@ -136,8 +135,7 @@ ggplot(irv_d %>% filter(!(s == "s = 85" & lambda == "lambda = 0.05")),
 		fill = "After ... iterations") +
 	theme(legend.position = "bottom",
 		legend.direction = "horizontal")
-ggsave(here("output/figures/distance_to_baseline.pdf"),
-	device = cairo_pdf)
+ggsave(here("output/figures/distance_to_baseline.pdf"))
 
 # third: compare distances between 250th iterations for each case, conditional on s.
 # effectively just modified code from above (not great, need to fix in the future)
@@ -201,6 +199,5 @@ ggplot(irv_d %>% filter(!lambda == "lambda = 0.05"),
 		fill = "After ... iterations") +
 	theme(legend.position = "bottom",
 		legend.direction = "horizontal")
-ggsave(here("output/figures/distance_to_baseline_by_s.pdf"),
-	device = cairo_pdf)
+ggsave(here("output/figures/distance_to_baseline_by_s.pdf"))
 

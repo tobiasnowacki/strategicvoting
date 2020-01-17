@@ -2,7 +2,7 @@ library(ggplot2)
 
 # Define ggplot theme
 theme_sv <- function(){
-  theme_bw(base_size=11, base_family="Roboto Light") %+replace%
+  theme_bw(base_size=11) %+replace%
   theme(
     panel.grid.major =  element_line(
       colour = "grey50",
@@ -12,9 +12,9 @@ theme_sv <- function(){
     panel.background = element_rect(fill = "grey97"),
     plot.margin = unit(c(0.2, 1, 0.2, 1), "cm"),
     legend.margin = margin(0, 0, 0, 0),
-    legend.title = element_text(size = 10, family = "Roboto Medium", face = "bold"),
+    legend.title = element_text(size = 10, face = "bold"),
     strip.background = element_rect(fill= NULL, colour = "white", linetype = NULL),
-    strip.text = element_text(colour = 'grey50', size = 9, vjust = 0.5, family = "Roboto Medium")
+    strip.text = element_text(colour = 'grey50', size = 9, vjust = 0.5)
   )
 }
 
