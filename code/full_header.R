@@ -1,18 +1,19 @@
 # List of packages required for this script
-requiredPackages <- c("here", 
+requiredPackages <- c(#"here", 
                       "ggplot2",
-                      "ggtern",
+                      # "ggtern",
                       "dplyr", 
                       "purrr", 
                       "tidyr", 
                       "lmtest", 
                       "sandwich", 
                       "plm", 
+                      "devtools",
                       "extrafont", 
                       "RColorBrewer", 
                       "boot", 
                       "svMisc", 
-                      "ggtern", 
+                      # "ggtern", 
                       "reldist", 
                       "gridExtra", 
                       "ggpubr", 
@@ -24,7 +25,7 @@ requiredPackages <- c("here",
 ipak <- function(pkg){
         new.pkg <- pkg[!(pkg %in% installed.packages()[, "Package"])]
         if (length(new.pkg))
-                install.packages(new.pkg, 
+                install.packagess(new.pkg, 
                                  dependencies = TRUE,
                                  repos='http://cran.us.r-project.org')
         suppressMessages(sapply(pkg, require, 
@@ -33,6 +34,10 @@ ipak <- function(pkg){
 
 # Load packages.
 ipak(requiredPackages)
+
+# Load AE pivotprobs
+# devtools::install_github("aeggers/pivotprobs", force = TRUE)
+library(pivotprobs)
 
 cat("Packages loaded. \n")
 

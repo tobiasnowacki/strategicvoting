@@ -105,7 +105,7 @@ outcome_mat_from_utility = function(utility, piv.events = c("AB", "AC", "BC", "A
 	out[piv.events, ballots]
 }
 
-P_mat_at_pivotal_events = function(piv_probs, piv.events = c("AB", "AC", "BC", "AB.AB", "AB.AC", "AB.CB", "AC.AC", "AC.BC", "AC.AB", "BC.BC", "BC.AC", "BC.BA"), ballots = c("AB", "AC", "BA", "BC", "CA", "CB"), candidates = c("A", "B", "C"), rule = "AV", normalize = T){
+P_mat_at_pivotal_events = function(piv_probs, piv.events = c("AB", "AC", "BC", "AB.AB", "AB.AC", "AB.CB", "AC.AC", "AC.BC", "AC.AB", "BC.BC", "BC.AC", "BC.BA"), ballots = c("AB", "AC", "BA", "BC", "CA", "CB"), candidates = c("A", "B", "C"), rule = "AV", normalize = FALSE){
 	# we want to make a K x B matrix: probability of each candidate being elected given each ballot, focusing only on pivotal events.
 	# in other words, the output of this function tells you the probability of each candidate being elected given each ballot, in expectation, conditioning on being pivotal if we normalize. 
 
@@ -161,7 +161,7 @@ P_mat_at_pivotal_events = function(piv_probs, piv.events = c("AB", "AC", "BC", "
 	colnames(out) = ballots
 	rownames(out) = candidates
 	# normalize -- this makes it conditional on pivotal events.
-	if(normalize){
+	if(normalize == TRUE){
 	  for(j in 1:ncol(out)){
 	    out[,j] = out[,j]/sum(out[,j])
 	  }
