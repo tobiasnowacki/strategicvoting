@@ -58,7 +58,8 @@ for(val in unique(v_vec_df$params)){
 		theme(panel.spacing = unit(0, "cm"),
 			plot.margin = unit(c(0.1, 0.1, 0.1, 0.1), "cm"),
 			legend.position = "bottom",
-			legend.direction = "horizontal")
+			legend.direction = "horizontal") +
+		theme_sv()
 	ggsave(here(figpath), width = 8, height = 3)
 
 }

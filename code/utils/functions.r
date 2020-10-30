@@ -400,12 +400,12 @@ convert_andy_to_sv_item <- function(list_item, s, v_vec){
 
 # write new function in terms of level_two_props_cases
 # need to re-write this
-convert_andy_to_sv_item_two <- function(U, w, s, v_vec){ 
+convert_andy_to_sv_item_two <- function(U, w, s, v_vec, ae = TRUE){ 
   # Generates sv object from Andy's function and converts it into my data structure -- much faster!
 	n_obs <- nrow(U)
-  out_rcv <- sv(U = U, weights = w, s = s, rule = "AV", v.vec = v_vec)
+  out_rcv <- sv(U = U, weights = w, s = s, rule = "AV", v.vec = v_vec, ae_pack = ae)
   v_vec_plur <- c(v_vec[1] + v_vec[2], v_vec[3] + v_vec[4], v_vec[5] + v_vec[6])
-  out_plur <- sv(U = U, weights = w, s = s, v.vec = v_vec_plur)
+  out_plur <- sv(U = U, weights = w, s = s, v.vec = v_vec_plur, ae_pack = ae)
   psum_rcv <- sum(unlist(out_rcv$piv.probs))
 	rcvpp_col <- matrix(unlist(out_rcv$piv.probs), nrow = n_obs, ncol = 12, byrow = T, dimnames = list(NULL, names(unlist(out_rcv$piv.probs))))
   psum_plur <- sum(unlist(out_plur$piv.probs))
@@ -428,7 +428,7 @@ convert_andy_to_sv_item_two <- function(U, w, s, v_vec){
   # opt_plur <- out_plur$opt.votes.strategic
   s <- rep(s, nrow(U))
   df <- as.data.frame(cbind(sin_rcv, sin_plur, tau_rcv, tau_plur, tau_tilde_rcv, tau_tilde_plur, opt_rcv, opt_plur, s, rcvpp_col, plurpp_col, w, eu_mat_rcv, eu_mat_plur, U))
-  return(df)
+  return(list(df, out_plur$p.mat, out_plur$piv.probs))
 }
 
 	
@@ -712,10 +712,12 @@ iteration_wrapper <- function(object, v_vec, lambda, s, k){
 
 ## NEW VERSION AS OF MAY 2019
 
-one_iteration <- function(object, v_vec, lambda, s){
+one_iteration <- function(object, v_vec, lambda, s, ae){
   obj <- object
-  tab <- convert_andy_to_sv_item_two(obj$U, obj$weights, s, v_vec)
-
+  tab <- convert_andy_to_sv_item_two(obj$U, obj$weights, s, v_vec, ae)
+  tabmat = tab[[2]]
+  tabpiv = tab[[3]]
+  tab = tab[[1]]
   strat_vec_rcv <- wtd.table(x = factor(tab$opt_rcv, 1:6),
                              weights = obj$weights) %>%
   								as.numeric
@@ -733,7 +735,9 @@ one_iteration <- function(object, v_vec, lambda, s){
               rcv_vec = new_vec_rcv,
               rcv_best_response = strat_vec_rcv,
               plur_vec = new_vec_plur,
-              plur_best_response = strat_vec_plur))
+              plur_best_response = strat_vec_plur,
+          	  p_mat = tabmat,
+          	  p_pr = tabpiv))
 }
 
 many_iterations <- function(object, v_vec, lambda, s, k){
@@ -763,13 +767,16 @@ many_iterations <- function(object, v_vec, lambda, s, k){
     return(list(rcv_sum, rcv_v_vec, plur_sum, plur_v_vec))
 }
 
-many_iterations_until_convergence <- function(object, v_vec, lambda, s, thresh, max_iter){
+many_iterations_until_convergence <- function(object, v_vec, lambda, s, thresh, max_iter, ae){
     rcv_df_list <- list()
     rcv_v_vec_list <- list(v_vec)
     rcv_br_v_vec <- list(v_vec)
     plur_df_list <- list()
     plur_v_vec_list <- list(v_vec)
     plur_br_v_vec <- list(v_vec)
+    plur_out_pmat_list <- list()
+    plur_out_prob_list <- list()
+
 
     w <- object$weights
 
@@ -779,7 +786,7 @@ many_iterations_until_convergence <- function(object, v_vec, lambda, s, thresh, 
     thresh_ind <- 0
     while (k_rcv < max_iter) {
        k_rcv <- k_rcv + 1	
-       out <- one_iteration(object, rcv_v_vec_list[[k_rcv]], lambda, s)
+       out <- one_iteration(object, rcv_v_vec_list[[k_rcv]], lambda, s, ae)
        rcv_df_list[[k_rcv]] <- out$df %>% mutate(iter = k_rcv, 
                                                  converged = thresh_ind)
        rcv_v_vec_list[[k_rcv + 1]] <- out$rcv_vec
@@ -801,11 +808,13 @@ many_iterations_until_convergence <- function(object, v_vec, lambda, s, thresh, 
     # Plurality loop
     while (k_plur < max_iter) {
        k_plur <- k_plur + 1	
-       out <- one_iteration(object, plur_v_vec_list[[k_plur]], lambda, s)
+       out <- one_iteration(object, plur_v_vec_list[[k_plur]], lambda, s, ae)
        plur_df_list[[k_plur]] <- out$df %>% mutate(iter = k_plur,
                                                    converged = thresh_ind)
        plur_v_vec_list[[k_plur + 1]] <- out$plur_vec
        plur_br_v_vec[[k_plur + 1]] <- out$plur_best_response
+       plur_out_pmat_list[[k_plur]] <- out$p_mat
+       plur_out_prob_list[[k_plur]] <- out$p_pr
        epsilon_plur <- sqrt(sum((plur_v_vec_list[[k_plur + 1]] - plur_br_v_vec[[k_plur + 1]])^2))
        if(epsilon_plur < thresh){
        	thresh_ind <- 1
@@ -824,7 +833,9 @@ many_iterations_until_convergence <- function(object, v_vec, lambda, s, thresh, 
                 plur_br = plur_br_v_vec,
                 rcv_convg = rcv_convg,
                 plur_convg = plur_convg,
-                weights = w))
+                weights = w,
+            	p_mat_list = plur_out_pmat_list,
+            	p_pr_list = plur_out_prob_list))
 }
 
 # This is a slimmed down version that only computes the v_vec path for RCV iterations.

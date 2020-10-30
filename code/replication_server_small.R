@@ -17,18 +17,57 @@ start_time <- proc.time()
 s_list <- as.list(c(10, 25, 40, 55, 70, 85)) # precision (s)
 lambda_list <- as.list(c(0.05, 0.1, 0.01))	 # responsiveness ()
 epsilon_thresh <- 0.001						 # threshold (epsilon)
-max_iter_val <- 250							 # no of iterations
+max_iter_val <- 40					 # no of iterations
 which_cases <- 1:160					 # which cases?
 
-ifelse(length(cmd_line_args >= 1),
-       s_choice <- as.numeric(cmd_line_args[1]),
-       s_choice <- 6)
-ifelse(length(cmd_line_args >= 2),
-       l_choice <- as.numeric(cmd_line_args[2]),
-       l_choice <- 1)
+s_choice = 6
+l_choice = 1
+
+# ifelse(length(cmd_line_args >= 1),
+#        s_choice <- as.numeric(cmd_line_args[1]),
+#        s_choice <- 6)
+# ifelse(length(cmd_line_args >= 2),
+#        l_choice <- as.numeric(cmd_line_args[2]),
+#        l_choice <- 1)
 
 ### ---
 ### RUN ITERATIONS
+
+# test_vec = big_list_na_omit[[1]]$v_vec
+# test_3 = c(test_vec[1] + test_vec[2], test_vec[3] + test_vec[4], test_vec[5] + test_vec[6])
+
+# test1 = sv(big_list_na_omit[[1]]$U, v.vec = test_vec, s = 85, rule = "AV")
+# test1
+
+# test2 = sv(big_list_na_omit[[1]]$U, v.vec = test_3, s = 85, ae_pack = FALSE)
+# str(test1)
+# str(test2)
+
+# colSums(test1$V.mat)
+# colSums(test2$V.mat)
+
+# plot(density(test2$tau))
+
+# test_old = one_iteration(big_list_na_omit[[1]], 
+#                      big_list_na_omit[[1]]$v_vec, 0.05, 85)
+
+# head(test[[1]])
+
+# plot(density(test[[1]]$tau_plur))
+# plot(density(test[[1]]$tau_rcv))
+# plot(density(test_old[[1]]$tau_rcv))
+# plot(density(test_old[[1]]$tau_plur))
+
+# plot(density(test[[1]]$tau_rcv / test[[1]]$tau_plur))
+# plot(density(test_old[[1]]$tau_rcv / test_old[[1]]$tau_plur))
+
+
+
+# test[[4]]
+# test_old[[4]]
+# head(test)
+
+# names(test$plur_best_response)
 
 # for(lambda_val in 1:3){
 for(lambda_val in l_choice){
@@ -47,6 +86,24 @@ for(lambda_val in l_choice){
 	  clno <- detectCores()
 	  cl <- makeCluster(clno)
 	  registerDoParallel(cl)
+	  # parallelise
+	  # cases_converge_1 <- foreach(case = which_cases, 
+	  #             .packages = c("gtools", "stringr", "tidyverse", "pivotprobs",
+	  #                           "questionr")
+	  #             ) %dopar% {
+	  #             out <- many_iterations_until_convergence(
+	  #                   big_list_na_omit[[case]], 
+	  #                   big_list_na_omit[[case]]$v_vec, 
+	  #                   lambda, 
+	  #                   s_val, 
+	  #                   epsilon_thresh, 
+	  #                   max_iter_val, ae = TRUE)
+	  #             out
+	  # }
+
+
+	  # cat("Second code base. \n")
+
 	  # parallelise
 	  cases_converge <- foreach(case = which_cases, 
 	              .packages = c("gtools", "stringr", "tidyverse", "pivotprobs",
@@ -67,34 +124,35 @@ for(lambda_val in l_choice){
 	  cat("Done. \n")
 
 	  path <- paste0("output/figures/", lambda_val, "/", s_val)
-	  path_files <- paste0("output/files/", lambda_val, "/", s_val)
+	  # path_files <- paste0("output/files/", lambda_val, "/", s_val)
 
-	  # name list obj
+	  # # name list obj
 	  names(cases_converge) <- names(big_list_na_omit)[which_cases]
+	  # names(cases_converge_1) <- names(big_list_na_omit)[which_cases]
 
-	  # save v_vec paths somewhere...
+	  # # save v_vec paths somewhere...
 	  out <- lapply(cases_converge, function(x) x[c(2, 4)])
-	  save(out, file = here(paste0(path_files, "v_vecs_", lambda_val, "_", s_val, ".Rdata")))
-	  cat("Saved v_vecs!")
+	  # save(out, file = here(paste0(path_files, "v_vecs_", lambda_val, "_", s_val, ".Rdata")))
+	  # cat("Saved v_vecs!")
 
-	  # produce iteration plot(s)
+	  # # produce iteration plot(s)
 	  # plot_v_vec_distance(cases_converge, path, 
-	                                  # n_lag = 20, 
-	                                  # avg_span = 10)
+	  #                                 n_lag = 20, 
+	  #                                 avg_span = 10)
 
-	  cat("v_vec distance plotted: complete. \n")
+	  # cat("v_vec distance plotted: complete. \n")
 
-	  # produce v_vec path plot(s)
+	  # # produce v_vec path plot(s)
 	  # joint_v_vec_plot(cases_converge, path)
 
-	  cat("v_vec paths plotted. \n")
+	  # cat("v_vec paths plotted. \n")
 
-	  # group expected benefit and the like
+	  # # group expected benefit and the like
 	  summary_stats <- get_sum_stats(cases_converge)
+	  # summary_stats_old = summary_stats
 	  # todo here: (a) correct weights (just weighted means)
 	  #        (b) produce averages across cases.
-  	  save(summary_stats, file = here(paste0(path_files, "summary_", lambda_val, "_", s_val, ".Rdata")))
-
+  	  # save(summary_stats, file = here(paste0(path_files, "summary_", lambda_val, "_", s_val, ".Rdata")))
 	  summary_stats_wide <- summary_stats %>% 
 	    gather(., key = "Statistic", 
 	           value = "Value", "Prevalence":"ExpBenefit")
@@ -122,7 +180,7 @@ for(lambda_val in l_choice){
 	  ggsave(here(paste0(path, "/main_results.pdf")), 
 	         device = cairo_pdf)
 
-	  cat("Summary statistics plotted. \n")
+	  # cat("Summary statistics plotted. \n")
 
 	  # if(s_choice == 6 & l_choice == 1){
 
@@ -322,4 +380,57 @@ for(lambda_val in l_choice){
 
 	}
 }
+
+# cases_converge[[1]]$plur_v_vec[2, ]
+# cases_converge_1[[1]]$plur_v_vec[2, ]
+
+# cases_converge[[1]]$p_pr_list[[2]]
+# cases_converge_1[[1]]$p_pr_list[[2]]
+
+# cases_converge[[1]]$p_mat_list[2]
+# cases_converge_1[[1]]$p_mat_list[2]
+
+# cases_converge[[1]]$plur_v_vec[60, ]
+# cases_converge_1[[1]]$plur_v_vec[60, ]
+
+# cases_converge[[1]]$p_pr_list[[60]]
+# cases_converge[[1]]$p_pr_list[[100]]
+# cases_converge_1[[1]]$p_pr_list[[60]]
+# cases_converge_1[[1]]$p_pr_list[[100]]
+
+# piv_prob_1 = map(cases_converge[[1]]$p_pr_list, ~ .x[["AB"]]) %>% unlist
+# piv_prob_2 = map(cases_converge_1[[1]]$p_pr_list, ~ .x[["AB"]]) %>%
+# 	unlist
+
+# AB_prob_tibble = tibble(iter = 1:150, 
+#                         old = piv_prob_1, 
+#                         new = piv_prob_2) %>%
+# 	pivot_longer(old:new)
+
+# ggplot(AB_prob_tibble, aes(iter, value)) +
+# 	geom_line(aes(colour = name))
+# ggsave("output/figures/piv_prob_analytics.pdf")
+
+
+# (cases_converge[[1]]$p_mat_list[100])[[1]] 
+# (cases_converge_1[[1]]$p_mat_list[60])[[1]] / 2
+
+# cases_converge_old = cases_converge
+# out_old = out
+# summary_stats_old = summary_stats
+
+# head(summary_stats_old)
+# head(summary_stats)
+
+# head(summary_stats_old %>% filter(System == "Plurality"))
+# head(summary_stats %>% filter(System == "Plurality"))
+
+# cases_converge[[1]][[1]] %>% head
+# cases_converge_old[[1]][[1]] %>% head
+
+# out[[1]][[2]][39:49, ]
+# out_old[[1]][[2]][39:49, ]
+
+# str(summary_stats)
+
 
