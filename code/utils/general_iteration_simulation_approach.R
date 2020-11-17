@@ -14,25 +14,25 @@ source(here("code", "utils", "plurality_pivotal_probabilities_analytical.r"))
 
 
 # a matrix with n rows and a 1 in the column corresponding to the optimal ballot
-ballot.mat.from.eu.mat = function(eu.mat, break.ties.with.sincerity = F, sincere.vote.mat = NULL){
-  # this does not need weights. 
+# ballot.mat.from.eu.mat = function(eu.mat, break.ties.with.sincerity = F, sincere.vote.mat = NULL){
+#   # this does not need weights. 
   
-  if(break.ties.with.sincerity){
-    if(is.null(sincere.vote.mat)){
-      cat("you must pass a sincere.vote.mat!\n")
-      sincere.vote.mat - 1
-    }
-    eu.mat = eu.mat + sincere.vote.mat*(10^(-10)) # this breaks ties in favor of the sincere vote. but actually we need to break all ties -- why is this happening? PICK UP HERE. 
-  }
+#   if(break.ties.with.sincerity){
+#     if(is.null(sincere.vote.mat)){
+#       cat("you must pass a sincere.vote.mat!\n")
+#       sincere.vote.mat - 1
+#     }
+#     eu.mat = eu.mat + sincere.vote.mat*(10^(-10)) # this breaks ties in favor of the sincere vote. but actually we need to break all ties -- why is this happening? PICK UP HERE. 
+#   }
   
-  max.eus = apply(eu.mat, 1, max, na.rm = T)
-  ballot.mat = matrix(NA, ncol = ncol(eu.mat), nrow = nrow(eu.mat))
-  for(j in 1:ncol(eu.mat)){
-    ballot.mat[,j] = as.integer(eu.mat[,j] == max.eus)
-  }
-  colnames(ballot.mat) = colnames(eu.mat)
-  ballot.mat       
-}
+#   max.eus = apply(eu.mat, 1, max, na.rm = T)
+#   ballot.mat = matrix(NA, ncol = ncol(eu.mat), nrow = nrow(eu.mat))
+#   for(j in 1:ncol(eu.mat)){
+#     ballot.mat[,j] = as.integer(eu.mat[,j] == max.eus)
+#   }
+#   colnames(ballot.mat) = colnames(eu.mat)
+#   ballot.mat       
+# }
 
 optimal.vote.from.V.mat = function(V.mat){
   out = rep(NA, nrow(V.mat))
@@ -64,6 +64,28 @@ sincere.vote.mat.from.U = function(U, rule = "plurality", candidates = c("A", "B
   colnames(sincere.eu.by.ballot) = ballots
   ballot.mat.from.eu.mat(sincere.eu.by.ballot) 
 
+}
+
+sincere_pref_mat_from_U <- function(U, rule = "plurality", candidates = c("A", "B", "C")){
+  if(rule %in% c("AV")){
+    ballots = apply(gtools::permutations(n = length(candidates), r = length(candidates), v = candidates, repeats.allowed = F), 1, paste, collapse = "")
+    sincere.P = matrix(NA, nrow = length(candidates), ncol = length(ballots))
+    for(i in 1:length(candidates)){
+      for(j in 1:length(ballots)){
+        sincere.P[i,j] = length(candidates) - which(grepl(candidates[i], str_split(ballots[j], "")[[1]]))
+      }
+    }
+  }else if(rule == "plurality"){
+    ballots = candidates
+    sincere.P = diag(length(candidates)) # generally 3
+  }else{stop("We only know how to deal rule=plurality and rule=AV.")}
+
+  sincere.eu.by.ballot = as.matrix(U)%*%sincere.P
+  
+  out <- t(apply(sincere.eu.by.ballot, 1, rank))
+  colnames(out) <- ballots
+  out
+  
 }
 
 get_two_levels_of_strategicness = function(U, lambda = .2, m = 300, M = 5000, weights = NULL, min.step.denom = 1, rule = "plurality", candidates = NULL, dm = NULL, threshold = NULL){

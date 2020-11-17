@@ -19,3 +19,6 @@ client-side
 * pivotprobs investigation... what is up with IRV prevalence?
     * re-run server_small locally but with old code (w/o normalising)
     * OK, let's see what this brings.
+    * when running MC function ks library is not always loaded
+    * very weird noise...
+    
