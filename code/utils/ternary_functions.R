@@ -58,3 +58,63 @@ geom_ternary_labels <- function(vertex_labels = c("A", "B", "C"), padding = .1, 
     ggplot2::annotate(geom = "text", x = c(0,.5,1), y = c(0,sqrt(3/4),0) + label_offset*c(-1,1,-1), label = vertex_labels))
 }
 
+
+# New function w/o ggtern for replication
+joint_v_vec_plot <- function(obj, filepath){
+  rcv_df <- list()
+  plur_df <- list()
+  # Pull cases together into one DF
+  for (i in 1:length(obj)){
+    rcv_df[[i]] <- obj[[i]][[2]] %>% mutate(iter = 1:nrow(.),
+                                       case = names(obj)[i],
+                                       system = "IRV",
+                                       state = c("first", rep("middle", nrow(.) - 2), "last"))
+    plur_df[[i]] <- obj[[i]][[4]] %>% mutate(iter = 1:nrow(.),
+                                       case = names(obj)[i],
+                                       system = "Plurality",
+                                       state = c("first", rep("middle", nrow(.) - 2), "last"))
+  }
+  rcv_df <- do.call(rbind, rcv_df)
+  plur_df <- do.call(rbind, plur_df)
+  v_vec_df <- rbind(rcv_df, plur_df)
+
+  # Create plot
+
+  v_vec_df_tern = v_vec_df %>%
+    mutate(A = V1 + V2,
+           B = V3 + V4,
+           C = V5 + V6,
+           # ternary transformation
+           C = C + .5 *B,
+           B = sqrt(3/4)*B)
+  return(v_vec_df_tern)
+  p1 = ggplot(v_vec_df_tern, aes(x = C, y = B)) +
+    geom_line(aes(group = interaction(system, case)),
+              alpha = 0.2) +
+    geom_point(data = v_vec_df %>% filter(state %in% c("first", "last")),
+               aes(colour = state),
+               size = 0.5,
+               alpha = 0.6) +
+    coord_fixed() +
+    geom_ternary_boundary() +
+    facet_wrap(~ system) +
+    theme_tn()
+  return(p1)
+  # p1 <- ggtern(v_vec_df, aes(V1 + V2, V3 + V4, V5 + V6)) +
+  #   geom_line(aes(group = interaction(system, case)),
+  #             alpha = 0.2) +
+  #   geom_point(data = v_vec_df %>% filter(state %in% c("first", "last")),
+  #              aes(colour = state),
+  #              size = 0.5,
+  #              alpha = 0.6) +
+  #   facet_wrap(~ system) +
+  #   theme_sv() +
+  #   theme(legend.position = "bottom") +
+  #   labs(x = "A", y = "B", z = "C",
+  #        colour = "Iteration")
+  #  ggsave(here(paste0(filepath, "/v_vec_path.pdf")), 
+  #        p1, 
+  #        device = cairo_pdf,
+  #        height = 4,
+  #        width = 6)
+}

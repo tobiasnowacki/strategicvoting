@@ -151,7 +151,7 @@ use.mat.to.beat.3 = function(y, increments = 20){
 }
 
 
-pr.first.round.pivotal.events.cands.1.and.2.general = function(v.vec, s.vec, increments = 20, increments.for.dir.mat = 20){
+pr.first.round.pivotal.events.cands.1.and.2.general = function(v.vec, s.vec, increments = 100, increments.for.dir.mat = 20){
 	stopifnot(length(v.vec) == 9)
 	stopifnot(length(s.vec) == 4)
 	fp.alpha = s.vec[1]*c(sum(v.vec[c(1,2,7)]), sum(v.vec[c(3,4,8)]), sum(v.vec[c(5,6,9)]))

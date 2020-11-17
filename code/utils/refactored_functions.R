@@ -53,6 +53,30 @@ ballot.mat.from.eu.mat = function(eu.mat, break.ties.with.sincerity = F, sincere
   ballot.mat       
 }
 
+ballot_mat_from_eu_mat <- function(eu_mat, break_ties_with_sincerity = TRUE, sincere_mat = NULL, weight = 1e-15, normalize_eu_mat = TRUE){
+  
+  if(normalize_eu_mat){
+    max_eus = apply(eu_mat, 1, max, na.rm = T)
+    eu_mat <- eu_mat/matrix(max_eus, nrow = nrow(eu_mat), ncol = ncol(eu_mat), byrow = F)
+  }
+
+  if(break_ties_with_sincerity){
+    if(is.null(sincere_mat)){stop("you must pass a sincere.vote.mat!\n")}
+    eu_mat <- eu_mat + sincere_mat*weight
+  }
+
+  max_eus = apply(eu_mat, 1, max, na.rm = T)
+  
+  ballot_mat = matrix(NA, ncol = ncol(eu_mat), nrow = nrow(eu_mat))
+  for(j in 1:ncol(eu_mat)){
+    ballot_mat[,j] = as.integer(eu_mat[,j] == max_eus)
+  }
+  
+  colnames(ballot_mat) = colnames(eu_mat)
+  ballot_mat
+  
+}
+
 # Best thing to do is to have a n x 6 matrix that is 1 if vote is "natural" and 0 otherwise (if AV, at least)
 
 

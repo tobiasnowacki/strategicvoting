@@ -40,8 +40,17 @@ sv = function(U, weights = NULL, v.vec = NULL, s, rule = "plurality", V0 = NULL,
          
     }
     if(ae_pack == TRUE){
-        pps = irv_election(n = 1000000) %>%
-            election_event_probs(method = "en", alpha = (v.vec * s))
+        if(sum(v.vec > 0.005) == 6){
+            pps = irv_election(n = 10000) %>%
+                election_event_probs(method = "en",  alpha = (v.vec * s))
+            }
+        if(sum(v.vec > 0.005) < 6){
+          # if close to edge of ternary, run MC simulation method instead
+          pps = irv_election(n = 10000) %>%
+              election_event_probs(method = "mc",  
+                                   num_sims = 400000,
+                                   alpha = (v.vec * s))
+        }
         P.mat <- pps %>%
             combine_P_matrices()
         # probability.pivotal = sum(P.mat[,1]) # unique(apply(P.mat, 2, sum))
@@ -67,8 +76,8 @@ sv = function(U, weights = NULL, v.vec = NULL, s, rule = "plurality", V0 = NULL,
     # return(pps)
     } else if(ae_pack == TRUE){
         # v_vec_test_3 = c(v.vec[1] + v.vec[2], v.vec[3] + v.vec[4], v.vec[5] + v.vec[6])
-        pps = plurality_election(k = 3, n = 1000000) %>%
-            election_event_probs(method = "mc", alpha = (v.vec * s))
+        pps = plurality_election(k = 3, n = 10000) %>%
+            election_event_probs(method = "ev", alpha = (v.vec * s))
         P.mat = pps %>% combine_P_matrices()
         P.mat = P.mat[, -4]
         # probability.pivotal = sum(P.mat[,1]) # unique(apply(P.mat, 2, sum))
@@ -100,9 +109,11 @@ sv = function(U, weights = NULL, v.vec = NULL, s, rule = "plurality", V0 = NULL,
   
   eu.by.ballot = t(P.mat%*%t(U))
   colnames(eu.by.ballot) = ballots
-  V.mat = ballot.mat.from.eu.mat(eu.by.ballot,
-                                 break.ties.with.sincerity = TRUE,
-                                 sincere.vote.mat = V0)
+  sincere_pref_mat = sincere_pref_mat_from_U(U, rule = rule)
+  V.mat = ballot_mat_from_eu_mat(eu.by.ballot,  break_ties_with_sincerity = TRUE, sincere_mat = sincere_pref_mat)
+  # V.mat = ballot.mat.from.eu.mat(eu.by.ballot,
+  #                                break.ties.with.sincerity = TRUE,
+  #                                sincere.vote.mat = V0)
 
   # optimal vote
   opt.votes.strategic = optimal.vote.from.V.mat(V.mat)

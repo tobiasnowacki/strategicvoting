@@ -5,6 +5,8 @@
 library(here) 						# to get dir
 source(here("code/full_header.R")) 	# fn's and data
 source(here("code/prep_cses.R")) 	# data prep
+library(devtools)
+source_url("https://raw.githubusercontent.com/tobiasnowacki/RTemplates/master/plottheme.R")
 
 ### ------------------
 ### SET VALUES -------
@@ -17,8 +19,8 @@ start_time <- proc.time()
 s_list <- as.list(c(10, 25, 40, 55, 70, 85)) # precision (s)
 lambda_list <- as.list(c(0.05, 0.1, 0.01))	 # responsiveness ()
 epsilon_thresh <- 0.001						 # threshold (epsilon)
-max_iter_val <- 40					 # no of iterations
-which_cases <- 1:160					 # which cases?
+max_iter_val <- 60				 # no of iterations
+which_cases <- 1:2				 # which cases?
 
 s_choice = 6
 l_choice = 1
@@ -73,6 +75,8 @@ l_choice = 1
 for(lambda_val in l_choice){
 	lambda <- lambda_list[[lambda_val]]
 
+	method_setting = TRUE
+
 	cat(paste0("=== Beginning loop for lambda == ", lambda, ". === \n"))
 
 	for(s_loop_val in s_choice){ 
@@ -115,7 +119,7 @@ for(lambda_val in l_choice){
 	                    lambda, 
 	                    s_val, 
 	                    epsilon_thresh, 
-	                    max_iter_val, ae = TRUE)
+	                    max_iter_val, ae = method_setting)
 	              out
 	  }
 
@@ -123,16 +127,25 @@ for(lambda_val in l_choice){
 
 	  cat("Done. \n")
 
+	  add_str = "ae"
+	  if(method_setting == FALSE){
+	  	add_str = "old"
+	  }
+
 	  path <- paste0("output/figures/", lambda_val, "/", s_val)
-	  # path_files <- paste0("output/files/", lambda_val, "/", s_val)
+	  path_files <- paste0("output/files/", lambda_val, "/", s_val)
 
 	  # # name list obj
 	  names(cases_converge) <- names(big_list_na_omit)[which_cases]
 	  # names(cases_converge_1) <- names(big_list_na_omit)[which_cases]
 
+	  # Investigate
+	  # head(cases_converge[[1]])[[1]][1:10, ]
+	  # table(cases_converge[[1]][[1]]$sin_rcv, cases_converge[[1]][[1]]$opt_rcv)
+
 	  # # save v_vec paths somewhere...
 	  out <- lapply(cases_converge, function(x) x[c(2, 4)])
-	  # save(out, file = here(paste0(path_files, "v_vecs_", lambda_val, "_", s_val, ".Rdata")))
+	  save(out, file = here(paste0(path_files, "v_vecs_", lambda_val, "_", s_val, add_str, ".Rdata")))
 	  # cat("Saved v_vecs!")
 
 	  # # produce iteration plot(s)
@@ -143,12 +156,60 @@ for(lambda_val in l_choice){
 	  # cat("v_vec distance plotted: complete. \n")
 
 	  # # produce v_vec path plot(s)
-	  # joint_v_vec_plot(cases_converge, path)
+	  v_mut = joint_v_vec_plot(cases_converge, path)
 
 	  # cat("v_vec paths plotted. \n")
 
 	  # # group expected benefit and the like
 	  summary_stats <- get_sum_stats(cases_converge)
+
+	  # Identify cases where IRV prevalence is high
+	  # suspect_cases = summary_stats %>% filter(iter == 50, 
+	  #                          System == "IRV",
+	  #                          Prevalence > 0.25) %>%
+	  # 	distinct(case) %>% unlist
+
+	  # Append v_mut to signal these cases
+	  v_mut = v_mut %>%
+	  	mutate(irv_strange = case == "SWE_2014")
+
+	  swe_check = cases_converge$SWE_2014$rcv_df
+	  swe_check %>% filter(iter == 12) %>% head
+	  iter10 = swe_check %>% filter(iter == 12)
+	  table(iter10$sin_rcv, iter10$opt_rcv)
+
+
+	  # Plot cases
+	  ggplot(v_mut %>% filter(system == "IRV", irv_strange == TRUE), aes(x = C, y = B)) +
+	      geom_line(aes(
+	  				colour = case),
+	                alpha = 0.5) +
+	      # geom_point(data = v_mut %>% filter(state %in% c("first", "last")),
+	      #            aes(colour = state),
+	      #            size = 0.5,
+	      #            alpha = 0.6) +
+	      coord_fixed() +
+	      geom_ternary_boundary() +
+	      theme_tn()
+	   # ggsave(paste0("output/figures/irv_trouble_v_vec", add_str, ".pdf"), device = cairo_pdf)
+
+	  # Get minimum vote share for all cases and iters (in IRV)
+	  min_share = out %>% map(~ apply(.x$rcv_v_vec[, 5:6], 1, sum))
+	  # min_share = out %>% map(~ .x$rcv_v_vec[, 5])
+
+	  min_share_df = min_share %>% map_dfr(~ .x %>% as.data.frame %>% 
+	                        mutate(iter = 1:61), .id = "case") %>%
+	  	mutate(irv_strange = case == "SWE_2014")
+	  names(min_share_df)[2] = "value"
+
+	  # Identify strange case
+	  min_share_df %>% filter(irv_strange == TRUE, iter == 61) %>%
+	  	arrange(value)
+
+	  ggplot(min_share_df, aes(iter, value)) +
+	  	geom_line(aes(group = case, colour = irv_strange)) +
+	  	theme_tn()
+	  # ggsave(paste0("output/figures/irv_trouble_v_vec_min", add_str, ".pdf"), device = cairo_pdf)
 	  # summary_stats_old = summary_stats
 	  # todo here: (a) correct weights (just weighted means)
 	  #        (b) produce averages across cases.
@@ -156,6 +217,12 @@ for(lambda_val in l_choice){
 	  summary_stats_wide <- summary_stats %>% 
 	    gather(., key = "Statistic", 
 	           value = "Value", "Prevalence":"ExpBenefit")
+
+	  summary_stats %>%
+	  	filter(iter > 20 & System == "IRV" & Prevalence > 0.3)
+
+	  summary_stats %>%
+	  	filter(iter %in% 10:20 & System == "IRV" & case == "SWE_2014")
 
 	  # weight by case weight
 	  summary_agg <- summary_stats_wide %>% group_by(iter, Statistic, System) %>%
@@ -177,8 +244,8 @@ for(lambda_val in l_choice){
 	    guides(colour = guide_legend(override.aes = list(alpha = 1))) +
 	                  theme(legend.position = "bottom", legend.direction = "horizontal") +
 	    labs(x = "Degree of Strategicness (Iterations)")
-	  ggsave(here(paste0(path, "/main_results.pdf")), 
-	         device = cairo_pdf)
+	  # ggsave(here(paste0(path, "/main_results.pdf")), 
+	         # device = cairo_pdf)
 
 	  # cat("Summary statistics plotted. \n")
 
