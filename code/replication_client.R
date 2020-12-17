@@ -9,8 +9,7 @@ lambda_param <- c("1", "2", "3")
 names_vec <- names(big_list_na_omit)
 
 
-### V_VEC DISTANCES
-
+### V_VEC DISTANCES -- load data
 v_vec_list <- list()
 for(i in s_param){
 	for(j in lambda_param){
@@ -33,6 +32,14 @@ for(i in s_param){
 		}
 	}
 }
+
+
+# Shuffle loop around so that every element is a case;
+    # then, every element has two v_vec tables nested.
+
+# not sure if this is going to work client-side because I also need the BR dataframes.
+plot_v_vec_distance(out, "output/figures/", n_lag = 20, 
+                                avg_span = 10)
 
 
 

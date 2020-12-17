@@ -1,3 +1,10 @@
+# Define remove_nas
+remove_nas <- function(x){
+  mat <- cbind(x$U, x$weights)
+  mat <- na.omit(mat)
+  return(list(U = mat[, 1:3], weights = as.numeric(mat[, 4])))
+}
+
 # Create list with sincere v_vecs from CSES utility dfs:
 big_list_na_omit <- lapply(big_list, function(x) remove_nas(x))
 sin_vote_list <- lapply(big_list_na_omit, function(x) sincere.vote.mat.from.U(x$U, rule = "AV"))

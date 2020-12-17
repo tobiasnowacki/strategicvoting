@@ -17,8 +17,8 @@ start_time <- proc.time()
 s_list <- as.list(c(10, 25, 40, 55, 70, 85)) # precision (s)
 lambda_list <- as.list(c(0.05, 0.1, 0.01))	 # responsiveness ()
 epsilon_thresh <- 0.001						 # threshold (epsilon)
-max_iter_val <- 250							 # no of iterations
-which_cases <- 1:160					 # which cases?
+max_iter_val <- 150							 # no of iterations
+which_cases <- 32:33					 # which cases?
 
 ifelse(length(cmd_line_args >= 1),
        s_choice <- as.numeric(cmd_line_args[1]),
@@ -73,21 +73,22 @@ for(lambda_val in l_choice){
 	  names(cases_converge) <- names(big_list_na_omit)[which_cases]
 
 	  # save v_vec paths somewhere...
-	  out <- lapply(cases_converge, function(x) x[c(2, 4)])
+	  # I should consider saving the entire thing, not just elements 2 and 4. But I don't really know how big it's going to be...
+	  out <- lapply(cases_converge, function(x) x[c(2, 4, 5, 6)])
 	  save(out, file = here(paste0(path_files, "v_vecs_", lambda_val, "_", s_val, ".Rdata")))
 	  cat("Saved v_vecs!")
 
-	  # produce iteration plot(s)
-	  # plot_v_vec_distance(cases_converge, path, 
-	                                  # n_lag = 20, 
-	                                  # avg_span = 10)
+	  # # produce iteration plot(s)
+	  plot_v_vec_distance(cases_converge, path, 
+	                                  n_lag = 20, 
+	                                  avg_span = 10)
 
-	  cat("v_vec distance plotted: complete. \n")
+	  # cat("v_vec distance plotted: complete. \n")
 
-	  # produce v_vec path plot(s)
+	  # # produce v_vec path plot(s)
 	  # joint_v_vec_plot(cases_converge, path)
 
-	  cat("v_vec paths plotted. \n")
+	  # cat("v_vec paths plotted. \n")
 
 	  # group expected benefit and the like
 	  summary_stats <- get_sum_stats(cases_converge)
@@ -95,34 +96,34 @@ for(lambda_val in l_choice){
 	  #        (b) produce averages across cases.
   	  save(summary_stats, file = here(paste0(path_files, "summary_", lambda_val, "_", s_val, ".Rdata")))
 
-	  summary_stats_wide <- summary_stats %>% 
-	    gather(., key = "Statistic", 
-	           value = "Value", "Prevalence":"ExpBenefit")
+	  # summary_stats_wide <- summary_stats %>% 
+	  #   gather(., key = "Statistic", 
+	  #          value = "Value", "Prevalence":"ExpBenefit")
 
-	  # weight by case weight
-	  summary_agg <- summary_stats_wide %>% group_by(iter, Statistic, System) %>%
-	    summarise(Value = wtd.mean(Value, case_weight_tbl$case_weight))
+	  # # weight by case weight
+	  # summary_agg <- summary_stats_wide %>% group_by(iter, Statistic, System) %>%
+	  #   summarise(Value = wtd.mean(Value, case_weight_tbl$case_weight))
 
-	  # Summary statistics
-	  ggplot(summary_stats_wide, aes(iter, Value)) +
-	    geom_line(aes(group = interaction(System, case, Statistic),
-	                  colour = System), alpha = 0.3) +
-	    geom_line(data = summary_agg %>% filter(System == "Plurality"),
-	              aes(group = interaction(System, Statistic)), alpha = 1,
-	              color = "#CC6600", lwd = 1.1) +
-	    geom_line(data = summary_agg %>% filter(System == "IRV"),
-	              aes(group = interaction(System, Statistic)), alpha = 1,
-	              color = "#004C99", lwd = 1.1) +
-	    scale_color_manual(values = cbbPalette[c(3, 2)]) +
-	    facet_wrap(. ~ Statistic, scales = "free_y") +
-	    theme_sv() +
-	    guides(colour = guide_legend(override.aes = list(alpha = 1))) +
-	                  theme(legend.position = "bottom", legend.direction = "horizontal") +
-	    labs(x = "Degree of Strategicness (Iterations)")
-	  ggsave(here(paste0(path, "/main_results.pdf")), 
-	         device = cairo_pdf)
+	  # # Summary statistics
+	  # ggplot(summary_stats_wide, aes(iter, Value)) +
+	  #   geom_line(aes(group = interaction(System, case, Statistic),
+	  #                 colour = System), alpha = 0.3) +
+	  #   geom_line(data = summary_agg %>% filter(System == "Plurality"),
+	  #             aes(group = interaction(System, Statistic)), alpha = 1,
+	  #             color = "#CC6600", lwd = 1.1) +
+	  #   geom_line(data = summary_agg %>% filter(System == "IRV"),
+	  #             aes(group = interaction(System, Statistic)), alpha = 1,
+	  #             color = "#004C99", lwd = 1.1) +
+	  #   scale_color_manual(values = cbbPalette[c(3, 2)]) +
+	  #   facet_wrap(. ~ Statistic, scales = "free_y") +
+	  #   theme_sv() +
+	  #   guides(colour = guide_legend(override.aes = list(alpha = 1))) +
+	  #                 theme(legend.position = "bottom", legend.direction = "horizontal") +
+	  #   labs(x = "Degree of Strategicness (Iterations)")
+	  # ggsave(here(paste0(path, "/main_results.pdf")), 
+	  #        device = cairo_pdf)
 
-	  cat("Summary statistics plotted. \n")
+	  cat("Summary statistics saved. \n")
 
 	  # if(s_choice == 6 & l_choice == 1){
 
