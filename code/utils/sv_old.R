@@ -2,7 +2,7 @@
 
 # function to get strategic voting info given utility matrix, weights, and ingredients of (Dirichlet) belief
 # a slimmed-down version of iteration_simulation() from general_iteration_simulation_approach.R 
-sv = function(U, weights = NULL, v.vec = NULL, s, rule = "plurality", V0 = NULL){
+sv = function(U, weights = NULL, v.vec = NULL, s, rule = "plurality", V0 = NULL, ae_pack = FALSE, sincere.vote.mat = NULL){
   
   stopifnot(!is.null(colnames(U)))
   candidates = sort(colnames(U))
@@ -35,16 +35,33 @@ sv = function(U, weights = NULL, v.vec = NULL, s, rule = "plurality", V0 = NULL)
   }else if(rule == "plurality"){
     pps = plurality.pivotal.probabilities(v.vec = v.vec + runif(3, 0, .000001), s = s) # a touch of noise to prevent any alpha component from being 0 
   }
-  P.mat = t(P_mat_at_pivotal_events(pps, rule = rule, ballots = ballots))
-  rownames(P.mat) = ballots
-  colnames(P.mat) = candidates
+  P.mat = P_mat_at_pivotal_events(pps, rule = rule, ballots = ballots)
+  probability.pivotal = sum(P.mat[,1]) # unique(apply(P.mat, 2, sum))
+  # stopifnot(length(probability.pivotal) == 1)
+  normalized.P.mat = P.mat/probability.pivotal
+
   ballot.prop.mat = V1.ballot.prop.mat = V0.ballot.prop.mat = NULL
   
-  eu.by.ballot = t(P.mat%*%t(U))
+  eu.by.ballot = as.matrix(U) %*% normalized.P.mat
   colnames(eu.by.ballot) = ballots
-  V.mat = ballot.mat.from.eu.mat(eu.by.ballot,
-                                 break.ties.with.sincerity = TRUE,
-                                 sincere.vote.mat = V0)
+
+  rownames(P.mat) = candidates
+  colnames(P.mat) = ballots
+  
+   # get optimal votes 
+  if(is.null(sincere.vote.mat)){
+    sincere.P = sincere_P(rule)
+    sincere.eu.by.ballot = as.matrix(U)%*%sincere.P
+    colnames(sincere.eu.by.ballot) = ballots
+    sincere.vote.mat = ballot.mat.from.eu.mat(sincere.eu.by.ballot) 
+  }
+  
+  V.mat = ballot.mat.from.eu.mat(eu.by.ballot, break.ties.with.sincerity = TRUE, 
+    sincere.vote.mat = sincere.vote.mat)
+  if(length(table(apply(V.mat, 1, sum))) > 1){cat("Ties in V.mat!!\n")} # better error handling. 
+  
+  if(is.null(weights)){weights = rep(1, nrow(V.mat))}
+  
 
   # optimal vote
   opt.votes.strategic = optimal.vote.from.V.mat(V.mat)
@@ -135,5 +152,3 @@ plurality_wasted_vote_from_sv_object = function(sv.obj){
   
   list(avg.wv.prob = avg.wv.prob, prob.sum = sum(unlist(sv.obj$piv.probs)))
 }
-
-

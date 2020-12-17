@@ -4,6 +4,7 @@
 library(here)						# to get dir
 source(here("code/full_header.R")) 	# fn's and data
 source(here("code/prep_cses.R")) 	# data prep
+library(ggtern)
 
 s_param <- c("10", "55", "85")
 lambda_param <- c("1", "2", "3")
@@ -33,7 +34,8 @@ for(i in s_param){
 	}
 }
 
-v_vec_df <- do.call(rbind, v_vec_list) %>% mutate(params = paste0(s, "_", lambda))
+v_vec_df <- do.call(rbind, v_vec_list) %>% 
+	mutate(params = paste0(s, "_", lambda))
 table(v_vec_df$params)
 
 # first: plot v_vec paths
@@ -103,6 +105,8 @@ for(case in 1:160){
 
 	}	
 }
+
+# Should I add v_vec distance here?
 
 # SNIPPET
 # compute distance for plurality iterations
@@ -174,7 +178,9 @@ for(case in 1:160){
 					V6 = mean(V6))
 			joint_mat <- rbind(first_vec[1:6], irv_vecs[, 3:8])
 			d <- dist(joint_mat) %>% as.matrix
-			irv_vecs <- irv_vecs %>% as.data.frame %>% mutate(d_start = d[2:4, 1],
+			irv_vecs <- irv_vecs %>% 
+				as.data.frame %>% 
+				mutate(d_start = d[2:4, 1],
 				comp_iter = j, case = casename)
 			irv_d_list[[list_case]] <- irv_vecs
 		}
@@ -196,7 +202,7 @@ ggplot(irv_d %>% filter(!lambda == "lambda = 0.05"),
 	facet_grid(s ~ lambda) +
 	theme_sv() +
 	labs(x = "Distance to baseline with same precision (s)",
-		y = "(Normalised) density",
+		y = "(Normalized) density",
 		fill = "After ... iterations") +
 	theme(legend.position = "bottom",
 		legend.direction = "horizontal")

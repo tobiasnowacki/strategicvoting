@@ -792,6 +792,7 @@ many_iterations_until_convergence <- function(object, v_vec, lambda, s, thresh, 
        rcv_v_vec_list[[k_rcv + 1]] <- out$rcv_vec
        rcv_br_v_vec[[k_rcv + 1]] <- out$rcv_best_response
        epsilon_rcv <- sqrt(sum((rcv_v_vec_list[[k_rcv + 1]] - rcv_br_v_vec[[k_rcv + 1]])^2))
+       # cat(c(k_rcv, epsilon_rcv, thresh, "\n"))
        if (epsilon_rcv < thresh){
        	thresh_ind <- 1
        }
@@ -1019,8 +1020,7 @@ plot_v_vec_distance <- function(obj, filepath,
 		df_dist <- euclid_together(df) %>%
 		mutate(system = 'IRV',
 		       case = names(obj)[j],
-		       iter = 1:nrow(.),
-		       converged = obj[[j]][[7]] %>% as.factor)
+		       iter = 1:nrow(.))
 		if(is.numeric(n_lag) == TRUE){
 			df_dist$avg_dist <- calc_lag_dist(df, n_lag, avg_span)
 		}
@@ -1030,8 +1030,7 @@ plot_v_vec_distance <- function(obj, filepath,
 		df_dist <- euclid_together(df) %>%
 		mutate(system = 'Plurality',
 		       case = names(obj)[j],
-		       iter = 1:nrow(.),
-		       converged = obj[[j]][[8]] %>% as.factor)
+		       iter = 1:nrow(.))
 		if(is.numeric(n_lag) == TRUE){
 			df_dist$avg_dist <- calc_lag_dist(df, n_lag, avg_span)
 		}
@@ -1092,7 +1091,7 @@ plot_v_vec_distance <- function(obj, filepath,
 
 	# compare best response vector to polling v_vec
 	br_dist_list <- list()
-	for(c in 1:length(cases_converge)){
+	for(c in 1:length(obj)){
 		case_name <- names(big_list_na_omit)[c]
 		br_dist_list[[c]] <- br_distance(cases_converge[[c]],
 		                                 n_lag = 20,

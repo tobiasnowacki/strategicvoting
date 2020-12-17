@@ -7,32 +7,32 @@ library(here)
 
 # source(here("utils", "winner_vec_from_ballot_proportions_for_various_rules.r"))  -- this is used in iteration_simulation, which is now not used 
 source(here("code", "utils", "EU_given_piv_probs_and_utility.r"))
-source(here("code", "utils", "av_pivotal_probs_analytical_general_v2.r"))
-source(here("code", "utils", "plurality_pivotal_probabilities_analytical.r"))
+# source(here("code", "utils", "av_pivotal_probs_analytical_general_v2.r"))
+# source(here("code", "utils", "plurality_pivotal_probabilities_analytical.r"))
 
 ## various functions below that are useful for CSES analysis 
 
 
 # a matrix with n rows and a 1 in the column corresponding to the optimal ballot
-# ballot.mat.from.eu.mat = function(eu.mat, break.ties.with.sincerity = F, sincere.vote.mat = NULL){
-#   # this does not need weights. 
+ballot.mat.from.eu.mat = function(eu.mat, break.ties.with.sincerity = F, sincere.vote.mat = NULL){
+  # this does not need weights. 
   
-#   if(break.ties.with.sincerity){
-#     if(is.null(sincere.vote.mat)){
-#       cat("you must pass a sincere.vote.mat!\n")
-#       sincere.vote.mat - 1
-#     }
-#     eu.mat = eu.mat + sincere.vote.mat*(10^(-10)) # this breaks ties in favor of the sincere vote. but actually we need to break all ties -- why is this happening? PICK UP HERE. 
-#   }
+  if(break.ties.with.sincerity){
+    if(is.null(sincere.vote.mat)){
+      cat("you must pass a sincere.vote.mat!\n")
+      sincere.vote.mat - 1
+    }
+    eu.mat = eu.mat + sincere.vote.mat*(10^(-10)) # this breaks ties in favor of the sincere vote. but actually we need to break all ties -- why is this happening? PICK UP HERE. 
+  }
   
-#   max.eus = apply(eu.mat, 1, max, na.rm = T)
-#   ballot.mat = matrix(NA, ncol = ncol(eu.mat), nrow = nrow(eu.mat))
-#   for(j in 1:ncol(eu.mat)){
-#     ballot.mat[,j] = as.integer(eu.mat[,j] == max.eus)
-#   }
-#   colnames(ballot.mat) = colnames(eu.mat)
-#   ballot.mat       
-# }
+  max.eus = apply(eu.mat, 1, max, na.rm = T)
+  ballot.mat = matrix(NA, ncol = ncol(eu.mat), nrow = nrow(eu.mat))
+  for(j in 1:ncol(eu.mat)){
+    ballot.mat[,j] = as.integer(eu.mat[,j] == max.eus)
+  }
+  colnames(ballot.mat) = colnames(eu.mat)
+  ballot.mat       
+}
 
 optimal.vote.from.V.mat = function(V.mat){
   out = rep(NA, nrow(V.mat))
@@ -62,7 +62,7 @@ sincere.vote.mat.from.U = function(U, rule = "plurality", candidates = c("A", "B
   
   sincere.eu.by.ballot = t(sincere.P%*%t(U))
   colnames(sincere.eu.by.ballot) = ballots
-  ballot.mat.from.eu.mat(sincere.eu.by.ballot) 
+  ballot.mat.from.eu.mat(sincere.eu.by.ballot, break.ties.with.sincerity = FALSE) 
 
 }
 

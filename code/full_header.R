@@ -1,10 +1,7 @@
 # List of packages required for this script
+# Do I really need *all* of them?
 requiredPackages <- c(#"here", 
-                      "ggplot2",
-                      # "ggtern",
-                      "dplyr", 
-                      "purrr", 
-                      "tidyr", 
+                      "tidyverse",
                       "lmtest", 
                       "sandwich", 
                       "plm", 
@@ -13,6 +10,7 @@ requiredPackages <- c(#"here",
                       "RColorBrewer", 
                       "boot", 
                       "svMisc", 
+                      "gtools",
                       # "ggtern", 
                       "reldist", 
                       "gridExtra", 
@@ -43,8 +41,8 @@ cat("Packages loaded. \n")
 
 # Load functions
 source(here("code/utils/functions.r"))
-source(here("code/utils/av_pivotal_probs_analytical_general_v2.r"))
-source(here("code/utils/plurality_pivotal_probabilities_analytical.r"))
+# source(here("code/utils/av_pivotal_probs_analytical_general_v2.r"))
+# source(here("code/utils/plurality_pivotal_probabilities_analytical.r"))
 source(here("code/utils/general_iteration_simulation_approach.r"))
 source(here("code/utils/sv.r"))
 source(here("code/utils/refactored_functions.r"))

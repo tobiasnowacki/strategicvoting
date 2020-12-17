@@ -20,7 +20,7 @@ nat_vote_mat <- function(sincere.vote.mat){
 }
 
 
-ballot.mat.from.eu.mat = function(eu.mat, break.ties.with.sincerity = F, sincere.vote.mat = NULL){
+ballot.mat.from.eu.mat = function(eu.mat, break.ties.with.sincerity = T, sincere.vote.mat = NULL){
   # this does not need weights. 
   
   if(break.ties.with.sincerity){
@@ -64,7 +64,7 @@ ballot_mat_from_eu_mat <- function(eu_mat, break_ties_with_sincerity = TRUE, sin
     if(is.null(sincere_mat)){stop("you must pass a sincere.vote.mat!\n")}
     eu_mat <- eu_mat + sincere_mat*weight
   }
-
+  # i wonder if there's a better way to do this...
   max_eus = apply(eu_mat, 1, max, na.rm = T)
   
   ballot_mat = matrix(NA, ncol = ncol(eu_mat), nrow = nrow(eu_mat))
