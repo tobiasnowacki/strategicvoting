@@ -40,12 +40,14 @@ close(file("clusterlog.txt", open="w"))
 clno <- detectCores()
 cl <- makeCluster(clno, outfile = "clusterlog.txt")
 registerDoParallel(cl)
+result_list = list()
 # parallelise
 cases_converge <- foreach(j = which_cases, 
             .packages = c("gtools", "stringr", "tidyverse", "pivotprobs",
                           "questionr")
             ) %dopar% {
               case = big_list_na_omit[[j]]
+	      inner_list = list()
               cat(paste0("Starting case ", j, " out of ", max(which_cases), ".", "\n"))
               inner_list$rcv = sv_iter(
                 U = case$U,
@@ -65,14 +67,12 @@ cases_converge <- foreach(j = which_cases,
                 max.iterations = max_iter_val,
                 noisy = FALSE
               )
-              result_list[[j]] = inner_list
-              filepath = paste0("output/files/", l_choice, "/", s_val, "_", names(big_list_na_omit)[j], "_iterout.Rdata")
-              save(inner_list, file = filepath)
+              
+	      filepath = paste0("output/files/", l_choice, "/", s_val, "_", names(big_list_na_omit)[j], "_iterout.Rdata")
+              save(inner_list,  file = filepath)
               cat(paste0("Done with case ", j, " out of ", max(which_cases), ".", "\n"))
+	      inner_list
             }
-
 stopCluster(cl)
-
-cat("Done. \n")
-
+# Save results
 cat("Script complete.")
