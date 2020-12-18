@@ -7,7 +7,8 @@ sv = function(U,
               s, 
               rule = "plurality", 
               V0 = NULL,
-              sin_pref_mat = NULL){
+              sin_pref_mat = NULL, 
+              ae_pack = NULL){
   
   stopifnot(!is.null(colnames(U)))
   candidates = sort(colnames(U))
@@ -81,8 +82,8 @@ sv = function(U,
   }
 
   # Normalise
-  probability.pivotal = sum(P.mat[,1])
-  normalized.P.mat = P.mat/probability.pivotal
+  # probability.pivotal = sum(P.mat[,1])
+  normalized.P.mat = P.mat # /probability.pivotal
 
   ballot.prop.mat = V1.ballot.prop.mat = V0.ballot.prop.mat = NULL
   
