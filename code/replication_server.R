@@ -19,8 +19,8 @@ start_time <- proc.time()
 s_list <- as.list(c(10, 25, 40, 55, 70, 85)) # precision (s)
 lambda_list <- as.list(c(0.05, 0.1, 0.01))	 # responsiveness ()
 epsilon_thresh <- 0.001						 # threshold (epsilon)
-max_iter_val <- 150							 # no of iterations
-which_cases <- 32:33					 # which cases?
+max_iter_val <- 250							 # no of iterations
+which_cases <- 1:160					 # which cases?
 
 ifelse(length(cmd_line_args >= 1),
        s_choice <- as.numeric(cmd_line_args[1]),

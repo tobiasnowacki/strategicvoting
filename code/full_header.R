@@ -43,9 +43,9 @@ cat("Packages loaded. \n")
 source(here("code/utils/functions.r"))
 # source(here("code/utils/av_pivotal_probs_analytical_general_v2.r"))
 # source(here("code/utils/plurality_pivotal_probabilities_analytical.r"))
-source(here("code/utils/general_iteration_simulation_approach.r"))
-source(here("code/utils/sv.r"))
-source(here("code/utils/refactored_functions.r"))
+source(here("code/utils/general_iteration_simulation_approach.R"))
+source(here("code/utils/sv.R"))
+source(here("code/utils/refactored_functions.R"))
 
 cat("Functions loaded. \n")
 

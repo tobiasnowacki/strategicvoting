@@ -1,4 +1,5 @@
 data/cses/data/
+output/files/
 output/iterations.Rdata
 output/intermediate.Rdata
 output/intermediate2.Rdata
