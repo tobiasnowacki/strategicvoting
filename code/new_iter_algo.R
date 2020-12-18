@@ -51,10 +51,10 @@ cases_converge <- foreach(j = which_cases,
               cat(paste0("Starting case ", j, " out of ", max(which_cases), ".", "\n"))
               inner_list$rcv = sv_iter(
                 U = case$U,
-                s = 85,
+                s = s_val,
                 rule = "AV",
                 weights = case$weights,
-                lambda = .05,
+                lambda = lambda_val,
                 max.iterations = max_iter_val,
                 noisy = FALSE
               )
