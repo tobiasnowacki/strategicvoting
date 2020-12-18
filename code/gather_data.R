@@ -80,9 +80,9 @@ names(vvecdf) = nn[1:10]
 save(vvecdf, file = fpath(lambda, s, "vvec"))
 
 # Create distance plots
-joint_v_vec_plot(vvecdf, "output/figures/", lambda, "/", s)
+joint_v_vec_plot(vvecdf, paste0("output/figures/", lambda, "/", s))
 # Create vvec plots
-plot_v_vec_distance(vvecdf, "output/figures/", lambda, "/", s, 
+plot_v_vec_distance(vvecdf, paste0("output/figures/", lambda, "/", s), 
                     n_lag = 20, avg_span = 10)
 
 
