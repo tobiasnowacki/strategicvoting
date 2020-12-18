@@ -13,11 +13,20 @@ vap <- read.csv("data/case_vap.csv", sep = "") # voting age pop.
 cat("Data imported. \n")
 source("code/prep_cses.R")  # data prep
 
+source("code/utils/new_dist_helpers.R")
+source("code/utils/new_plot_helpers.R")
+
 nn = names(big_list_na_omit)
 
-# This should become a variable so I can run the script serverside.
-s = 85
-lambda = 1
+# Get command arguments / values
+cmd_line_args <- commandArgs(trailingOnly = TRUE)
+cat(cmd_line_args, sep = "n")
+ifelse(length(cmd_line_args >= 1),
+       s <- as.numeric(cmd_line_args[1]),
+       s <- 85)
+ifelse(length(cmd_line_args >= 2),
+       lambda<- as.numeric(cmd_line_args[2]),
+       lambda <- 1)
 
 fpath = function(lambda, s, ext){
   paste0("output/files/", lambda, "/", s, "_", ext, ".Rdata")
@@ -67,11 +76,13 @@ get_vvecs = function(obj){
 
 vvecdf = map(bind_together, ~ get_vvecs(.x))
 names(vvecdf) = nn[1:10]
+# Save vvec data (for later distance plots)
 save(vvecdf, file = fpath(lambda, s, "vvec"))
 
 # Create distance plots
-joint_v_vec_plot(vvecdf, "output/")
+joint_v_vec_plot(vvecdf, "output/figures/", lambda, "/", s)
 # Create vvec plots
-plot_v_vec_distance(vvecdf, "output/", n_lag = 5, avg_span = 10)
+plot_v_vec_distance(vvecdf, "output/figures/", lambda, "/", s, 
+                    n_lag = 20, avg_span = 10)
 
-# vvec plots...
+
