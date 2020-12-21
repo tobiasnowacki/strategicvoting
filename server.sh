@@ -9,7 +9,6 @@
 #SBATCH --mail-user=toby.nowacki@gmail.com
 #SBATCH --mail-type=ALL
 
-
 echo $1
 echo $2
 module load R/4.0
