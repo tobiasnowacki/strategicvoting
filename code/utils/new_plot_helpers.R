@@ -1,4 +1,5 @@
 source("code/utils/ternary_functions.R")
+source("code/utils/sv_theme_template.R")
 
 joint_v_vec_plot <- function(obj, filepath){
   rcv_df <- list()
@@ -33,17 +34,21 @@ joint_v_vec_plot <- function(obj, filepath){
   # Create plot
   p1 <- ggplot(v_vec_df, aes(C, B)) +
     geom_line(aes(group = interaction(system, case)),
-              alpha = 0.2) +
+              alpha = 0.1) +
     geom_point(data = v_vec_df %>% filter(state %in% c("first", "last")),
                aes(colour = state),
-               size = 0.5,
-               alpha = 0.6) +
+               size = 1.2,
+               alpha = 0.5) +
     facet_wrap(~ system) +
-    theme_void() +
+    theme_tn() +
     geom_ternary_boundary() +
     geom_ternary_gridlines(alpha = 0.1, size = 0.3) +
+    scale_colour_manual(values = c("red", "blue")) +
     # geom_ternary_labels(vertex_labels = c("A", "B", "C")) +
-    theme(legend.position = "bottom") 
+    theme(panel.spacing = unit(0, "cm"),
+          plot.margin = unit(c(0.1, 0.1, 0.1, 0.1), "cm"),
+          legend.position = "bottom",
+          legend.direction = "horizontal") 
    ggsave(paste0(filepath, "/v_vec_path.pdf"), 
          p1, 
          device = cairo_pdf,

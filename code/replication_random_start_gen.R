@@ -41,7 +41,11 @@ out <- foreach(rand_iter = 1:10,
 	rand_v_vec <- uniform_ternary[rand_iter, ] %>% as.numeric
 	for (case in 1:160) {
 	    cat(paste0(case, ": ", names(big_list_na_omit)[case], "   "))
-	    out <- many_iterations_rcv_only_light(big_list_na_omit[[case]], rand_v_vec, lambda, s_val, 60)
+	    out <- many_iterations_rcv_only_light(big_list_na_omit[[case]], 
+	                                          rand_v_vec, 
+	                                          lambda, 
+	                                          s_val, 
+	                                          60)
 	    rcv_vec[[case]] <- cbind(out, names(big_list_na_omit)[[case]],
 	                       "IRV", 
 	                       1:61, rand_iter)
