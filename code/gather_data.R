@@ -4,8 +4,7 @@ library(pivotprobs)
 library(gtools)
 library(doParallel)
 source("code/utils/new_sv_iter.R")
-library(devtools)
-source_url("https://raw.githubusercontent.com/tobiasnowacki/RTemplates/master/plottheme.R")
+source("code/utils/sv_theme_template.R")
 
 # Load data
 load("output/big_list_2.RData")
@@ -41,7 +40,6 @@ return_obj = function(case, lambda, s){
 
 bind_together = map(nn, ~ return_obj(.x, lambda, s))
 names(bind_together) = nn
-
 
 # Function to get summary statistics
 get_sum_stats = function(obj){

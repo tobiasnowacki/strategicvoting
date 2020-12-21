@@ -5,6 +5,7 @@ source("code/utils/new_sv.R")
 sv_iter = function(
   U, 
   s, 
+  starting.v.vec = NULL,
   weights = NULL, 
   rule = "plurality", 
   lambda = .1, 
@@ -26,7 +27,11 @@ sv_iter = function(
   colnames(sincere.eu.by.ballot) = ballots
   sincere.vote.mat = ballot.mat.from.eu.mat(sincere.eu.by.ballot, break.ties.with.sincerity = FALSE)
   sincere.pref.mat = sincere_pref_mat_from_U(U, rule = rule)
-  sincere.v.vec = ballot.props.from.vote.mat.and.weights(sincere.vote.mat, weights)
+  if(is.null(starting.v.vec)){
+    sincere.v.vec = ballot.props.from.vote.mat.and.weights(sincere.vote.mat, weights)
+  } else{
+    sincere.v.vec = starting.v.vec
+  }
   # Run first iteration 
   out = list()
   out[[1]] = sv(U = U,
