@@ -48,10 +48,13 @@ joint_v_vec_plot <- function(obj, filepath){
     theme(panel.spacing = unit(0, "cm"),
           plot.margin = unit(c(0.1, 0.1, 0.1, 0.1), "cm"),
           legend.position = "bottom",
-          legend.direction = "horizontal") 
+          legend.direction = "horizontal",
+          axis.line=element_blank(),axis.text.x=element_blank(),
+          axis.text.y=element_blank(),axis.ticks=element_blank(),
+          axis.title.x=element_blank(),
+          axis.title.y=element_blank(),) 
    ggsave(paste0(filepath, "/v_vec_path.pdf"), 
          p1, 
-         device = cairo_pdf,
          height = 4,
          width = 6)
 }

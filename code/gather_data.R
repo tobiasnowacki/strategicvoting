@@ -30,7 +30,9 @@ ifelse(length(cmd_line_args >= 2),
 fpath = function(lambda, s, ext){
   paste0("output/files/", lambda, "/", s, "_", ext, ".Rdata")
 }
-
+ppath = function(lambda, s, ext){
+  paste0("output/figures/", lambda, "/", s, "_", ext, ".pdf")
+}
 
 # Function to load all cases for param values
 return_obj = function(case, lambda, s){
@@ -59,7 +61,35 @@ get_sum_stats = function(obj){
 sum_df = map_dfr(bind_together, ~ get_sum_stats(.x), .id = "case")
 save(sum_df, file = fpath(lambda, s, "sum"))
 
-# -- needs further processing
+# Get summary df and plot statistics
+summary_stats_wide <- sum_df %>% 
+  gather(., key = "stat", 
+         value = "value", "prev":"eb") %>%
+  mutate(iter = as.numeric(iter)) %>%
+  rename(ExpBenefit = eb,
+         Magnitude = mag,
+         Prevalence = prev)
+
+# weight by case weight
+summary_agg <- summary_stats_wide %>% group_by(iter, stat, system) %>%
+  summarise(value = weighted.mean(value, case_weight_tbl$case_weight))
+
+# Plot summary statistics for parameter combination
+ggplot(summary_stats_wide, aes(iter, value)) +
+  geom_line(aes(group = interaction(system, case, stat),
+                colour = system), alpha = 0.3) +
+  geom_line(data = summary_agg %>% filter(system == "plur"),
+            aes(group = interaction(system, stat)), alpha = 1,
+            color = "#CC6600", lwd = 1.1) +
+  geom_line(data = summary_agg %>% filter(system == "irv"),
+            aes(group = interaction(system, stat)), alpha = 1,
+            color = "#004C99", lwd = 1.1) +
+  facet_wrap(. ~ stat, scales = "free_y") +
+  theme_tn() +
+  guides(colour = guide_legend(override.aes = list(alpha = 1))) +
+  theme(legend.position = "bottom", legend.direction = "horizontal") +
+  labs(x = "Degree of Strategicness (Iterations)")
+ggsave(ppath(lambda, s, "summary"))
 
 # Function to save v_vec data
 get_vvecs = function(obj){
@@ -73,7 +103,7 @@ get_vvecs = function(obj){
 }
 
 vvecdf = map(bind_together, ~ get_vvecs(.x))
-names(vvecdf) = nn[1:10]
+names(vvecdf) = nn
 # Save vvec data (for later distance plots)
 save(vvecdf, file = fpath(lambda, s, "vvec"))
 
