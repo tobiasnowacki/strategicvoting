@@ -58,7 +58,6 @@ plot_v_vec_distance <- function(obj, filepath,
          y = "ln(Distance)")
   ggsave(paste0(filepath, "/dist_irv.pdf"), 
          p1, 
-         device = cairo_pdf,
          width = 4, 
          height = 4)
 
@@ -69,10 +68,10 @@ plot_v_vec_distance <- function(obj, filepath,
               alpha = 0.1,
               color = "blue") +
     labs(x = "Iteration (Strategic Responsiveness)",
-         y = "ln(Distance to lagged average)")
+         y = "ln(Distance to lagged average)") +
+         theme_tn()
   ggsave(paste0(filepath, "/dist_irv_lagged.pdf"), 
          p1_lag, 
-         device = cairo_pdf,
          width = 4,
          height = 4)
 
@@ -82,10 +81,10 @@ plot_v_vec_distance <- function(obj, filepath,
               alpha = 0.1, 
               color = "blue") +
     labs(x = "Iteration (Strategic Responsiveness)",
-         y = "ln(Distance)")
+         y = "ln(Distance)") +
+         theme_tn()
   ggsave(paste0(filepath, "/dist_plur.pdf"), 
          p2, 
-         device = cairo_pdf,
          width = 4,
          height = 4)
 
@@ -112,44 +111,44 @@ plot_v_vec_distance <- function(obj, filepath,
   plot_br_1 <- ggplot(br_dist %>% filter(iter > 0), aes(iter, log(d))) +
     geom_line(aes(group = case), alpha = 0.1) +
     facet_wrap(. ~ system) +
-    labs(x = "Iteration", y = "ln(Distance)")
+    labs(x = "Iteration", y = "ln(Distance)") +
+         theme_tn()
   ggsave(paste0(filepath, "/dist_br.pdf"),
               plot_br_1,
               height = 4,
-              width = 8,
-              device = cairo_pdf)
+              width = 8)
 
   # t to avg(t-10 : t-20)
   plot_br_2 <- ggplot(br_dist %>% filter(iter > 0), aes(iter, log(l_avg))) +
     geom_line(aes(group = case), alpha = 0.1) +
     facet_wrap(. ~ system) +
-    labs(x = "Iteration", y = "ln(Lagged Distance)")
+    labs(x = "Iteration", y = "ln(Lagged Distance)") +
+         theme_tn()
   ggsave(paste0(filepath, "/dist_br_lag.pdf"),
               plot_br_2,
               height = 4,
-              width = 8,
-              device = cairo_pdf)
+              width = 8)
 
   # linear, rather than logged
   plot_br_3 <- ggplot(br_dist %>% filter(iter > 0), aes(iter, d)) +
     geom_line(aes(group = case), alpha = 0.1) +
     facet_wrap(. ~ system) +
-    labs(x = "Iteration", y = "Distance")
+    labs(x = "Iteration", y = "Distance") +
+         theme_tn()
   ggsave(paste0(filepath, "/dist_br_lin.pdf"),
               plot_br_3,
               height = 4,
-              width = 8,
-              device = cairo_pdf)
+              width = 8)
 
   plot_br_4 <- ggplot(br_dist %>% filter(iter > 0), aes(iter, l_avg)) +
     geom_line(aes(group = case), alpha = 0.1) +
     facet_wrap(. ~ system) +
-    labs(x = "Iteration", y = "Lagged Distance")
+    labs(x = "Iteration", y = "Lagged Distance") +
+         theme_tn()
   ggsave(paste0(filepath, "/dist_br_lag_lin.pdf"),
               plot_br_4,
               height = 4,
-              width = 8,
-              device = cairo_pdf)
+              width = 8)
 
   # save(br_dist, file = here(paste0(filepath, "v_vecs_br.Rdata")))
 

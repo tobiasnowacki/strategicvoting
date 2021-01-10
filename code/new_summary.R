@@ -40,6 +40,14 @@ summary_df <- do.call(rbind, summary_list) %>%
          iter = as.numeric(iter), 
          wrapcat = paste0(name, ", ", s))
 
+# Change factor order for grid order in plot
+level.byrow <- function(vec, nc){
+  fac <- factor(vec) #if it is not a factor
+  mlev <- matrix(levels(fac), nrow=nc, byrow=T)
+  factor(fac, levels= c(mlev))
+}
+summary_df$wrapcat = level.byrow(summary_df$wrapcat, 3)
+
 agg_df <- summary_df %>% 
   group_by(iter,  lambda, wrapcat, system) %>% 
   summarise(value = weighted.mean(value, case_weight)) %>%
@@ -53,7 +61,7 @@ main_plot <- ggplot(summary_df %>% filter(lambda == 1 & iter < 61), aes(as.numer
             color = "#004C99", lwd = 1.1) + 
   geom_line(data = agg_df %>% filter(system == "Plurality" & lambda == 1 & iter < 61), 
             color = "#CC6600", lwd = 1.1) + 
-  facet_wrap(. ~ wrapcat, scales = "free", shrink = TRUE) +
+  facet_wrap(wrapcat ~ ., scales = "free", shrink = TRUE) +
   guides(colour = guide_legend(override.aes = list(alpha = 1))) +
   theme(legend.position = "bottom", legend.direction = "horizontal") +
   labs(x = "Degree of Strategicness (Iterations)", y = "Value", colour = "System") +
