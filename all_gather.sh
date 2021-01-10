@@ -9,6 +9,8 @@
 #SBATCH --mail-user=toby.nowacki@gmail.com
 #SBATCH --mail-type=ALL
 
+module load R/4.0
+module load cairo
 sbatch gather.sh 85 1
 sbatch gather.sh 85 2
 sbatch gather.sh 85 3
