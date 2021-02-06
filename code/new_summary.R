@@ -48,13 +48,21 @@ level.byrow <- function(vec, nc){
 }
 summary_df$wrapcat = level.byrow(summary_df$wrapcat, 3)
 
+# Adjust NaN that occurred in US_2004 in magnitude when s = 10 (basically no-one would want to vote strategically)
+summary_df = summary_df %>%
+  mutate(value = case_when(
+    name %in% c("Magnitude", "ExpBenefit") & is.na(value) ~ 0
+    TRUE ~ value
+  ))
+
+# Calculate weighted mean for each iteration
 agg_df <- summary_df %>% 
   group_by(iter,  lambda, wrapcat, system) %>% 
   summarise(value = weighted.mean(value, case_weight)) %>%
   mutate(iter = as.numeric(iter))
 
 main_plot <- ggplot(summary_df %>% filter(lambda == 1 & iter < 61), aes(as.numeric(iter), value)) +
-  geom_line(aes(group = interaction(case, system), colour = system), alpha = 0.1) +
+  geom_line(aes(group = interaction(case, system), colour = system), alpha = 0.05) +
   geom_point(data = hidden_scale_adj, alpha = 0) +
   scale_color_manual(values = c("#004C99", "#CC6600")) +
   geom_line(data = agg_df %>% filter(system == "IRV" & lambda == 1 & iter < 61), 
@@ -68,3 +76,7 @@ main_plot <- ggplot(summary_df %>% filter(lambda == 1 & iter < 61), aes(as.numer
   theme_tn()
 ggsave("output/figures/iterated_complete.pdf", main_plot, 
        width = 6, height = 6.5)
+
+yy = inner_list$rcv[[17]]
+table(yy$tau > 0)
+mean(yy$tau[yy$tau > 0])

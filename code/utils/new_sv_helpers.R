@@ -61,7 +61,7 @@ ballot_mat_from_eu_mat <- function(
   eu_mat, 
   break_ties_with_sincerity = TRUE, 
   sincere_mat = NULL, 
-  weight = 1e-15, 
+  weight = 1e-10, 
   normalize_eu_mat = TRUE){
   
   if(normalize_eu_mat){
