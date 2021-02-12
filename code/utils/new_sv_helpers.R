@@ -96,7 +96,14 @@ optimal.vote.from.V.mat = function(V.mat){
 }
 
 # Reduces EU matrix to difference between best non-sincere and sincere vote
-get.tau.from.eu.by.ballot.and.V0 = function(eu.by.ballot, V0){
+get.tau.from.eu.by.ballot.and.V0 = function(eu.by.ballot, V0, 
+  weight_on = TRUE, 
+  sincere_mat, weight = 1e-10){
+  if(weight_on == TRUE){
+      # give little extra weight to sincere preference
+      eu.by.ballot = eu.by.ballot + sincere_mat * weight
+  }
+
   eu.without.sincere.fave = eu.with.only.sincere.fave = eu.by.ballot
   eu.without.sincere.fave[V0 == 1] = NA
   max.not.fave = apply(eu.without.sincere.fave, 1, max, na.rm = T) 

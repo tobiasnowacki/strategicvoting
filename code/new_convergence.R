@@ -1,6 +1,19 @@
 # New file to get v_vec data together and create new plots / distance tables
+# LOAD DEPENDENCIES
+library(tidyverse)
+library(pivotprobs)
+library(gtools)
+library(doParallel)
 
-source("code/prep_cses.R") 	# data prep
+
+# Load functions
+source("code/utils/new_sv_iter.R")
+# Load data
+load("output/big_list_2.RData")
+vap <- read.csv("data/case_vap.csv", sep = "") # voting age pop.
+cat("Data imported. \n")
+source("code/prep_cses.R")  # data prep
+
 source("code/utils/sv_theme_template.R")
 
 s_param <- c("10", "55", "85")
