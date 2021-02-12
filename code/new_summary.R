@@ -51,7 +51,7 @@ summary_df$wrapcat = level.byrow(summary_df$wrapcat, 3)
 # Adjust NaN that occurred in US_2004 in magnitude when s = 10 (basically no-one would want to vote strategically)
 summary_df = summary_df %>%
   mutate(value = case_when(
-    name %in% c("Magnitude", "ExpBenefit") & is.na(value) ~ 0
+    name %in% c("Magnitude", "ExpBenefit") & is.na(value) ~ 0,
     TRUE ~ value
   ))
 
@@ -77,6 +77,3 @@ main_plot <- ggplot(summary_df %>% filter(lambda == 1 & iter < 61), aes(as.numer
 ggsave("output/figures/iterated_complete.pdf", main_plot, 
        width = 6, height = 6.5)
 
-yy = inner_list$rcv[[17]]
-table(yy$tau > 0)
-mean(yy$tau[yy$tau > 0])

@@ -87,7 +87,7 @@ sv = function(U, weights = NULL, v.vec = NULL, s, rule = "plurality", V0 = NULL,
   opt.votes.sincere = optimal.vote.from.V.mat(V0)
 
   # calculate tau 
-  tau = get.tau.from.eu.by.ballot.and.V0(eu.by.ballot, V0)
+  tau = get.tau.from.eu.by.ballot.and.V0(eu.by.ballot, V0, sincere_mat = sincere_pref_mat)
   
   # now output 
   list(opt.votes.strategic = opt.votes.strategic, opt.votes.sincere = opt.votes.sincere, piv.probs = pps, tau = tau, weights = weights, V.mat = V.mat, V0 = V0, eu.mat = eu.by.ballot, p.mat = P.mat)
