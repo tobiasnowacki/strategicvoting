@@ -12,6 +12,8 @@ vap <- read.csv("data/case_vap.csv", sep = "") # voting age pop.
 cat("Data imported. \n")
 source("code/prep_cses.R")  # data prep
 
+which(names(big_list_na_omit) == "SWE_2014")
+
 # SET PARAMETERS
 cmd_line_args <- commandArgs(trailingOnly = TRUE)
 cat(cmd_line_args, sep = "n")
@@ -19,8 +21,8 @@ cat(cmd_line_args, sep = "n")
 s_list <- as.list(c(10, 25, 40, 55, 70, 85)) # precision (s)
 lambda_list <- as.list(c(0.05, 0.1, 0.01))   # responsiveness ()
 # epsilon_thresh <- 0.001            # threshold (epsilon)
-max_iter_val <- 250              # no of iterations
-which_cases <- 1:160          # which cases?
+max_iter_val <- 100              # no of iterations
+which_cases <- 32          # which cases?
 
 # If command line does not pick s, lambda:
 ifelse(length(cmd_line_args >= 1),
