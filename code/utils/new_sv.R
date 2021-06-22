@@ -107,7 +107,7 @@ sv = function(U,
   opt.votes.sincere = optimal.vote.from.V.mat(V0)
 
   # calculate tau 
-  tau = get.tau.from.eu.by.ballot.and.V0(eu.by.ballot, V0)
+  tau = get.tau.from.eu.by.ballot.and.V0(eu.by.ballot, V0, sincere_mat = sin_pref_mat)
 
   # get best response v.vec
   br.v.vec = ballot.props.from.vote.mat.and.weights(V.mat, weights = weights)
