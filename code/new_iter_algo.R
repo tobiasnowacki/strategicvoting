@@ -12,7 +12,7 @@ vap <- read.csv("data/case_vap.csv", sep = "") # voting age pop.
 cat("Data imported. \n")
 source("code/prep_cses.R")  # data prep
 
-which(names(big_list_na_omit) == "SWE_2014")
+# which(names(big_list_na_omit) == "SWE_2014")
 
 # SET PARAMETERS
 cmd_line_args <- commandArgs(trailingOnly = TRUE)
@@ -65,7 +65,7 @@ cases_converge <- foreach(j = which_cases,
                 s = 85,
                 rule = "plurality",
                 weights = case$weights,
-                lambda = .05,
+                lambda = lambda_val,
                 max.iterations = max_iter_val,
                 noisy = FALSE
               )
