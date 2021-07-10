@@ -1,0 +1,32 @@
+── Attaching packages ─────────────────────────────────────── tidyverse 1.3.0 ──
+✔ ggplot2 3.3.2     ✔ purrr   0.3.4
+✔ tibble  3.0.4     ✔ dplyr   1.0.2
+✔ tidyr   1.1.2     ✔ stringr 1.4.0
+✔ readr   1.4.0     ✔ forcats 0.5.0
+── Conflicts ────────────────────────────────────────── tidyverse_conflicts() ──
+✖ dplyr::filter() masks stats::filter()
+✖ dplyr::lag()    masks stats::lag()
+Loading required package: magrittr
+
+Attaching package: ‘magrittr’
+
+The following object is masked from ‘package:purrr’:
+
+    set_names
+
+The following object is masked from ‘package:tidyr’:
+
+    extract
+
+Loading required package: foreach
+
+Attaching package: ‘foreach’
+
+The following objects are masked from ‘package:purrr’:
+
+    accumulate, when
+
+Loading required package: iterators
+Loading required package: parallel
+Joining, by = "cntry"
+slurmstepd: error: *** JOB 28218154 ON sh03-12n17 CANCELLED AT 2021-07-09T20:05:54 DUE TO TIME LIMIT ***
