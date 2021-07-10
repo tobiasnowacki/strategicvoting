@@ -1,0 +1,2 @@
+/var/spool/slurmd/job27086733/slurm_script: line 12: Rscript: command not found
+/var/spool/slurmd/job27086733/slurm_script: line 13: Rscript: command not found
