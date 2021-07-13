@@ -54,7 +54,7 @@ sv_four <- function(U,
         # Step 1: Simulate results
         mc_sims <- simulate_ordinal_results_from_dirichlet(
             k = 4,
-            n = 500000,
+            n = 200000,
             alpha = v.vec * s
         )
         # Step 2: Calculate pprobs
@@ -65,13 +65,20 @@ sv_four <- function(U,
             combine_P_matrices()
         P.mat <- P.mat[, -25] # delete abstention
     } else if (rule == "plurality") {
-        pps <- plurality_election(k = 4, n = 1) %>%
+        pps <- plurality_election(k = 4, n = 1000) %>%
             election_event_probs(
                 method = "sc",
                 alpha = (v.vec * s),
                 drop_dimension = TRUE,
                 merge_adjacent_pivot_events = TRUE
             )
+        
+        # Divide  to get pivot for each voter
+        pps <- lapply(pps, function(x) {
+            x$integral <- x$integral * 1000
+            return(x)
+        })
+      
         P.mat <- pps %>% combine_P_matrices()
         P.mat <- P.mat[, -5]
         pps <- map(pps, "integral")
