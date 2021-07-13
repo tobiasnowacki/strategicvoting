@@ -1,6 +1,6 @@
 # Function to get summary statistics
 get_sum_stats = function(obj){
-  w = obj$rcv[[i]]$weights
+  w = obj$rcv[[1]]$weights
   map_dfr(c("rcv", "plur"), function(y){
     names(obj[[y]]) = 1:length(obj[[y]])
     map(obj[[y]], ~
