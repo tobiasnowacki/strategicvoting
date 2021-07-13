@@ -1,9 +1,9 @@
 #!/bin/sh
 #SBATCH --time=4:00:00
-#SBATCH --mem=266G
-#SBATCH --partition=bigmem
-#SBATCH --ntasks-per-node=4
-#SBATCH --job-name="servercode"
+#SBATCH --mem=64G
+#SBATCH --partition=andyhall
+#SBATCH --ntasks-per-node=16
+#SBATCH --job-name="iter_four"
 #SBATCH --error=rep4.stderr
 #SBATCH --output=rep4.out
 #SBATCH --mail-user=toby.nowacki@gmail.com

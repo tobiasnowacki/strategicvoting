@@ -19,6 +19,4 @@ The following object is masked from ‘package:tidyr’:
     extract
 
 Joining, by = "cntry"
-Error in get_sum_stats(.x) : could not find function "get_sum_stats"
-Calls: map_dfr -> map -> .f
-Execution halted
+`summarise()` regrouping output by 'iter', 'name' (override with `.groups` argument)

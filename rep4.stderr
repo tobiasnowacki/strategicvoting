@@ -29,4 +29,3 @@ The following objects are masked from ‘package:purrr’:
 Loading required package: iterators
 Loading required package: parallel
 Joining, by = "cntry"
-slurmstepd: error: *** JOB 28218154 ON sh03-12n17 CANCELLED AT 2021-07-09T20:05:54 DUE TO TIME LIMIT ***
