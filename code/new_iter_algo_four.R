@@ -12,13 +12,15 @@ vap <- read.csv("data/case_vap.csv", sep = "") # voting age pop.
 cat("Data imported. \n")
 source("code/prep_cses.R") # data prep
 
+# NZL_2014 only has three parties!
+
 # which(names(big_list_na_omit) == "SWE_2014")
 
 # SET PARAMETERS
 s_val <- 85
 lambda_val <- 0.05
-max_iter_val <- 100 # no of iterations
-which_cases <- 1:160 # which cases?
+max_iter_val <- 75 # no of iterations
+which_cases <- 1:100 # which cases?
 
 # Override previous .txt file
 close(file("clusterlog_four.txt", open = "w"))
@@ -59,11 +61,11 @@ cases_converge <- foreach(
     )
 
     filepath <- paste0(
-        "output/files/", 
-        l_choice, 
-        "/", 
-        s_val, 
-        "_", 
+        "output/files/",
+        "1",
+        "/",
+        s_val,
+        "_",
         names(big_list_na_omit)[j], "_iterout_fourparties.Rdata"
     )
     save(inner_list, file = filepath)
