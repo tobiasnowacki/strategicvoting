@@ -84,7 +84,6 @@ t <- ggplot(summary_stats_wide, aes(iter, value)) +
             aes(group = interaction(system, name)), alpha = 1,
             color = "#004C99", lwd = 1.1) + 
   facet_wrap(. ~ name, scales = "free_y") +
-  theme_tn() +
   scale_color_manual(values = c("#CC6600", "#004C99")) +
   guides(colour = guide_legend(override.aes = list(alpha = 1))) +
   theme(legend.position = "bottom", legend.direction = "horizontal") +
