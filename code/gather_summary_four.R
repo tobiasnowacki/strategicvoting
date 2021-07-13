@@ -45,7 +45,7 @@ filelist <- list.files(path = "output/files/1/")
 filelist <- filelist[grepl("fourparties", filelist)]
 caselist <- substr(filelist, 4, 11)
 bind_together = map(filelist, ~ return_obj(.x))
-names(bind_together) = nn
+# names(bind_together) = nn
 
 # SUMMARY STATISTICS -------------------------------------------
 sum_df = map_dfr(bind_together, ~ get_sum_stats(.x), .id = "case")
