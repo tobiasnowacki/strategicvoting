@@ -65,8 +65,10 @@ ballot_mat_from_eu_mat <- function(
   normalize_eu_mat = TRUE){
   
   if(normalize_eu_mat){
+    # only relevant for calculating Vmat -- doesn't actually change EUs
     max_eus = apply(eu_mat, 1, max, na.rm = T)
-    eu_mat <- eu_mat/matrix(max_eus, nrow = nrow(eu_mat), ncol = ncol(eu_mat), byrow = F)
+    max_mat <- matrix(max_eus, nrow = nrow(eu_mat), ncol = ncol(eu_mat), byrow = F) %>% abs()
+    eu_mat <- eu_mat/max_mat
   }
 
   if(break_ties_with_sincerity){
