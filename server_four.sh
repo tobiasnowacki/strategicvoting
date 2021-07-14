@@ -2,7 +2,7 @@
 #SBATCH --time=4:00:00
 #SBATCH --mem=64G
 #SBATCH --partition=andyhall
-#SBATCH --ntasks-per-node=16
+#SBATCH --ntasks-per-node=24
 #SBATCH --job-name="iter_four"
 #SBATCH --error=rep4.stderr
 #SBATCH --output=rep4.out
