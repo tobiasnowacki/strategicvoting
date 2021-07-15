@@ -37,6 +37,7 @@ ppath = function(lambda, s, ext){
 # Function to load all cases for param values
 return_obj = function(fname){
   load(paste0("output/files/", 1, "/", fname))
+  inner_list$casename <- substr(fname, 4, 11)
   return(inner_list)
 }
 
@@ -45,6 +46,7 @@ return_obj = function(fname){
 filelist <- list.files(path = "output/files/1/")
 filelist <- filelist[grepl("fourparties", filelist)]
 caselist <- substr(filelist, 4, 11)
+
 bind_together = map(filelist, ~ return_obj(.x))
 # names(bind_together) = nn
 
@@ -64,13 +66,11 @@ summary_stats_wide <- sum_df %>%
     system == "rcv" ~ "RCV"
   ))
 
-# weight by case weight
-case_weight_tbl <- case_weight_tbl[case_weight_tbl$case %in% caselist, ] %>%
-    arrange(case)
-
+# weighted averages by case weight
 summary_agg <- summary_stats_wide %>% 
+  left_join(case_weight_tbl, by = c("casename" = "case")) %>%
   group_by(iter, name, system) %>%
-  summarise(value = weighted.mean(value, case_weight_tbl$case_weight)) %>%
+  summarise(value = weighted.mean(value, case_weight)) %>%
   mutate(iter = as.numeric(iter))
 
 # Plot summary statistics for parameter combination and save

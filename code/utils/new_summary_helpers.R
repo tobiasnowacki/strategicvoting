@@ -9,7 +9,7 @@ get_sum_stats = function(obj){
             mag  = weighted.mean(.x$tau[tolower(.x$opt.votes.strategic) != .x$opt.votes.sincere], w[tolower(.x$opt.votes.strategic) != .x$opt.votes.sincere]),
             eb = prev * mag)) %>%
       bind_rows(.id = "iter") %>%
-      mutate(system = y)
+      mutate(system = y, casename = obj$casename)
   })
 }
 
