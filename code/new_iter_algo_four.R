@@ -12,6 +12,9 @@ vap <- read.csv("data/case_vap.csv", sep = "") # voting age pop.
 cat("Data imported. \n")
 source("code/prep_cses.R") # data prep
 
+# Get rid of cases that don't have any rows
+index <- map_dbl(big_list_na_omit, ~ nrow(.x$U)) == 0
+
 # NZL_2014 only has three parties!
 
 # which(names(big_list_na_omit) == "SWE_2014")
@@ -20,10 +23,11 @@ source("code/prep_cses.R") # data prep
 s_val <- 85
 lambda_val <- 0.05
 max_iter_val <- 75 # no of iterations
-which_cases <- 1:100 # which cases?
+which_cases <- 1:160 # which cases?
+which_cases <- which_cases[!index] #get rid of the ones with no obs
 
 # Override previous .txt file
-close(file("clusterlog_four.txt", open = "w"))
+close(file("clusterlog_fourtxt", open = "w"))
 
 # MULTIPLE CORES
 clno <- detectCores()
@@ -40,7 +44,7 @@ cases_converge <- foreach(
 ) %dopar% {
     case <- big_list_na_omit[[j]]
     inner_list <- list()
-    cat(paste0("Starting case ", j, " out of ", max(which_cases), ".", "\n"))
+    cat(paste0("Starting case ", j, " out of ", max(which_cases), ".", names(big_list_na_omit)[j], "\n"))
     inner_list$rcv <- sv_iter(
         U = case$U,
         s = s_val,
@@ -50,6 +54,7 @@ cases_converge <- foreach(
         max.iterations = max_iter_val,
         noisy = FALSE
     )
+    
     inner_list$plur <- sv_iter(
         U = case$U,
         s = 85,

@@ -1,5 +1,5 @@
 #!/bin/sh
-#SBATCH --time=0:30:00
+#SBATCH --time=0:10:00
 #SBATCH --mem=32G
 #SBATCH --partition=hns
 #SBATCH --ntasks-per-node=6
