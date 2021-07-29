@@ -41,12 +41,45 @@ sv_iter = function(
     rule = rule,
     V0 = sincere.vote.mat,
     sin_pref_mat = sincere.pref.mat)
+
+  # identify sincere winner
+  if (rule == "plurality") {
+    sincere_winner <- which.max(sincere.v.vec)
+  }
+  if(rule == "AV"){
+    svec <- sincere.v.vec %>%
+      t() %>%
+      as_tibble()
+    names(svec) <- c("ABC", "ACB", "BAC", "BCA", "CAB", "CBA")
+    svec <- svec %>% mutate(id = 1)
+    sincere_winner <- irv_winners(svec)$winner[1]
+  }
+
   # cat(sincere.v.vec)
   # Run subsequent iterations
   for(i in 2:max.iterations){
     if(noisy){cat("Iteration ", i, "\n", sep ="")}
     strategic.v.vec.i = lambda*out[[i-1]]$best.response.v.vec + (1 - lambda)*out[[i-1]]$v.vec.before
     overall.v.vec.i = sincere.proportion*sincere.v.vec + (1-sincere.proportion)*strategic.v.vec.i
+
+    # Compute winner(s)
+    if (rule == "plurality") {
+      mat <- rdirichlet(100000, s * overall.v.vec.i)
+
+      winner_vec <- apply(mat, 1, which.max)
+      winner_share <- sum(winner_vec == sincere_winner)
+    }
+    if(rule == "AV"){
+      mat <- simulate_ordinal_results_from_dirichlet(
+        k = 3,
+        n = 100000,
+        alpha = s * overall.v.vec.i
+      )
+      win_df <- irv_winners(mat)
+      winner_share <- sum(win_df$winner == sincere_winner)
+    }
+
+    out[[i - 1]]$wintbl <- winner_share / 100000
 
     # Replace this below with sv function 
     out[[i]] = sv(U = U,
