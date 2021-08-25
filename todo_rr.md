@@ -1,0 +1,9 @@
+todo for R+R
+
+* figure out and finish 4-party cases...
+    * run algo again with 'minus' bug fixed
+    * summary plot -- make sure it renders properly...
+    * how to deal with zero prevalence cases?
+* divide cases into PR / Plurality and compute averages separately
+* probability of winning (Laurent's memo commen)
+* refactor to include four-party versions into existing function / code base...

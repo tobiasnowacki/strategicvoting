@@ -1,11 +1,11 @@
 #!/bin/sh
-#SBATCH --time=3:00:00
-#SBATCH --mem=200G
-#SBATCH --partition=bigmem
+#SBATCH --time=2:00:00
+#SBATCH --mem=64G
+#SBATCH --partition=andyhall
 #SBATCH --ntasks-per-node=6
-#SBATCH --job-name="servercode"
-#SBATCH --error=rep.stderr
-#SBATCH --output=rep.out
+#SBATCH --job-name="gather"
+#SBATCH --error=g.stderr
+#SBATCH --output=g.out
 #SBATCH --mail-user=toby.nowacki@gmail.com
 #SBATCH --mail-type=ALL
 

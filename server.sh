@@ -1,8 +1,8 @@
 #!/bin/sh
 #SBATCH --time=2:00:00
-#SBATCH --mem=194G
-#SBATCH --partition=bigmem
-#SBATCH --ntasks-per-node=4
+#SBATCH --mem=64G
+#SBATCH --partition=andyhall
+#SBATCH --ntasks-per-node=24
 #SBATCH --job-name="servercode"
 #SBATCH --error=rep.stderr
 #SBATCH --output=rep.out

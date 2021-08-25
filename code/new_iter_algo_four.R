@@ -27,7 +27,7 @@ which_cases <- 1:160 # which cases?
 which_cases <- which_cases[!index] #get rid of the ones with no obs
 
 # Override previous .txt file
-close(file("clusterlog_fourtxt", open = "w"))
+close(file("clusterlog_four.txt", open = "w"))
 
 # MULTIPLE CORES
 clno <- detectCores()

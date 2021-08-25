@@ -67,7 +67,11 @@ sv_iter = function(
       mat <- rdirichlet(100000, s * overall.v.vec.i)
 
       winner_vec <- apply(mat, 1, which.max)
-      winner_share <- sum(winner_vec == sincere_winner)
+      winner_share_vec <- c(
+        sum(winner_vec == 1, na.rm = TRUE),
+        sum(winner_vec == 2, na.rm = TRUE),
+        sum(winner_vec == 3, na.rm = TRUE)
+      ) / length(winner_vec)
     }
     if(rule == "AV"){
       mat <- simulate_ordinal_results_from_dirichlet(
@@ -76,10 +80,20 @@ sv_iter = function(
         alpha = s * overall.v.vec.i
       )
       win_df <- irv_winners(mat)
-      winner_share <- sum(win_df$winner == sincere_winner)
+      winner_share_vec <- c(
+        sum(win_df$winner == "A", na.rm = TRUE),
+        sum(win_df$winner == "B", na.rm = TRUE),
+        sum(win_df$winner == "C", na.rm = TRUE)
+      ) / nrow(win_df)
     }
 
-    out[[i - 1]]$wintbl <- winner_share / 100000
+    # return(winner_share_vec)
+    # Insert into object
+    out[[i - 1]]$wintbl <- winner_share_vec
+
+    # Calculate exp utility from winners
+    out[[i - 1]]$exp_win <- as.matrix(U) %*% winner_share_vec
+    out[[i - 1]]$exp_win_mean <- wtd.mean(out[[i - 1]]$exp_win, weights = weights, na.rm = TRUE)
 
     # Replace this below with sv function 
     out[[i]] = sv(U = U,
