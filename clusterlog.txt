@@ -1,3 +1,5 @@
+<<<<<<< HEAD
+<<<<<<< HEAD
 starting worker pid=24014 on localhost:11783 at 22:55:55.267
 starting worker pid=24016 on localhost:11783 at 22:55:55.275
 starting worker pid=24015 on localhost:11783 at 22:55:55.278
@@ -11,10 +13,354 @@ starting worker pid=24020 on localhost:11783 at 22:55:55.331
 ✔ tibble  3.0.4     ✔ dplyr   1.0.2
 ✔ tidyr   1.1.2     ✔ forcats 0.5.0
 ✔ readr   1.3.1     
+=======
+=======
+>>>>>>> 95425d540f4efbe579af50da3c43f21f50cc9383
+starting worker pid=65291 on localhost:11292 at 12:53:47.316
+starting worker pid=65295 on localhost:11292 at 12:53:47.322
+starting worker pid=65281 on localhost:11292 at 12:53:47.327
+starting worker pid=65287 on localhost:11292 at 12:53:47.331
+starting worker pid=65279 on localhost:11292 at 12:53:47.333
+starting worker pid=65286 on localhost:11292 at 12:53:47.335
+starting worker pid=65294 on localhost:11292 at 12:53:47.335
+starting worker pid=65276 on localhost:11292 at 12:53:47.335
+starting worker pid=65282 on localhost:11292 at 12:53:47.340
+starting worker pid=65277 on localhost:11292 at 12:53:47.343
+starting worker pid=65296 on localhost:11292 at 12:53:47.344
+starting worker pid=65280 on localhost:11292 at 12:53:47.345
+starting worker pid=65290 on localhost:11292 at 12:53:47.346
+starting worker pid=65292 on localhost:11292 at 12:53:47.346
+starting worker pid=65285 on localhost:11292 at 12:53:47.349
+starting worker pid=65278 on localhost:11292 at 12:53:47.350
+starting worker pid=65274 on localhost:11292 at 12:53:47.350
+starting worker pid=65284 on localhost:11292 at 12:53:47.352
+starting worker pid=65288 on localhost:11292 at 12:53:47.352
+starting worker pid=65283 on localhost:11292 at 12:53:47.353
+starting worker pid=65275 on localhost:11292 at 12:53:47.353
+starting worker pid=65297 on localhost:11292 at 12:53:47.355
+starting worker pid=65289 on localhost:11292 at 12:53:47.355
+starting worker pid=65293 on localhost:11292 at 12:53:47.362
+── Attaching packages ─────────────────────────────────────── tidyverse 1.3.0 ──
+✔ ggplot2 3.3.2     ✔ purrr   0.3.4
+✔ tibble  3.1.3     ✔ dplyr   1.0.7
+✔ tidyr   1.1.3     ✔ forcats 0.5.0
+✔ readr   1.4.0     
+── Attaching packages ─────────────────────────────────────── tidyverse 1.3.0 ──
+✔ ggplot2 3.3.2     ✔ purrr   0.3.4
+✔ tibble  3.1.3     ✔ dplyr   1.0.7
+✔ tidyr   1.1.3     ✔ forcats 0.5.0
+✔ readr   1.4.0     
+── Attaching packages ─────────────────────────────────────── tidyverse 1.3.0 ──
+✔ ggplot2 3.3.2     ✔ purrr   0.3.4
+✔ tibble  3.1.3     ✔ dplyr   1.0.7
+✔ tidyr   1.1.3     ✔ forcats 0.5.0
+✔ readr   1.4.0     
+── Conflicts ────────────────────────────────────────── tidyverse_conflicts() ──
+✖ dplyr::filter() masks stats::filter()
+✖ dplyr::lag()    masks stats::lag()
+Loading required package: magrittr
+
+Attaching package: ‘magrittr’
+
+The following object is masked from ‘package:purrr’:
+
+    set_names
+
+The following object is masked from ‘package:tidyr’:
+
+    extract
+
 ── Conflicts ────────────────────────────────────────── tidyverse_conflicts() ──
 ✖ dplyr::filter() masks stats::filter()
 ✖ dplyr::lag()    masks stats::lag()
 ── Attaching packages ─────────────────────────────────────── tidyverse 1.3.0 ──
+Loading required package: magrittr
+✔ ggplot2 3.3.2     ✔ purrr   0.3.4
+✔ tibble  3.1.3     ✔ dplyr   1.0.7
+✔ tidyr   1.1.3     ✔ forcats 0.5.0
+✔ readr   1.4.0     
+
+Attaching package: ‘magrittr’
+
+The following object is masked from ‘package:purrr’:
+
+    set_names
+
+The following object is masked from ‘package:tidyr’:
+
+    extract
+
+── Conflicts ────────────────────────────────────────── tidyverse_conflicts() ──
+✖ dplyr::filter() masks stats::filter()
+✖ dplyr::lag()    masks stats::lag()
+Loading required package: magrittr
+── Attaching packages ─────────────────────────────────────── tidyverse 1.3.0 ──
+
+Attaching package: ‘magrittr’
+
+The following object is masked from ‘package:purrr’:
+
+    set_names
+
+The following object is masked from ‘package:tidyr’:
+
+    extract
+
+── Attaching packages ─────────────────────────────────────── tidyverse 1.3.0 ──
+✔ ggplot2 3.3.2     ✔ purrr   0.3.4
+✔ tibble  3.1.3     ✔ dplyr   1.0.7
+✔ tidyr   1.1.3     ✔ forcats 0.5.0
+✔ readr   1.4.0     
+✔ ggplot2 3.3.2     ✔ purrr   0.3.4
+✔ tibble  3.1.3     ✔ dplyr   1.0.7
+✔ tidyr   1.1.3     ✔ forcats 0.5.0
+✔ readr   1.4.0     
+── Conflicts ────────────────────────────────────────── tidyverse_conflicts() ──
+✖ dplyr::filter() masks stats::filter()
+✖ dplyr::lag()    masks stats::lag()
+Loading required package: magrittr
+
+Attaching package: ‘magrittr’
+
+The following object is masked from ‘package:purrr’:
+
+    set_names
+
+The following object is masked from ‘package:tidyr’:
+
+    extract
+
+── Attaching packages ─────────────────────────────────────── tidyverse 1.3.0 ──
+✔ ggplot2 3.3.2     ✔ purrr   0.3.4
+✔ tibble  3.1.3     ✔ dplyr   1.0.7
+✔ tidyr   1.1.3     ✔ forcats 0.5.0
+✔ readr   1.4.0     
+── Conflicts ────────────────────────────────────────── tidyverse_conflicts() ──
+✖ dplyr::filter() masks stats::filter()
+✖ dplyr::lag()    masks stats::lag()
+── Conflicts ────────────────────────────────────────── tidyverse_conflicts() ──
+✖ dplyr::filter() masks stats::filter()
+✖ dplyr::lag()    masks stats::lag()
+Loading required package: magrittr
+Loading required package: magrittr
+
+Attaching package: ‘magrittr’
+
+The following object is masked from ‘package:purrr’:
+
+    set_names
+
+The following object is masked from ‘package:tidyr’:
+
+    extract
+
+
+Attaching package: ‘magrittr’
+
+The following object is masked from ‘package:purrr’:
+
+    set_names
+
+The following object is masked from ‘package:tidyr’:
+
+    extract
+
+── Attaching packages ─────────────────────────────────────── tidyverse 1.3.0 ──
+── Attaching packages ─────────────────────────────────────── tidyverse 1.3.0 ──
+✔ ggplot2 3.3.2     ✔ purrr   0.3.4
+✔ tibble  3.1.3     ✔ dplyr   1.0.7
+✔ tidyr   1.1.3     ✔ forcats 0.5.0
+✔ readr   1.4.0     
+✔ ggplot2 3.3.2     ✔ purrr   0.3.4
+✔ tibble  3.1.3     ✔ dplyr   1.0.7
+✔ tidyr   1.1.3     ✔ forcats 0.5.0
+✔ readr   1.4.0     
+── Conflicts ────────────────────────────────────────── tidyverse_conflicts() ──
+✖ dplyr::filter() masks stats::filter()
+✖ dplyr::lag()    masks stats::lag()
+Loading required package: magrittr
+── Attaching packages ─────────────────────────────────────── tidyverse 1.3.0 ──
+
+Attaching package: ‘magrittr’
+
+The following object is masked from ‘package:purrr’:
+
+    set_names
+
+The following object is masked from ‘package:tidyr’:
+
+    extract
+
+✔ ggplot2 3.3.2     ✔ purrr   0.3.4
+✔ tibble  3.1.3     ✔ dplyr   1.0.7
+✔ tidyr   1.1.3     ✔ forcats 0.5.0
+✔ readr   1.4.0     
+── Conflicts ────────────────────────────────────────── tidyverse_conflicts() ──
+✖ dplyr::filter() masks stats::filter()
+✖ dplyr::lag()    masks stats::lag()
+── Attaching packages ─────────────────────────────────────── tidyverse 1.3.0 ──
+── Conflicts ────────────────────────────────────────── tidyverse_conflicts() ──
+✖ dplyr::filter() masks stats::filter()
+✖ dplyr::lag()    masks stats::lag()
+Loading required package: magrittr
+
+Attaching package: ‘magrittr’
+
+The following object is masked from ‘package:purrr’:
+
+    set_names
+
+The following object is masked from ‘package:tidyr’:
+
+    extract
+
+Loading required package: magrittr
+✔ ggplot2 3.3.2     ✔ purrr   0.3.4
+✔ tibble  3.1.3     ✔ dplyr   1.0.7
+✔ tidyr   1.1.3     ✔ forcats 0.5.0
+✔ readr   1.4.0     
+
+Attaching package: ‘magrittr’
+
+The following object is masked from ‘package:purrr’:
+
+    set_names
+
+The following object is masked from ‘package:tidyr’:
+
+    extract
+
+── Conflicts ────────────────────────────────────────── tidyverse_conflicts() ──
+✖ dplyr::filter() masks stats::filter()
+✖ dplyr::lag()    masks stats::lag()
+── Attaching packages ─────────────────────────────────────── tidyverse 1.3.0 ──
+Loading required package: magrittr
+
+Attaching package: ‘magrittr’
+
+The following object is masked from ‘package:purrr’:
+
+    set_names
+
+The following object is masked from ‘package:tidyr’:
+
+    extract
+
+✔ ggplot2 3.3.2     ✔ purrr   0.3.4
+✔ tibble  3.1.3     ✔ dplyr   1.0.7
+✔ tidyr   1.1.3     ✔ forcats 0.5.0
+✔ readr   1.4.0     
+<<<<<<< HEAD
+>>>>>>> 95425d540f4efbe579af50da3c43f21f50cc9383
+── Conflicts ────────────────────────────────────────── tidyverse_conflicts() ──
+✖ dplyr::filter() masks stats::filter()
+✖ dplyr::lag()    masks stats::lag()
+── Attaching packages ─────────────────────────────────────── tidyverse 1.3.0 ──
+<<<<<<< HEAD
+✔ ggplot2 3.3.2     ✔ purrr   0.3.4
+✔ tibble  3.0.4     ✔ dplyr   1.0.2
+✔ tidyr   1.1.2     ✔ forcats 0.5.0
+✔ readr   1.3.1     
+=======
+>>>>>>> 95425d540f4efbe579af50da3c43f21f50cc9383
+── Conflicts ────────────────────────────────────────── tidyverse_conflicts() ──
+✖ dplyr::filter() masks stats::filter()
+✖ dplyr::lag()    masks stats::lag()
+── Attaching packages ─────────────────────────────────────── tidyverse 1.3.0 ──
+<<<<<<< HEAD
+✔ ggplot2 3.3.2     ✔ purrr   0.3.4
+✔ tibble  3.0.4     ✔ dplyr   1.0.2
+✔ tidyr   1.1.2     ✔ forcats 0.5.0
+✔ readr   1.3.1     
+=======
+=======
+>>>>>>> 95425d540f4efbe579af50da3c43f21f50cc9383
+Loading required package: magrittr
+✔ ggplot2 3.3.2     ✔ purrr   0.3.4
+✔ tibble  3.1.3     ✔ dplyr   1.0.7
+✔ tidyr   1.1.3     ✔ forcats 0.5.0
+✔ readr   1.4.0     
+
+Attaching package: ‘magrittr’
+
+The following object is masked from ‘package:purrr’:
+
+    set_names
+
+The following object is masked from ‘package:tidyr’:
+
+    extract
+
+── Attaching packages ─────────────────────────────────────── tidyverse 1.3.0 ──
+── Conflicts ────────────────────────────────────────── tidyverse_conflicts() ──
+✖ dplyr::filter() masks stats::filter()
+✖ dplyr::lag()    masks stats::lag()
+✔ ggplot2 3.3.2     ✔ purrr   0.3.4
+✔ tibble  3.1.3     ✔ dplyr   1.0.7
+✔ tidyr   1.1.3     ✔ forcats 0.5.0
+✔ readr   1.4.0     
+Loading required package: magrittr
+
+Attaching package: ‘magrittr’
+
+The following object is masked from ‘package:purrr’:
+
+    set_names
+
+The following object is masked from ‘package:tidyr’:
+
+    extract
+
+── Attaching packages ─────────────────────────────────────── tidyverse 1.3.0 ──
+── Conflicts ────────────────────────────────────────── tidyverse_conflicts() ──
+✖ dplyr::filter() masks stats::filter()
+✖ dplyr::lag()    masks stats::lag()
+Loading required package: magrittr
+✔ ggplot2 3.3.2     ✔ purrr   0.3.4
+✔ tibble  3.1.3     ✔ dplyr   1.0.7
+✔ tidyr   1.1.3     ✔ forcats 0.5.0
+✔ readr   1.4.0     
+
+Attaching package: ‘magrittr’
+
+The following object is masked from ‘package:purrr’:
+
+    set_names
+
+The following object is masked from ‘package:tidyr’:
+
+    extract
+
+── Attaching packages ─────────────────────────────────────── tidyverse 1.3.0 ──
+── Conflicts ────────────────────────────────────────── tidyverse_conflicts() ──
+✖ dplyr::filter() masks stats::filter()
+✖ dplyr::lag()    masks stats::lag()
+Loading required package: magrittr
+✔ ggplot2 3.3.2     ✔ purrr   0.3.4
+✔ tibble  3.1.3     ✔ dplyr   1.0.7
+✔ tidyr   1.1.3     ✔ forcats 0.5.0
+✔ readr   1.4.0     
+
+Attaching package: ‘magrittr’
+
+The following object is masked from ‘package:purrr’:
+
+    set_names
+
+The following object is masked from ‘package:tidyr’:
+
+    extract
+
+<<<<<<< HEAD
+>>>>>>> 95425d540f4efbe579af50da3c43f21f50cc9383
+=======
+>>>>>>> 95425d540f4efbe579af50da3c43f21f50cc9383
+── Conflicts ────────────────────────────────────────── tidyverse_conflicts() ──
+✖ dplyr::filter() masks stats::filter()
+✖ dplyr::lag()    masks stats::lag()
+── Attaching packages ─────────────────────────────────────── tidyverse 1.3.0 ──
+<<<<<<< HEAD
+<<<<<<< HEAD
 ✔ ggplot2 3.3.2     ✔ purrr   0.3.4
 ✔ tibble  3.0.4     ✔ dplyr   1.0.2
 ✔ tidyr   1.1.2     ✔ forcats 0.5.0
@@ -27,26 +373,55 @@ starting worker pid=24020 on localhost:11783 at 22:55:55.331
 ✔ tibble  3.0.4     ✔ dplyr   1.0.2
 ✔ tidyr   1.1.2     ✔ forcats 0.5.0
 ✔ readr   1.3.1     
-── Conflicts ────────────────────────────────────────── tidyverse_conflicts() ──
-✖ dplyr::filter() masks stats::filter()
-✖ dplyr::lag()    masks stats::lag()
-── Attaching packages ─────────────────────────────────────── tidyverse 1.3.0 ──
+=======
+=======
+>>>>>>> 95425d540f4efbe579af50da3c43f21f50cc9383
+Loading required package: magrittr
+
+Attaching package: ‘magrittr’
+
+The following object is masked from ‘package:purrr’:
+
+    set_names
+
+The following object is masked from ‘package:tidyr’:
+
+    extract
+
 ✔ ggplot2 3.3.2     ✔ purrr   0.3.4
-✔ tibble  3.0.4     ✔ dplyr   1.0.2
-✔ tidyr   1.1.2     ✔ forcats 0.5.0
-✔ readr   1.3.1     
+✔ tibble  3.1.3     ✔ dplyr   1.0.7
+✔ tidyr   1.1.3     ✔ forcats 0.5.0
+✔ readr   1.4.0     
 ── Conflicts ────────────────────────────────────────── tidyverse_conflicts() ──
 ✖ dplyr::filter() masks stats::filter()
 ✖ dplyr::lag()    masks stats::lag()
+Loading required package: magrittr
 ── Attaching packages ─────────────────────────────────────── tidyverse 1.3.0 ──
+
+Attaching package: ‘magrittr’
+
+The following object is masked from ‘package:purrr’:
+
+    set_names
+
+The following object is masked from ‘package:tidyr’:
+
+    extract
+
 ✔ ggplot2 3.3.2     ✔ purrr   0.3.4
-✔ tibble  3.0.4     ✔ dplyr   1.0.2
-✔ tidyr   1.1.2     ✔ forcats 0.5.0
-✔ readr   1.3.1     
+✔ tibble  3.1.3     ✔ dplyr   1.0.7
+✔ tidyr   1.1.3     ✔ forcats 0.5.0
+✔ readr   1.4.0     
+<<<<<<< HEAD
+>>>>>>> 95425d540f4efbe579af50da3c43f21f50cc9383
+=======
+>>>>>>> 95425d540f4efbe579af50da3c43f21f50cc9383
 ── Conflicts ────────────────────────────────────────── tidyverse_conflicts() ──
 ✖ dplyr::filter() masks stats::filter()
 ✖ dplyr::lag()    masks stats::lag()
 ── Attaching packages ─────────────────────────────────────── tidyverse 1.3.0 ──
+<<<<<<< HEAD
+<<<<<<< HEAD
 ✔ ggplot2 3.3.2     ✔ purrr   0.3.4
 ✔ tibble  3.0.4     ✔ dplyr   1.0.2
 ✔ tidyr   1.1.2     ✔ forcats 0.5.0
@@ -72,3 +447,476 @@ starting worker pid=24020 on localhost:11783 at 22:55:55.331
 ✖ dplyr::lag()    masks stats::lag()
 Starting case 32 out of 32.
 Done with case 32 out of 32.
+=======
+=======
+>>>>>>> 95425d540f4efbe579af50da3c43f21f50cc9383
+Loading required package: magrittr
+
+Attaching package: ‘magrittr’
+
+The following object is masked from ‘package:purrr’:
+
+    set_names
+
+The following object is masked from ‘package:tidyr’:
+
+    extract
+
+✔ ggplot2 3.3.2     ✔ purrr   0.3.4
+✔ tibble  3.1.3     ✔ dplyr   1.0.7
+✔ tidyr   1.1.3     ✔ forcats 0.5.0
+✔ readr   1.4.0     
+── Attaching packages ─────────────────────────────────────── tidyverse 1.3.0 ──
+── Conflicts ────────────────────────────────────────── tidyverse_conflicts() ──
+✖ dplyr::filter() masks stats::filter()
+✖ dplyr::lag()    masks stats::lag()
+✔ ggplot2 3.3.2     ✔ purrr   0.3.4
+✔ tibble  3.1.3     ✔ dplyr   1.0.7
+✔ tidyr   1.1.3     ✔ forcats 0.5.0
+✔ readr   1.4.0     
+Loading required package: magrittr
+
+Attaching package: ‘magrittr’
+
+The following object is masked from ‘package:purrr’:
+
+    set_names
+
+The following object is masked from ‘package:tidyr’:
+
+    extract
+
+── Attaching packages ─────────────────────────────────────── tidyverse 1.3.0 ──
+── Conflicts ────────────────────────────────────────── tidyverse_conflicts() ──
+✖ dplyr::filter() masks stats::filter()
+✖ dplyr::lag()    masks stats::lag()
+✔ ggplot2 3.3.2     ✔ purrr   0.3.4
+✔ tibble  3.1.3     ✔ dplyr   1.0.7
+✔ tidyr   1.1.3     ✔ forcats 0.5.0
+✔ readr   1.4.0     
+Loading required package: magrittr
+
+Attaching package: ‘magrittr’
+
+The following object is masked from ‘package:purrr’:
+
+    set_names
+
+The following object is masked from ‘package:tidyr’:
+
+    extract
+
+── Attaching packages ─────────────────────────────────────── tidyverse 1.3.0 ──
+── Conflicts ────────────────────────────────────────── tidyverse_conflicts() ──
+✖ dplyr::filter() masks stats::filter()
+✖ dplyr::lag()    masks stats::lag()
+✔ ggplot2 3.3.2     ✔ purrr   0.3.4
+✔ tibble  3.1.3     ✔ dplyr   1.0.7
+✔ tidyr   1.1.3     ✔ forcats 0.5.0
+✔ readr   1.4.0     
+Loading required package: magrittr
+
+Attaching package: ‘magrittr’
+
+The following object is masked from ‘package:purrr’:
+
+    set_names
+
+The following object is masked from ‘package:tidyr’:
+
+    extract
+
+── Conflicts ────────────────────────────────────────── tidyverse_conflicts() ──
+✖ dplyr::filter() masks stats::filter()
+✖ dplyr::lag()    masks stats::lag()
+Loading required package: magrittr
+
+Attaching package: ‘magrittr’
+
+The following object is masked from ‘package:purrr’:
+
+    set_names
+
+The following object is masked from ‘package:tidyr’:
+
+    extract
+
+── Attaching packages ─────────────────────────────────────── tidyverse 1.3.0 ──
+✔ ggplot2 3.3.2     ✔ purrr   0.3.4
+✔ tibble  3.1.3     ✔ dplyr   1.0.7
+✔ tidyr   1.1.3     ✔ forcats 0.5.0
+✔ readr   1.4.0     
+── Attaching packages ─────────────────────────────────────── tidyverse 1.3.0 ──
+── Conflicts ────────────────────────────────────────── tidyverse_conflicts() ──
+✖ dplyr::filter() masks stats::filter()
+✖ dplyr::lag()    masks stats::lag()
+Loading required package: magrittr
+✔ ggplot2 3.3.2     ✔ purrr   0.3.4
+✔ tibble  3.1.3     ✔ dplyr   1.0.7
+✔ tidyr   1.1.3     ✔ forcats 0.5.0
+✔ readr   1.4.0     
+
+Attaching package: ‘magrittr’
+
+The following object is masked from ‘package:purrr’:
+
+    set_names
+
+The following object is masked from ‘package:tidyr’:
+
+    extract
+
+── Conflicts ────────────────────────────────────────── tidyverse_conflicts() ──
+✖ dplyr::filter() masks stats::filter()
+✖ dplyr::lag()    masks stats::lag()
+Loading required package: magrittr
+
+Attaching package: ‘magrittr’
+
+The following object is masked from ‘package:purrr’:
+
+    set_names
+
+The following object is masked from ‘package:tidyr’:
+
+    extract
+
+── Conflicts ────────────────────────────────────────── tidyverse_conflicts() ──
+✖ dplyr::filter() masks stats::filter()
+✖ dplyr::lag()    masks stats::lag()
+Loading required package: magrittr
+
+Attaching package: ‘magrittr’
+
+The following object is masked from ‘package:purrr’:
+
+    set_names
+
+The following object is masked from ‘package:tidyr’:
+
+    extract
+
+Starting case 1 out of 160.
+Starting case 2 out of 160.
+Starting case 3 out of 160.
+Starting case 4 out of 160.
+Starting case 6 out of 160.
+Starting case 5 out of 160.
+Starting case 8 out of 160.
+Starting case 9 out of 160.
+Starting case 10 out of 160.
+Starting case 11 out of 160.
+Starting case 13 out of 160.
+Starting case 12 out of 160.
+Starting case 16 out of 160.
+Starting case 7 out of 160.
+Starting case 14 out of 160.
+Starting case 15 out of 160.
+Starting case 17 out of 160.
+Starting case 18 out of 160.
+Starting case 19 out of 160.
+Starting case 20 out of 160.
+Starting case 21 out of 160.
+Starting case 22 out of 160.
+Starting case 23 out of 160.
+Starting case 24 out of 160.
+Done with case 2 out of 160.
+Starting case 25 out of 160.
+Done with case 14 out of 160.
+Done with case 24 out of 160.
+Starting case 26 out of 160.
+Starting case 27 out of 160.
+Done with case 6 out of 160.
+Done with case 4 out of 160.
+Starting case 28 out of 160.
+Starting case 29 out of 160.
+Done with case 21 out of 160.
+Starting case 30 out of 160.
+Done with case 15 out of 160.
+Done with case 18 out of 160.
+Starting case 31 out of 160.
+Done with case 12 out of 160.
+Starting case 32 out of 160.
+Done with case 17 out of 160.
+Starting case 33 out of 160.
+Starting case 34 out of 160.
+Done with case 9 out of 160.
+Done with case 8 out of 160.
+Done with case 11 out of 160.
+Starting case 35 out of 160.
+Starting case 36 out of 160.
+Done with case 22 out of 160.
+Starting case 37 out of 160.
+Starting case 38 out of 160.
+Done with case 7 out of 160.
+Starting case 39 out of 160.
+Done with case 20 out of 160.
+Done with case 10 out of 160.
+Done with case 16 out of 160.
+Starting case 40 out of 160.
+Starting case 41 out of 160.
+Done with case 23 out of 160.
+Done with case 13 out of 160.
+Starting case 42 out of 160.
+Starting case 43 out of 160.
+Starting case 44 out of 160.
+Done with case 19 out of 160.
+Starting case 45 out of 160.
+Done with case 3 out of 160.
+Starting case 46 out of 160.
+Done with case 1 out of 160.
+Starting case 47 out of 160.
+Done with case 5 out of 160.
+Starting case 48 out of 160.
+Done with case 32 out of 160.
+Starting case 49 out of 160.
+Done with case 31 out of 160.
+Starting case 50 out of 160.
+Done with case 38 out of 160.
+Starting case 51 out of 160.
+Done with case 36 out of 160.
+Starting case 52 out of 160.
+Done with case 25 out of 160.
+Starting case 53 out of 160.
+Done with case 34 out of 160.
+Starting case 54 out of 160.
+Done with case 41 out of 160.
+Starting case 55 out of 160.
+Done with case 28 out of 160.
+Done with case 29 out of 160.
+Done with case 30 out of 160.
+Starting case 56 out of 160.
+Starting case 57 out of 160.
+Done with case 26 out of 160.
+Starting case 58 out of 160.
+Starting case 59 out of 160.
+Done with case 27 out of 160.
+Starting case 60 out of 160.
+Done with case 39 out of 160.
+Starting case 61 out of 160.
+Done with case 43 out of 160.
+Starting case 62 out of 160.
+Done with case 35 out of 160.
+Starting case 63 out of 160.
+Done with case 33 out of 160.
+Starting case 64 out of 160.
+Done with case 48 out of 160.
+Starting case 65 out of 160.
+Done with case 40 out of 160.
+Starting case 66 out of 160.
+Done with case 37 out of 160.
+Starting case 67 out of 160.
+Done with case 42 out of 160.
+Starting case 68 out of 160.
+Done with case 44 out of 160.
+Done with case 45 out of 160.
+Starting case 69 out of 160.
+Starting case 70 out of 160.
+Done with case 46 out of 160.
+Starting case 71 out of 160.
+Done with case 47 out of 160.
+Starting case 72 out of 160.
+Done with case 49 out of 160.
+Starting case 73 out of 160.
+Done with case 54 out of 160.
+Done with case 50 out of 160.
+Starting case 74 out of 160.
+Starting case 75 out of 160.
+Done with case 52 out of 160.
+Done with case 61 out of 160.
+Done with case 55 out of 160.
+Starting case 76 out of 160.
+Done with case 51 out of 160.
+Starting case 77 out of 160.
+Starting case 78 out of 160.
+Starting case 79 out of 160.
+Done with case 59 out of 160.
+Starting case 80 out of 160.
+Done with case 53 out of 160.
+Done with case 56 out of 160.
+Done with case 57 out of 160.
+Starting case 81 out of 160.
+Done with case 60 out of 160.
+Starting case 82 out of 160.
+Starting case 83 out of 160.
+Starting case 84 out of 160.
+Done with case 58 out of 160.
+Starting case 85 out of 160.
+Done with case 67 out of 160.
+Done with case 62 out of 160.
+Starting case 86 out of 160.
+Starting case 87 out of 160.
+Done with case 63 out of 160.
+Starting case 88 out of 160.
+Done with case 65 out of 160.
+Starting case 89 out of 160.
+Done with case 64 out of 160.
+Starting case 90 out of 160.
+Done with case 70 out of 160.
+Starting case 91 out of 160.
+Done with case 69 out of 160.
+Starting case 92 out of 160.
+Done with case 66 out of 160.
+Starting case 93 out of 160.
+Done with case 68 out of 160.
+Starting case 94 out of 160.
+Done with case 72 out of 160.
+Starting case 95 out of 160.
+Done with case 71 out of 160.
+Starting case 96 out of 160.
+Done with case 73 out of 160.
+Starting case 97 out of 160.
+Done with case 74 out of 160.
+Starting case 98 out of 160.
+Done with case 75 out of 160.
+Starting case 99 out of 160.
+Done with case 81 out of 160.
+Starting case 100 out of 160.
+Done with case 80 out of 160.
+Done with case 83 out of 160.
+Starting case 101 out of 160.
+Starting case 102 out of 160.
+Done with case 76 out of 160.
+Done with case 78 out of 160.
+Starting case 103 out of 160.
+Starting case 104 out of 160.
+Done with case 77 out of 160.
+Starting case 105 out of 160.
+Done with case 79 out of 160.
+Starting case 106 out of 160.
+Done with case 87 out of 160.
+Starting case 107 out of 160.
+Done with case 84 out of 160.
+Starting case 108 out of 160.
+Done with case 82 out of 160.
+Starting case 109 out of 160.
+Done with case 85 out of 160.
+Starting case 110 out of 160.
+Done with case 86 out of 160.
+Starting case 111 out of 160.
+Done with case 95 out of 160.
+Starting case 112 out of 160.
+Done with case 92 out of 160.
+Starting case 113 out of 160.
+Done with case 88 out of 160.
+Starting case 114 out of 160.
+Done with case 89 out of 160.
+Starting case 115 out of 160.
+Done with case 90 out of 160.
+Starting case 116 out of 160.
+Done with case 94 out of 160.
+Starting case 117 out of 160.
+Done with case 91 out of 160.
+Done with case 96 out of 160.
+Starting case 118 out of 160.
+Starting case 119 out of 160.
+Done with case 93 out of 160.
+Starting case 120 out of 160.
+Done with case 98 out of 160.
+Starting case 121 out of 160.
+Done with case 97 out of 160.
+Starting case 122 out of 160.
+Done with case 99 out of 160.
+Starting case 123 out of 160.
+Done with case 100 out of 160.
+Starting case 124 out of 160.
+Done with case 106 out of 160.
+Starting case 125 out of 160.
+Done with case 105 out of 160.
+Starting case 126 out of 160.
+Done with case 101 out of 160.
+Starting case 127 out of 160.
+Done with case 102 out of 160.
+Starting case 128 out of 160.
+Done with case 107 out of 160.
+Starting case 129 out of 160.
+Done with case 103 out of 160.
+Starting case 130 out of 160.
+Done with case 104 out of 160.
+Starting case 131 out of 160.
+Done with case 108 out of 160.
+Starting case 132 out of 160.
+Done with case 110 out of 160.
+Starting case 133 out of 160.
+Done with case 109 out of 160.
+Starting case 134 out of 160.
+Done with case 114 out of 160.
+Starting case 135 out of 160.
+Done with case 119 out of 160.
+Starting case 136 out of 160.
+Done with case 113 out of 160.
+Done with case 115 out of 160.
+Done with case 111 out of 160.
+Starting case 137 out of 160.
+Starting case 138 out of 160.
+Done with case 116 out of 160.
+Starting case 139 out of 160.
+Starting case 140 out of 160.
+Done with case 112 out of 160.
+Starting case 141 out of 160.
+Done with case 120 out of 160.
+Starting case 142 out of 160.
+Done with case 118 out of 160.
+Starting case 143 out of 160.
+Done with case 117 out of 160.
+Starting case 144 out of 160.
+Done with case 121 out of 160.
+Starting case 145 out of 160.
+Done with case 124 out of 160.
+Starting case 146 out of 160.
+Done with case 122 out of 160.
+Starting case 147 out of 160.
+Done with case 123 out of 160.
+Starting case 148 out of 160.
+Done with case 131 out of 160.
+Starting case 149 out of 160.
+Done with case 127 out of 160.
+Done with case 128 out of 160.
+Done with case 130 out of 160.
+Done with case 125 out of 160.
+Starting case 150 out of 160.
+Starting case 151 out of 160.
+Starting case 152 out of 160.
+Starting case 153 out of 160.
+Done with case 126 out of 160.
+Done with case 129 out of 160.
+Starting case 154 out of 160.
+Starting case 155 out of 160.
+Done with case 135 out of 160.
+Done with case 132 out of 160.
+Starting case 156 out of 160.
+Done with case 141 out of 160.
+Done with case 143 out of 160.
+Starting case 157 out of 160.
+Starting case 158 out of 160.
+Starting case 159 out of 160.
+Done with case 134 out of 160.
+Starting case 160 out of 160.
+Done with case 133 out of 160.
+Done with case 137 out of 160.
+Done with case 138 out of 160.
+Done with case 140 out of 160.
+Done with case 142 out of 160.
+Done with case 136 out of 160.
+Done with case 144 out of 160.
+Done with case 139 out of 160.
+Done with case 145 out of 160.
+Done with case 146 out of 160.
+Done with case 147 out of 160.
+Done with case 149 out of 160.
+Done with case 157 out of 160.
+Done with case 152 out of 160.
+Done with case 154 out of 160.
+Done with case 150 out of 160.
+Done with case 151 out of 160.
+Done with case 153 out of 160.
+Done with case 160 out of 160.
+Done with case 159 out of 160.
+Done with case 156 out of 160.
+Done with case 155 out of 160.
+Done with case 148 out of 160.
+Done with case 158 out of 160.
+<<<<<<< HEAD
+>>>>>>> 95425d540f4efbe579af50da3c43f21f50cc9383
+=======
+>>>>>>> 95425d540f4efbe579af50da3c43f21f50cc9383

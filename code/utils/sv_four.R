@@ -59,7 +59,23 @@ sv_four <- function(U,
         )
         # Step 2: Calculate pprobs
         pps <- mc_sims %>%
+<<<<<<< HEAD
+<<<<<<< HEAD
             irv_pivot_probs_four_cands(n = 1, reporting = 0)
+=======
+=======
+>>>>>>> 95425d540f4efbe579af50da3c43f21f50cc9383
+            irv_pivot_probs_four_cands(n = 1000, reporting = 0)
+
+        pps <- lapply(pps, function(x) {
+            x$integral <- x$integral * 1000
+            return(x)
+        })
+        
+<<<<<<< HEAD
+>>>>>>> 95425d540f4efbe579af50da3c43f21f50cc9383
+=======
+>>>>>>> 95425d540f4efbe579af50da3c43f21f50cc9383
         # Step 3: Get pmat
         P.mat <- pps %>%
             combine_P_matrices()
@@ -136,7 +152,15 @@ sv_four <- function(U,
            eu.mat = eu.by.ballot, 
            best.response.v.vec = br.v.vec,
            v.vec.before = v.vec,
+<<<<<<< HEAD
+<<<<<<< HEAD
            p.mat <- P.mat
+=======
+           p.mat = P.mat
+>>>>>>> 95425d540f4efbe579af50da3c43f21f50cc9383
+=======
+           p.mat = P.mat
+>>>>>>> 95425d540f4efbe579af50da3c43f21f50cc9383
         )
     )
 }

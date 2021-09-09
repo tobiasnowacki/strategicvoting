@@ -64,12 +64,33 @@ summary_stats_wide <- sum_df %>%
     system == "rcv" ~ "RCV"
   ))
 
+<<<<<<< HEAD
+<<<<<<< HEAD
 # weight by case weight
 summary_agg <- summary_stats_wide %>% 
   group_by(iter, name, system) %>%
   summarise(value = weighted.mean(value, case_weight_tbl$case_weight)) %>%
   mutate(iter = as.numeric(iter))
 
+=======
+=======
+>>>>>>> 95425d540f4efbe579af50da3c43f21f50cc9383
+summary_agg <- summary_stats_wide %>%
+  left_join(case_weight_tbl, by = c("case" = "case")) %>%
+  group_by(iter, system, name) %>%
+  summarise(value = weighted.mean(value, case_weight)) %>%
+  mutate(iter = as.numeric(iter))
+
+# weight by case weight
+# summary_agg <- summary_stats_wide %>% 
+#   group_by(iter, name, system) %>%
+#   summarise(value = weighted.mean(value, case_weight_tbl$case_weight)) %>%
+#   mutate(iter = as.numeric(iter))
+
+<<<<<<< HEAD
+>>>>>>> 95425d540f4efbe579af50da3c43f21f50cc9383
+=======
+>>>>>>> 95425d540f4efbe579af50da3c43f21f50cc9383
 # Plot summary statistics for parameter combination and save
 ggplot(summary_stats_wide, aes(iter, value)) +
   geom_line(aes(group = interaction(system, case, name),
@@ -86,8 +107,74 @@ ggplot(summary_stats_wide, aes(iter, value)) +
   guides(colour = guide_legend(override.aes = list(alpha = 1))) +
   theme(legend.position = "bottom", legend.direction = "horizontal") +
   labs(x = "Degree of Strategicness (Iterations)")
+<<<<<<< HEAD
+<<<<<<< HEAD
 ggsave(ppath(lambda, s, "summary"), width = 8, height = 3.5)
 
+=======
+=======
+>>>>>>> 95425d540f4efbe579af50da3c43f21f50cc9383
+
+ggsave(ppath(lambda, s, "summary"), width = 8, height = 3.5)
+
+# WINNER DATA ------------------------------------------------
+
+# Function to prepare winner data
+get_expected_utility <- function(obj){
+  rcv_df <- map_dbl(obj$rcv[1:(length(obj$rcv) - 1)], 
+    ~ .x$exp_win_mean
+   ) %>% as.data.frame()
+  names(rcv_df)[1] <- "value"
+
+  rcv_df$iter <- 1:(length(obj$rcv) - 1)
+  rcv_df$system <- "rcv"
+
+  plur_df <- map_dbl(obj$plur[1:(length(obj$rcv) - 1)], 
+    ~ .x$exp_win_mean
+  ) %>% as.data.frame()
+  names(plur_df)[1] <- "value"
+
+  plur_df$iter <- 1:(length(obj$plur) - 1)
+  plur_df$system <- "plurality"
+
+  return(rbind(rcv_df, plur_df))
+}
+
+win_df <- map(bind_together, ~ get_expected_utility(.x), .id = "case")
+names(win_df) <- nn
+win_df <- bind_rows(win_df, .id = "case")
+save(win_df, file = fpath(lambda, s, "winners"))
+
+# Do the same but with winners
+get_winners <- function(obj){
+  rcv_df <- map(obj$rcv[1:(length(obj$rcv) - 1)], 
+    ~ .x$wintbl
+   ) 
+
+  rcv_df <- do.call(rbind, rcv_df) %>% as.data.frame()
+  rcv_df$iter <- 1:(length(obj$rcv) - 1)
+  rcv_df$system <- "rcv"
+
+  plur_df <- map(obj$plur[1:(length(obj$rcv) - 1)], 
+    ~ .x$wintbl
+  ) 
+
+  plur_df <- do.call(rbind, plur_df) %>% as.data.frame()
+  plur_df$iter <- 1:(length(obj$plur) - 1)
+  plur_df$system <- "plurality"
+
+  return(rbind(rcv_df, plur_df))
+}
+
+winners_df <- map(bind_together, ~ get_winners(.x), .id = "case")
+names(winners_df) <- nn
+winners_df <- bind_rows(winners_df, .id = "case")
+save(winners_df, file = fpath(lambda, s, "winners_tbl"))
+
+<<<<<<< HEAD
+>>>>>>> 95425d540f4efbe579af50da3c43f21f50cc9383
+=======
+>>>>>>> 95425d540f4efbe579af50da3c43f21f50cc9383
 # VVEC DATA --------------------------------------------------
 # Function to prepare v_vec data
 get_vvecs = function(obj){

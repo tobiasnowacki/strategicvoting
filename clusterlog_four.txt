@@ -4767,4 +4767,847 @@ done.
 Round 2: done.
 Round 0: done.
 done.
+<<<<<<< HEAD
+<<<<<<< HEAD
 Round 2: 
+=======
+=======
+>>>>>>> 95425d540f4efbe579af50da3c43f21f50cc9383
+Round 2: starting worker pid=233753 on localhost:11441 at 10:42:39.678
+starting worker pid=233768 on localhost:11441 at 10:42:39.689
+starting worker pid=233769 on localhost:11441 at 10:42:39.690
+starting worker pid=233770 on localhost:11441 at 10:42:39.691
+starting worker pid=233764 on localhost:11441 at 10:42:39.691
+starting worker pid=233755 on localhost:11441 at 10:42:39.693
+starting worker pid=233762 on localhost:11441 at 10:42:39.697
+starting worker pid=233756 on localhost:11441 at 10:42:39.698
+starting worker pid=233757 on localhost:11441 at 10:42:39.700
+starting worker pid=233775 on localhost:11441 at 10:42:39.701
+starting worker pid=233763 on localhost:11441 at 10:42:39.703
+starting worker pid=233758 on localhost:11441 at 10:42:39.702
+starting worker pid=233773 on localhost:11441 at 10:42:39.703
+starting worker pid=233759 on localhost:11441 at 10:42:39.703
+starting worker pid=233754 on localhost:11441 at 10:42:39.706
+starting worker pid=233767 on localhost:11441 at 10:42:39.708
+starting worker pid=233760 on localhost:11441 at 10:42:39.708
+starting worker pid=233771 on localhost:11441 at 10:42:39.709
+starting worker pid=233761 on localhost:11441 at 10:42:39.711
+starting worker pid=233765 on localhost:11441 at 10:42:39.712
+starting worker pid=233776 on localhost:11441 at 10:42:39.712
+starting worker pid=233772 on localhost:11441 at 10:42:39.714
+starting worker pid=233774 on localhost:11441 at 10:42:39.715
+starting worker pid=233766 on localhost:11441 at 10:42:39.718
+── Attaching packages ─────────────────────────────────────── tidyverse 1.3.0 ──
+✔ ggplot2 3.3.2     ✔ purrr   0.3.4
+✔ tibble  3.1.3     ✔ dplyr   1.0.7
+✔ tidyr   1.1.3     ✔ forcats 0.5.0
+✔ readr   1.4.0     
+── Attaching packages ─────────────────────────────────────── tidyverse 1.3.0 ──
+✔ ggplot2 3.3.2     ✔ purrr   0.3.4
+✔ tibble  3.1.3     ✔ dplyr   1.0.7
+✔ tidyr   1.1.3     ✔ forcats 0.5.0
+✔ readr   1.4.0     
+── Attaching packages ─────────────────────────────────────── tidyverse 1.3.0 ──
+── Attaching packages ─────────────────────────────────────── tidyverse 1.3.0 ──
+✔ ggplot2 3.3.2     ✔ purrr   0.3.4
+✔ tibble  3.1.3     ✔ dplyr   1.0.7
+✔ tidyr   1.1.3     ✔ forcats 0.5.0
+✔ readr   1.4.0     
+── Conflicts ────────────────────────────────────────── tidyverse_conflicts() ──
+✖ dplyr::filter() masks stats::filter()
+✖ dplyr::lag()    masks stats::lag()
+✔ ggplot2 3.3.2     ✔ purrr   0.3.4
+✔ tibble  3.1.3     ✔ dplyr   1.0.7
+✔ tidyr   1.1.3     ✔ forcats 0.5.0
+✔ readr   1.4.0     
+Loading required package: magrittr
+
+Attaching package: ‘magrittr’
+
+The following object is masked from ‘package:purrr’:
+
+    set_names
+
+The following object is masked from ‘package:tidyr’:
+
+    extract
+
+── Conflicts ────────────────────────────────────────── tidyverse_conflicts() ──
+✖ dplyr::filter() masks stats::filter()
+✖ dplyr::lag()    masks stats::lag()
+Loading required package: magrittr
+
+Attaching package: ‘magrittr’
+
+The following object is masked from ‘package:purrr’:
+
+    set_names
+
+The following object is masked from ‘package:tidyr’:
+
+    extract
+
+── Attaching packages ─────────────────────────────────────── tidyverse 1.3.0 ──
+── Attaching packages ─────────────────────────────────────── tidyverse 1.3.0 ──
+── Conflicts ────────────────────────────────────────── tidyverse_conflicts() ──
+✖ dplyr::filter() masks stats::filter()
+✖ dplyr::lag()    masks stats::lag()
+── Conflicts ────────────────────────────────────────── tidyverse_conflicts() ──
+✖ dplyr::filter() masks stats::filter()
+✖ dplyr::lag()    masks stats::lag()
+✔ ggplot2 3.3.2     ✔ purrr   0.3.4
+✔ tibble  3.1.3     ✔ dplyr   1.0.7
+✔ tidyr   1.1.3     ✔ forcats 0.5.0
+✔ readr   1.4.0     
+Loading required package: magrittr
+Loading required package: magrittr
+✔ ggplot2 3.3.2     ✔ purrr   0.3.4
+✔ tibble  3.1.3     ✔ dplyr   1.0.7
+✔ tidyr   1.1.3     ✔ forcats 0.5.0
+✔ readr   1.4.0     
+
+Attaching package: ‘magrittr’
+
+The following object is masked from ‘package:purrr’:
+
+    set_names
+
+The following object is masked from ‘package:tidyr’:
+
+    extract
+
+
+Attaching package: ‘magrittr’
+
+The following object is masked from ‘package:purrr’:
+
+    set_names
+
+The following object is masked from ‘package:tidyr’:
+
+    extract
+
+── Attaching packages ─────────────────────────────────────── tidyverse 1.3.0 ──
+✔ ggplot2 3.3.2     ✔ purrr   0.3.4
+✔ tibble  3.1.3     ✔ dplyr   1.0.7
+✔ tidyr   1.1.3     ✔ forcats 0.5.0
+✔ readr   1.4.0     
+── Conflicts ────────────────────────────────────────── tidyverse_conflicts() ──
+✖ dplyr::filter() masks stats::filter()
+✖ dplyr::lag()    masks stats::lag()
+── Attaching packages ─────────────────────────────────────── tidyverse 1.3.0 ──
+── Conflicts ────────────────────────────────────────── tidyverse_conflicts() ──
+✖ dplyr::filter() masks stats::filter()
+✖ dplyr::lag()    masks stats::lag()
+Loading required package: magrittr
+
+Attaching package: ‘magrittr’
+
+The following object is masked from ‘package:purrr’:
+
+    set_names
+
+The following object is masked from ‘package:tidyr’:
+
+    extract
+
+Loading required package: magrittr
+✔ ggplot2 3.3.2     ✔ purrr   0.3.4
+✔ tibble  3.1.3     ✔ dplyr   1.0.7
+✔ tidyr   1.1.3     ✔ forcats 0.5.0
+✔ readr   1.4.0     
+
+Attaching package: ‘magrittr’
+
+The following object is masked from ‘package:purrr’:
+
+    set_names
+
+The following object is masked from ‘package:tidyr’:
+
+    extract
+
+── Attaching packages ─────────────────────────────────────── tidyverse 1.3.0 ──
+── Conflicts ────────────────────────────────────────── tidyverse_conflicts() ──
+✖ dplyr::filter() masks stats::filter()
+✖ dplyr::lag()    masks stats::lag()
+✔ ggplot2 3.3.2     ✔ purrr   0.3.4
+✔ tibble  3.1.3     ✔ dplyr   1.0.7
+✔ tidyr   1.1.3     ✔ forcats 0.5.0
+✔ readr   1.4.0     
+Loading required package: magrittr
+
+Attaching package: ‘magrittr’
+
+The following object is masked from ‘package:purrr’:
+
+    set_names
+
+The following object is masked from ‘package:tidyr’:
+
+    extract
+
+── Attaching packages ─────────────────────────────────────── tidyverse 1.3.0 ──
+✔ ggplot2 3.3.2     ✔ purrr   0.3.4
+✔ tibble  3.1.3     ✔ dplyr   1.0.7
+✔ tidyr   1.1.3     ✔ forcats 0.5.0
+✔ readr   1.4.0     
+── Conflicts ────────────────────────────────────────── tidyverse_conflicts() ──
+✖ dplyr::filter() masks stats::filter()
+✖ dplyr::lag()    masks stats::lag()
+Loading required package: magrittr
+
+Attaching package: ‘magrittr’
+
+The following object is masked from ‘package:purrr’:
+
+    set_names
+
+The following object is masked from ‘package:tidyr’:
+
+    extract
+
+── Attaching packages ─────────────────────────────────────── tidyverse 1.3.0 ──
+── Conflicts ────────────────────────────────────────── tidyverse_conflicts() ──
+✖ dplyr::filter() masks stats::filter()
+✖ dplyr::lag()    masks stats::lag()
+✔ ggplot2 3.3.2     ✔ purrr   0.3.4
+✔ tibble  3.1.3     ✔ dplyr   1.0.7
+✔ tidyr   1.1.3     ✔ forcats 0.5.0
+✔ readr   1.4.0     
+Loading required package: magrittr
+
+Attaching package: ‘magrittr’
+
+The following object is masked from ‘package:purrr’:
+
+    set_names
+
+The following object is masked from ‘package:tidyr’:
+
+    extract
+
+── Conflicts ────────────────────────────────────────── tidyverse_conflicts() ──
+✖ dplyr::filter() masks stats::filter()
+✖ dplyr::lag()    masks stats::lag()
+── Attaching packages ─────────────────────────────────────── tidyverse 1.3.0 ──
+Loading required package: magrittr
+
+Attaching package: ‘magrittr’
+
+The following object is masked from ‘package:purrr’:
+
+    set_names
+
+The following object is masked from ‘package:tidyr’:
+
+    extract
+
+✔ ggplot2 3.3.2     ✔ purrr   0.3.4
+✔ tibble  3.1.3     ✔ dplyr   1.0.7
+✔ tidyr   1.1.3     ✔ forcats 0.5.0
+✔ readr   1.4.0     
+── Conflicts ────────────────────────────────────────── tidyverse_conflicts() ──
+✖ dplyr::filter() masks stats::filter()
+✖ dplyr::lag()    masks stats::lag()
+Loading required package: magrittr
+
+Attaching package: ‘magrittr’
+
+The following object is masked from ‘package:purrr’:
+
+    set_names
+
+The following object is masked from ‘package:tidyr’:
+
+    extract
+
+── Attaching packages ─────────────────────────────────────── tidyverse 1.3.0 ──
+✔ ggplot2 3.3.2     ✔ purrr   0.3.4
+✔ tibble  3.1.3     ✔ dplyr   1.0.7
+✔ tidyr   1.1.3     ✔ forcats 0.5.0
+✔ readr   1.4.0     
+── Conflicts ────────────────────────────────────────── tidyverse_conflicts() ──
+✖ dplyr::filter() masks stats::filter()
+✖ dplyr::lag()    masks stats::lag()
+Loading required package: magrittr
+── Attaching packages ─────────────────────────────────────── tidyverse 1.3.0 ──
+
+Attaching package: ‘magrittr’
+
+The following object is masked from ‘package:purrr’:
+
+    set_names
+
+The following object is masked from ‘package:tidyr’:
+
+    extract
+
+✔ ggplot2 3.3.2     ✔ purrr   0.3.4
+✔ tibble  3.1.3     ✔ dplyr   1.0.7
+✔ tidyr   1.1.3     ✔ forcats 0.5.0
+✔ readr   1.4.0     
+── Attaching packages ─────────────────────────────────────── tidyverse 1.3.0 ──
+── Conflicts ────────────────────────────────────────── tidyverse_conflicts() ──
+✖ dplyr::filter() masks stats::filter()
+✖ dplyr::lag()    masks stats::lag()
+✔ ggplot2 3.3.2     ✔ purrr   0.3.4
+✔ tibble  3.1.3     ✔ dplyr   1.0.7
+✔ tidyr   1.1.3     ✔ forcats 0.5.0
+✔ readr   1.4.0     
+Loading required package: magrittr
+── Attaching packages ─────────────────────────────────────── tidyverse 1.3.0 ──
+
+Attaching package: ‘magrittr’
+
+The following object is masked from ‘package:purrr’:
+
+    set_names
+
+The following object is masked from ‘package:tidyr’:
+
+    extract
+
+✔ ggplot2 3.3.2     ✔ purrr   0.3.4
+✔ tibble  3.1.3     ✔ dplyr   1.0.7
+✔ tidyr   1.1.3     ✔ forcats 0.5.0
+✔ readr   1.4.0     
+── Conflicts ────────────────────────────────────────── tidyverse_conflicts() ──
+✖ dplyr::filter() masks stats::filter()
+✖ dplyr::lag()    masks stats::lag()
+Loading required package: magrittr
+
+Attaching package: ‘magrittr’
+
+The following object is masked from ‘package:purrr’:
+
+    set_names
+
+The following object is masked from ‘package:tidyr’:
+
+    extract
+
+── Attaching packages ─────────────────────────────────────── tidyverse 1.3.0 ──
+✔ ggplot2 3.3.2     ✔ purrr   0.3.4
+✔ tibble  3.1.3     ✔ dplyr   1.0.7
+✔ tidyr   1.1.3     ✔ forcats 0.5.0
+✔ readr   1.4.0     
+── Conflicts ────────────────────────────────────────── tidyverse_conflicts() ──
+✖ dplyr::filter() masks stats::filter()
+✖ dplyr::lag()    masks stats::lag()
+Loading required package: magrittr
+
+Attaching package: ‘magrittr’
+
+The following object is masked from ‘package:purrr’:
+
+    set_names
+
+The following object is masked from ‘package:tidyr’:
+
+    extract
+
+── Attaching packages ─────────────────────────────────────── tidyverse 1.3.0 ──
+── Conflicts ────────────────────────────────────────── tidyverse_conflicts() ──
+✖ dplyr::filter() masks stats::filter()
+✖ dplyr::lag()    masks stats::lag()
+Loading required package: magrittr
+✔ ggplot2 3.3.2     ✔ purrr   0.3.4
+✔ tibble  3.1.3     ✔ dplyr   1.0.7
+✔ tidyr   1.1.3     ✔ forcats 0.5.0
+✔ readr   1.4.0     
+
+Attaching package: ‘magrittr’
+
+The following object is masked from ‘package:purrr’:
+
+    set_names
+
+The following object is masked from ‘package:tidyr’:
+
+    extract
+
+── Conflicts ────────────────────────────────────────── tidyverse_conflicts() ──
+✖ dplyr::filter() masks stats::filter()
+✖ dplyr::lag()    masks stats::lag()
+── Attaching packages ─────────────────────────────────────── tidyverse 1.3.0 ──
+Loading required package: magrittr
+✔ ggplot2 3.3.2     ✔ purrr   0.3.4
+✔ tibble  3.1.3     ✔ dplyr   1.0.7
+✔ tidyr   1.1.3     ✔ forcats 0.5.0
+✔ readr   1.4.0     
+
+Attaching package: ‘magrittr’
+
+The following object is masked from ‘package:purrr’:
+
+    set_names
+
+The following object is masked from ‘package:tidyr’:
+
+    extract
+
+── Conflicts ────────────────────────────────────────── tidyverse_conflicts() ──
+✖ dplyr::filter() masks stats::filter()
+✖ dplyr::lag()    masks stats::lag()
+── Attaching packages ─────────────────────────────────────── tidyverse 1.3.0 ──
+Loading required package: magrittr
+
+Attaching package: ‘magrittr’
+
+The following object is masked from ‘package:purrr’:
+
+    set_names
+
+The following object is masked from ‘package:tidyr’:
+
+    extract
+
+✔ ggplot2 3.3.2     ✔ purrr   0.3.4
+✔ tibble  3.1.3     ✔ dplyr   1.0.7
+✔ tidyr   1.1.3     ✔ forcats 0.5.0
+✔ readr   1.4.0     
+── Attaching packages ─────────────────────────────────────── tidyverse 1.3.0 ──
+── Conflicts ────────────────────────────────────────── tidyverse_conflicts() ──
+✖ dplyr::filter() masks stats::filter()
+✖ dplyr::lag()    masks stats::lag()
+✔ ggplot2 3.3.2     ✔ purrr   0.3.4
+✔ tibble  3.1.3     ✔ dplyr   1.0.7
+✔ tidyr   1.1.3     ✔ forcats 0.5.0
+✔ readr   1.4.0     
+Loading required package: magrittr
+
+Attaching package: ‘magrittr’
+
+The following object is masked from ‘package:purrr’:
+
+    set_names
+
+The following object is masked from ‘package:tidyr’:
+
+    extract
+
+── Conflicts ────────────────────────────────────────── tidyverse_conflicts() ──
+✖ dplyr::filter() masks stats::filter()
+✖ dplyr::lag()    masks stats::lag()
+── Attaching packages ─────────────────────────────────────── tidyverse 1.3.0 ──
+Loading required package: magrittr
+
+Attaching package: ‘magrittr’
+
+The following object is masked from ‘package:purrr’:
+
+    set_names
+
+The following object is masked from ‘package:tidyr’:
+
+    extract
+
+✔ ggplot2 3.3.2     ✔ purrr   0.3.4
+✔ tibble  3.1.3     ✔ dplyr   1.0.7
+✔ tidyr   1.1.3     ✔ forcats 0.5.0
+✔ readr   1.4.0     
+── Conflicts ────────────────────────────────────────── tidyverse_conflicts() ──
+✖ dplyr::filter() masks stats::filter()
+✖ dplyr::lag()    masks stats::lag()
+Loading required package: magrittr
+
+Attaching package: ‘magrittr’
+
+The following object is masked from ‘package:purrr’:
+
+    set_names
+
+The following object is masked from ‘package:tidyr’:
+
+    extract
+
+── Attaching packages ─────────────────────────────────────── tidyverse 1.3.0 ──
+✔ ggplot2 3.3.2     ✔ purrr   0.3.4
+✔ tibble  3.1.3     ✔ dplyr   1.0.7
+✔ tidyr   1.1.3     ✔ forcats 0.5.0
+✔ readr   1.4.0     
+── Attaching packages ─────────────────────────────────────── tidyverse 1.3.0 ──
+── Conflicts ────────────────────────────────────────── tidyverse_conflicts() ──
+✖ dplyr::filter() masks stats::filter()
+✖ dplyr::lag()    masks stats::lag()
+Loading required package: magrittr
+✔ ggplot2 3.3.2     ✔ purrr   0.3.4
+✔ tibble  3.1.3     ✔ dplyr   1.0.7
+✔ tidyr   1.1.3     ✔ forcats 0.5.0
+✔ readr   1.4.0     
+
+Attaching package: ‘magrittr’
+
+The following object is masked from ‘package:purrr’:
+
+    set_names
+
+The following object is masked from ‘package:tidyr’:
+
+    extract
+
+── Conflicts ────────────────────────────────────────── tidyverse_conflicts() ──
+✖ dplyr::filter() masks stats::filter()
+✖ dplyr::lag()    masks stats::lag()
+Loading required package: magrittr
+
+Attaching package: ‘magrittr’
+
+The following object is masked from ‘package:purrr’:
+
+    set_names
+
+The following object is masked from ‘package:tidyr’:
+
+    extract
+
+── Conflicts ────────────────────────────────────────── tidyverse_conflicts() ──
+✖ dplyr::filter() masks stats::filter()
+✖ dplyr::lag()    masks stats::lag()
+Loading required package: magrittr
+
+Attaching package: ‘magrittr’
+
+The following object is masked from ‘package:purrr’:
+
+    set_names
+
+The following object is masked from ‘package:tidyr’:
+
+    extract
+
+Starting case 1 out of 160.AUT_2013
+Starting case 2 out of 160.BGR_2014
+Starting case 3 out of 160.CAN_2011
+Starting case 4 out of 160.CZE_2013
+Starting case 5 out of 160.FIN_2015
+Starting case 6 out of 160.FRA_2012
+Starting case 7 out of 160.DEU_2013
+Starting case 8 out of 160.GRC_2012
+Starting case 9 out of 160.HKG_2012
+Starting case 10 out of 160.ISL_2013
+Starting case 11 out of 160.IRL_2011
+Starting case 12 out of 160.ISR_2013
+Starting case 13 out of 160.JPN_2013
+Starting case 14 out of 160.KEN_2013
+Starting case 15 out of 160.KOR_2012
+Starting case 16 out of 160.MEX_2012
+Starting case 17 out of 160.MEX_2015
+Starting case 18 out of 160.MNE_2012
+Starting case 19 out of 160.NZL_2014
+Starting case 20 out of 160.NZL_2011
+Starting case 23 out of 160.POL_2011
+Starting case 21 out of 160.NOR_2013
+Starting case 24 out of 160.PRT_2015
+Starting case 25 out of 160.ROU_2012
+Done with case 4 out of 160.
+Starting case 26 out of 160.SRB_2012
+Done with case 5 out of 160.
+Starting case 27 out of 160.SVK_2016
+Done with case 10 out of 160.
+Starting case 28 out of 160.SVN_2011
+Done with case 11 out of 160.
+Starting case 29 out of 160.ZAF_2014
+Starting case 30 out of 160.SWE_2014
+Starting case 31 out of 160.CHE_2011
+Done with case 1 out of 160.
+Starting case 32 out of 160.THA_2011
+Done with case 3 out of 160.
+Starting case 33 out of 160.TUR_2015
+Done with case 9 out of 160.
+Starting case 34 out of 160.GBR_2015
+Done with case 13 out of 160.
+Starting case 35 out of 160.AUS_2007
+Done with case 12 out of 160.
+Starting case 36 out of 160.AUT_2008
+Done with case 17 out of 160.
+Starting case 38 out of 160.BRA_2006
+Starting case 39 out of 160.CHE_2007
+Done with case 23 out of 160.
+Starting case 40 out of 160.CHL_2009
+Done with case 7 out of 160.
+Starting case 41 out of 160.CZE_2006
+Done with case 19 out of 160.
+Starting case 42 out of 160.CZE_2010
+Done with case 16 out of 160.
+Done with case 6 out of 160.
+Starting case 43 out of 160.DEU_2005
+Done with case 8 out of 160.
+Starting case 44 out of 160.DEU_2009
+Starting case 45 out of 160.DNK_2007
+Done with case 18 out of 160.
+Starting case 46 out of 160.ESP_2008
+Starting case 47 out of 160.EST_2011
+Done with case 21 out of 160.
+Starting case 48 out of 160.FIN_2007
+Done with case 24 out of 160.
+Starting case 49 out of 160.FIN_2011
+Done with case 14 out of 160.
+Starting case 50 out of 160.FRA_2007
+Starting case 51 out of 160.GRC_2009
+Starting case 52 out of 160.HKG_2008
+Starting case 53 out of 160.HRV_2007
+Done with case 27 out of 160.
+Starting case 54 out of 160.IRL_2007
+Starting case 55 out of 160.ISL_2007
+Done with case 34 out of 160.
+Starting case 56 out of 160.ISL_2009
+Done with case 31 out of 160.
+Starting case 57 out of 160.ISR_2006
+Done with case 47 out of 160.
+Starting case 58 out of 160.JPN_2007
+Done with case 39 out of 160.
+Starting case 59 out of 160.KOR_2008
+Starting case 60 out of 160.LVA_2010
+Done with case 28 out of 160.
+Starting case 61 out of 160.MEX_2006
+Done with case 33 out of 160.
+Starting case 62 out of 160.MEX_2009
+Done with case 44 out of 160.
+Starting case 63 out of 160.NLD_2006
+Starting case 64 out of 160.NLD_2010
+Done with case 42 out of 160.
+Starting case 65 out of 160.NOR_2005
+Starting case 66 out of 160.NOR_2009
+Done with case 40 out of 160.
+Starting case 67 out of 160.NZL_2008
+Done with case 48 out of 160.
+Starting case 68 out of 160.PER_2011
+Done with case 41 out of 160.
+Starting case 69 out of 160.PHL_2010
+Done with case 49 out of 160.
+Done with case 43 out of 160.
+Starting case 70 out of 160.POL_2005
+Starting case 71 out of 160.POL_2007
+Done with case 45 out of 160.
+Starting case 72 out of 160.PRT_2009
+Starting case 73 out of 160.ROU_2009
+Starting case 74 out of 160.SVK_2010
+Done with case 51 out of 160.
+Starting case 75 out of 160.SVN_2008
+Done with case 52 out of 160.
+Starting case 76 out of 160.SWE_2006
+Done with case 56 out of 160.
+Starting case 77 out of 160.THA_2007
+Done with case 57 out of 160.
+Starting case 78 out of 160.TUR_2011
+Starting case 79 out of 160.URY_2009
+Done with case 60 out of 160.
+Starting case 80 out of 160.ZAF_2009
+Starting case 81 out of 160.ALB_2005
+Done with case 54 out of 160.
+Starting case 82 out of 160.AUS_2004
+Done with case 59 out of 160.
+Starting case 84 out of 160.BGR_2001
+Done with case 66 out of 160.
+Starting case 85 out of 160.BRA_2002
+Done with case 65 out of 160.
+Starting case 86 out of 160.CAN_2004
+Starting case 87 out of 160.CHE_2003
+Done with case 64 out of 160.
+Starting case 88 out of 160.CHL_2005
+Starting case 89 out of 160.CZE_2002
+Done with case 62 out of 160.
+Starting case 90 out of 160.DEU12002
+Done with case 53 out of 160.
+Starting case 91 out of 160.DEU22002
+Done with case 69 out of 160.
+Starting case 92 out of 160.DNK_2001
+Done with case 63 out of 160.
+Starting case 93 out of 160.ESP_2004
+Done with case 70 out of 160.
+Starting case 94 out of 160.FIN_2003
+Starting case 95 out of 160.FRA_2002
+Done with case 71 out of 160.
+Starting case 96 out of 160.GBR_2005
+Done with case 72 out of 160.
+Starting case 97 out of 160.HKG_2004
+Done with case 68 out of 160.
+Starting case 98 out of 160.HUN_2002
+Done with case 74 out of 160.
+Starting case 99 out of 160.IRL_2002
+Done with case 75 out of 160.
+Starting case 100 out of 160.ISL_2003
+Starting case 101 out of 160.ISR_2003
+Starting case 102 out of 160.ITA_2006
+Starting case 103 out of 160.JPN_2004
+Starting case 104 out of 160.KGZ_2005
+Done with case 76 out of 160.
+Starting case 105 out of 160.KOR_2004
+Done with case 89 out of 160.
+Starting case 106 out of 160.MEX_2003
+Starting case 107 out of 160.NLD_2002
+Done with case 88 out of 160.
+Starting case 108 out of 160.NOR_2001
+Done with case 91 out of 160.
+Starting case 109 out of 160.NZL_2002
+Starting case 110 out of 160.PER_2006
+Done with case 86 out of 160.
+Starting case 111 out of 160.PHL_2004
+Done with case 90 out of 160.
+Starting case 112 out of 160.POL_2001
+Starting case 113 out of 160.PRT_2002
+Starting case 114 out of 160.PRT_2005
+Done with case 85 out of 160.
+Starting case 115 out of 160.ROU_2004
+Done with case 87 out of 160.
+Starting case 116 out of 160.RUS_2004
+Done with case 82 out of 160.
+Starting case 117 out of 160.SVN_2004
+Done with case 96 out of 160.
+Starting case 118 out of 160.SWE_2002
+Starting case 119 out of 160.TWN_2001
+Done with case 94 out of 160.
+Starting case 120 out of 160.TWN_2004
+Done with case 92 out of 160.
+Starting case 121 out of 160.AUS_1996
+Done with case 97 out of 160.
+Starting case 122 out of 160.BELF1999
+Done with case 99 out of 160.
+Starting case 123 out of 160.BELW1999
+Done with case 102 out of 160.
+Starting case 125 out of 160.CAN_1997
+Starting case 126 out of 160.CHE_1999
+Done with case 101 out of 160.
+Starting case 127 out of 160.CZE_1996
+Done with case 107 out of 160.
+Starting case 128 out of 160.DEU_1998
+Done with case 100 out of 160.
+Starting case 129 out of 160.DNK_1998
+Done with case 104 out of 160.
+Starting case 130 out of 160.ESP_1996
+Done with case 108 out of 160.
+Starting case 131 out of 160.ESP_2000
+Done with case 106 out of 160.
+Starting case 132 out of 160.GBR_1997
+Starting case 133 out of 160.HKG_1998
+Done with case 111 out of 160.
+Starting case 134 out of 160.HKG_2000
+Done with case 109 out of 160.
+Starting case 135 out of 160.HUN_1998
+Starting case 136 out of 160.ISL_1999
+Done with case 110 out of 160.
+Starting case 137 out of 160.ISR_1996
+Done with case 113 out of 160.
+Starting case 138 out of 160.JPN_1996
+Done with case 115 out of 160.
+Starting case 139 out of 160.KOR_2000
+Done with case 112 out of 160.
+Starting case 141 out of 160.MEX_1997
+Done with case 118 out of 160.
+Starting case 142 out of 160.MEX_2000
+Done with case 114 out of 160.
+Starting case 143 out of 160.NLD_1998
+Starting case 144 out of 160.NZL_1996
+Done with case 122 out of 160.
+Starting case 145 out of 160.PER_2000
+Done with case 117 out of 160.
+Starting case 146 out of 160.PER_2001
+Starting case 147 out of 160.POL_1997
+Done with case 123 out of 160.
+Starting case 148 out of 160.ROU_1996
+Done with case 121 out of 160.
+Starting case 149 out of 160.RUS_1999
+Done with case 125 out of 160.
+Starting case 150 out of 160.RUS_2000
+Done with case 126 out of 160.
+Starting case 151 out of 160.SVN_1996
+Done with case 132 out of 160.
+Starting case 152 out of 160.SWE_1998
+Done with case 131 out of 160.
+Starting case 153 out of 160.THA_2001
+Done with case 128 out of 160.
+Done with case 133 out of 160.
+Done with case 129 out of 160.
+Done with case 127 out of 160.
+Done with case 130 out of 160.
+Done with case 138 out of 160.
+Done with case 141 out of 160.
+Done with case 134 out of 160.
+Done with case 136 out of 160.
+Done with case 143 out of 160.
+Done with case 144 out of 160.
+Done with case 146 out of 160.
+Done with case 147 out of 160.
+Done with case 149 out of 160.
+Done with case 150 out of 160.
+Done with case 151 out of 160.
+Done with case 153 out of 160.
+Done with case 152 out of 160.
+Error in unserialize(node$con) : error reading from connection
+Calls: <Anonymous> ... doTryCatch -> recvData -> recvData.SOCKnode -> unserialize
+Error in unserialize(node$con) : error reading from connection
+Calls: <Anonymous> ... doTryCatch -> recvData -> recvData.SOCKnode -> unserialize
+Error in unserialize(node$con) : error reading from connection
+Calls: <Anonymous> ... doTryCatch -> recvData -> recvData.SOCKnode -> unserialize
+Execution halted
+Execution halted
+Execution halted
+Error in unserialize(node$con) : error reading from connection
+Calls: <Anonymous> ... doTryCatch -> recvData -> recvData.SOCKnode -> unserialize
+Error in unserialize(node$con) : error reading from connection
+Calls: <Anonymous> ... doTryCatch -> recvData -> recvData.SOCKnode -> unserialize
+Error in unserialize(node$con) : error reading from connection
+Calls: <Anonymous> ... doTryCatch -> recvData -> recvData.SOCKnode -> unserialize
+Execution halted
+Execution halted
+Error in unserialize(node$con) : error reading from connection
+Calls: <Anonymous> ... doTryCatch -> recvData -> recvData.SOCKnode -> unserialize
+Execution halted
+Execution halted
+Error in unserialize(node$con) : error reading from connection
+Calls: <Anonymous> ... doTryCatch -> recvData -> recvData.SOCKnode -> unserialize
+Execution halted
+Error in unserialize(node$con) : error reading from connection
+Calls: <Anonymous> ... doTryCatch -> recvData -> recvData.SOCKnode -> unserialize
+Error in unserialize(node$con) : error reading from connection
+Calls: <Anonymous> ... doTryCatch -> recvData -> recvData.SOCKnode -> unserialize
+Execution halted
+Execution halted
+Error in unserialize(node$con) : error reading from connection
+Calls: <Anonymous> ... doTryCatch -> recvData -> recvData.SOCKnode -> unserialize
+Error in unserialize(node$con) : error reading from connection
+Calls: <Anonymous> ... doTryCatch -> recvData -> recvData.SOCKnode -> unserialize
+Error in unserialize(node$con) : error reading from connection
+Calls: <Anonymous> ... doTryCatch -> recvData -> recvData.SOCKnode -> unserialize
+Execution halted
+Execution halted
+Error in unserialize(node$con) : error reading from connection
+Calls: <Anonymous> ... doTryCatch -> recvData -> recvData.SOCKnode -> unserialize
+Error in unserialize(node$con) : error reading from connection
+Calls: <Anonymous> ... doTryCatch -> recvData -> recvData.SOCKnode -> unserialize
+Execution halted
+Error in unserialize(node$con) : error reading from connection
+Calls: <Anonymous> ... doTryCatch -> recvData -> recvData.SOCKnode -> unserialize
+Error in unserialize(node$con) : error reading from connection
+Calls: <Anonymous> ... doTryCatch -> recvData -> recvData.SOCKnode -> unserialize
+Execution halted
+Error in unserialize(node$con) : error reading from connection
+Calls: <Anonymous> ... doTryCatch -> recvData -> recvData.SOCKnode -> unserialize
+Execution halted
+Execution halted
+Execution halted
+Execution halted
+Error in unserialize(node$con) : error reading from connection
+Calls: <Anonymous> ... doTryCatch -> recvData -> recvData.SOCKnode -> unserialize
+Error in unserialize(node$con) : error reading from connection
+Calls: <Anonymous> ... doTryCatch -> recvData -> recvData.SOCKnode -> unserialize
+Execution halted
+Execution halted
+Error in unserialize(node$con) : error reading from connection
+Calls: <Anonymous> ... doTryCatch -> recvData -> recvData.SOCKnode -> unserialize
+Execution halted
+Error in unserialize(node$con) : error reading from connection
+Calls: <Anonymous> ... doTryCatch -> recvData -> recvData.SOCKnode -> unserialize
+Execution halted
+Error in unserialize(node$con) : error reading from connection
+Calls: <Anonymous> ... doTryCatch -> recvData -> recvData.SOCKnode -> unserialize
+Execution halted
+Error in unserialize(node$con) : error reading from connection
+Calls: <Anonymous> ... doTryCatch -> recvData -> recvData.SOCKnode -> unserialize
+Execution halted
+<<<<<<< HEAD
+>>>>>>> 95425d540f4efbe579af50da3c43f21f50cc9383
+=======
+>>>>>>> 95425d540f4efbe579af50da3c43f21f50cc9383
