@@ -40,7 +40,7 @@ ppath = function(lambda, s, ext){
 # LOAD SIMULATION DATA -----------------------------------------
 # Function to load all cases for param values
 return_obj = function(case, lambda, s){
-  load(paste0("output/files/", lambda, "/", s, "_", case, "_iterout.Rdata"))
+  load(paste0("output/files/", lambda, "/cases/", s, "_", case, "_iterout.Rdata"))
   return(inner_list)
 }
 
@@ -64,20 +64,6 @@ summary_stats_wide <- sum_df %>%
     system == "rcv" ~ "RCV"
   ))
 
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-# weight by case weight
-summary_agg <- summary_stats_wide %>% 
-  group_by(iter, name, system) %>%
-  summarise(value = weighted.mean(value, case_weight_tbl$case_weight)) %>%
-  mutate(iter = as.numeric(iter))
-
-=======
-=======
->>>>>>> 95425d540f4efbe579af50da3c43f21f50cc9383
-=======
->>>>>>> 95425d540f4efbe579af50da3c43f21f50cc9383
 summary_agg <- summary_stats_wide %>%
   left_join(case_weight_tbl, by = c("case" = "case")) %>%
   group_by(iter, system, name) %>%
@@ -90,13 +76,6 @@ summary_agg <- summary_stats_wide %>%
 #   summarise(value = weighted.mean(value, case_weight_tbl$case_weight)) %>%
 #   mutate(iter = as.numeric(iter))
 
-<<<<<<< HEAD
-<<<<<<< HEAD
->>>>>>> 95425d540f4efbe579af50da3c43f21f50cc9383
-=======
->>>>>>> 95425d540f4efbe579af50da3c43f21f50cc9383
-=======
->>>>>>> 95425d540f4efbe579af50da3c43f21f50cc9383
 # Plot summary statistics for parameter combination and save
 ggplot(summary_stats_wide, aes(iter, value)) +
   geom_line(aes(group = interaction(system, case, name),
@@ -113,16 +92,6 @@ ggplot(summary_stats_wide, aes(iter, value)) +
   guides(colour = guide_legend(override.aes = list(alpha = 1))) +
   theme(legend.position = "bottom", legend.direction = "horizontal") +
   labs(x = "Degree of Strategicness (Iterations)")
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-ggsave(ppath(lambda, s, "summary"), width = 8, height = 3.5)
-
-=======
-=======
->>>>>>> 95425d540f4efbe579af50da3c43f21f50cc9383
-=======
->>>>>>> 95425d540f4efbe579af50da3c43f21f50cc9383
 
 ggsave(ppath(lambda, s, "summary"), width = 8, height = 3.5)
 
@@ -180,13 +149,6 @@ names(winners_df) <- nn
 winners_df <- bind_rows(winners_df, .id = "case")
 save(winners_df, file = fpath(lambda, s, "winners_tbl"))
 
-<<<<<<< HEAD
-<<<<<<< HEAD
->>>>>>> 95425d540f4efbe579af50da3c43f21f50cc9383
-=======
->>>>>>> 95425d540f4efbe579af50da3c43f21f50cc9383
-=======
->>>>>>> 95425d540f4efbe579af50da3c43f21f50cc9383
 # VVEC DATA --------------------------------------------------
 # Function to prepare v_vec data
 get_vvecs = function(obj){

@@ -27,19 +27,7 @@ which_cases <- 1:160 # which cases?
 which_cases <- which_cases[!index] #get rid of the ones with no obs
 
 # Override previous .txt file
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
 close(file("clusterlog_fourtxt", open = "w"))
-=======
-close(file("clusterlog_four.txt", open = "w"))
->>>>>>> 95425d540f4efbe579af50da3c43f21f50cc9383
-=======
-close(file("clusterlog_four.txt", open = "w"))
->>>>>>> 95425d540f4efbe579af50da3c43f21f50cc9383
-=======
-close(file("clusterlog_four.txt", open = "w"))
->>>>>>> 95425d540f4efbe579af50da3c43f21f50cc9383
 
 # MULTIPLE CORES
 clno <- detectCores()
@@ -80,7 +68,7 @@ cases_converge <- foreach(
     filepath <- paste0(
         "output/files/",
         "1",
-        "/",
+        "/cases/",
         s_val,
         "_",
         names(big_list_na_omit)[j], "_iterout_fourparties.Rdata"

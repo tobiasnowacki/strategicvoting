@@ -21,23 +21,14 @@ cat(cmd_line_args, sep = "n")
 s_list <- as.list(c(10, 25, 40, 55, 70, 85)) # precision (s)
 lambda_list <- as.list(c(0.05, 0.1, 0.01))   # responsiveness ()
 # epsilon_thresh <- 0.001            # threshold (epsilon)
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
 max_iter_val <- 15              # no of iterations
 which_cases <- 17          # which cases?
-=======
 max_iter_val <- 250            # no of iterations
 which_cases <- 1:160          # which cases?
->>>>>>> 95425d540f4efbe579af50da3c43f21f50cc9383
-=======
 max_iter_val <- 250            # no of iterations
 which_cases <- 1:160          # which cases?
->>>>>>> 95425d540f4efbe579af50da3c43f21f50cc9383
-=======
 max_iter_val <- 250            # no of iterations
 which_cases <- 1:160          # which cases?
->>>>>>> 95425d540f4efbe579af50da3c43f21f50cc9383
 
 # If command line does not pick s, lambda:
 ifelse(length(cmd_line_args >= 1),
@@ -85,7 +76,7 @@ cases_converge <- foreach(j = which_cases,
                 noisy = FALSE
               )
               
-	      filepath = paste0("output/files/", l_choice, "/", s_val, "_", names(big_list_na_omit)[j], "_iterout.Rdata")
+	      filepath = paste0("output/files/", l_choice, "/cases/", s_val, "_", names(big_list_na_omit)[j], "_iterout.Rdata")
               save(inner_list,  file = filepath)
               cat(paste0("Done with case ", j, " out of ", max(which_cases), ".", "\n"))
 	      inner_list
