@@ -2,9 +2,15 @@
 #SBATCH --time=2:00:00
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 #SBATCH --mem=194G
 #SBATCH --partition=bigmem
 #SBATCH --ntasks-per-node=4
+=======
+#SBATCH --mem=64G
+#SBATCH --partition=andyhall
+#SBATCH --ntasks-per-node=24
+>>>>>>> 95425d540f4efbe579af50da3c43f21f50cc9383
 =======
 #SBATCH --mem=64G
 #SBATCH --partition=andyhall

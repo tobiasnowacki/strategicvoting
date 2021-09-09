@@ -2,8 +2,13 @@
 ✔ ggplot2 3.3.2     ✔ purrr   0.3.4
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 ✔ tibble  3.0.4     ✔ dplyr   1.0.2
 ✔ tidyr   1.1.2     ✔ stringr 1.4.0
+=======
+✔ tibble  3.1.3     ✔ dplyr   1.0.7
+✔ tidyr   1.1.3     ✔ stringr 1.4.0
+>>>>>>> 95425d540f4efbe579af50da3c43f21f50cc9383
 =======
 ✔ tibble  3.1.3     ✔ dplyr   1.0.7
 ✔ tidyr   1.1.3     ✔ stringr 1.4.0
@@ -31,8 +36,11 @@ The following object is masked from ‘package:tidyr’:
 Joining, by = "cntry"
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 `summarise()` regrouping output by 'iter', 'name' (override with `.groups` argument)
 =======
+=======
+>>>>>>> 95425d540f4efbe579af50da3c43f21f50cc9383
 =======
 >>>>>>> 95425d540f4efbe579af50da3c43f21f50cc9383
 `summarise()` has grouped output by 'iter', 'name'. You can override using the `.groups` argument.
@@ -40,6 +48,9 @@ Warning messages:
 1: Removed 194 row(s) containing missing values (geom_path). 
 2: Removed 150 row(s) containing missing values (geom_path). 
 <<<<<<< HEAD
+<<<<<<< HEAD
+>>>>>>> 95425d540f4efbe579af50da3c43f21f50cc9383
+=======
 >>>>>>> 95425d540f4efbe579af50da3c43f21f50cc9383
 =======
 >>>>>>> 95425d540f4efbe579af50da3c43f21f50cc9383

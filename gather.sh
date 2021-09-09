@@ -1,6 +1,7 @@
 #!/bin/sh
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 #SBATCH --time=3:00:00
 #SBATCH --mem=200G
 #SBATCH --partition=bigmem
@@ -11,6 +12,8 @@
 =======
 =======
 >>>>>>> 95425d540f4efbe579af50da3c43f21f50cc9383
+=======
+>>>>>>> 95425d540f4efbe579af50da3c43f21f50cc9383
 #SBATCH --time=2:00:00
 #SBATCH --mem=64G
 #SBATCH --partition=andyhall
@@ -19,6 +22,9 @@
 #SBATCH --error=g.stderr
 #SBATCH --output=g.out
 <<<<<<< HEAD
+<<<<<<< HEAD
+>>>>>>> 95425d540f4efbe579af50da3c43f21f50cc9383
+=======
 >>>>>>> 95425d540f4efbe579af50da3c43f21f50cc9383
 =======
 >>>>>>> 95425d540f4efbe579af50da3c43f21f50cc9383

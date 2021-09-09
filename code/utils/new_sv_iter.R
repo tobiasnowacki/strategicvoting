@@ -69,8 +69,11 @@ sv_iter = function(
       winner_vec <- apply(mat, 1, which.max)
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
       winner_share <- sum(winner_vec == sincere_winner)
 =======
+=======
+>>>>>>> 95425d540f4efbe579af50da3c43f21f50cc9383
 =======
 >>>>>>> 95425d540f4efbe579af50da3c43f21f50cc9383
       winner_share_vec <- c(
@@ -79,6 +82,9 @@ sv_iter = function(
         sum(winner_vec == 3, na.rm = TRUE)
       ) / length(winner_vec)
 <<<<<<< HEAD
+<<<<<<< HEAD
+>>>>>>> 95425d540f4efbe579af50da3c43f21f50cc9383
+=======
 >>>>>>> 95425d540f4efbe579af50da3c43f21f50cc9383
 =======
 >>>>>>> 95425d540f4efbe579af50da3c43f21f50cc9383
@@ -92,11 +98,14 @@ sv_iter = function(
       win_df <- irv_winners(mat)
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
       winner_share <- sum(win_df$winner == sincere_winner)
     }
 
     out[[i - 1]]$wintbl <- winner_share / 100000
 =======
+=======
+>>>>>>> 95425d540f4efbe579af50da3c43f21f50cc9383
 =======
 >>>>>>> 95425d540f4efbe579af50da3c43f21f50cc9383
       winner_share_vec <- c(
@@ -114,6 +123,9 @@ sv_iter = function(
     out[[i - 1]]$exp_win <- as.matrix(U) %*% winner_share_vec
     out[[i - 1]]$exp_win_mean <- wtd.mean(out[[i - 1]]$exp_win, weights = weights, na.rm = TRUE)
 <<<<<<< HEAD
+<<<<<<< HEAD
+>>>>>>> 95425d540f4efbe579af50da3c43f21f50cc9383
+=======
 >>>>>>> 95425d540f4efbe579af50da3c43f21f50cc9383
 =======
 >>>>>>> 95425d540f4efbe579af50da3c43f21f50cc9383

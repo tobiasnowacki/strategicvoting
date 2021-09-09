@@ -61,8 +61,11 @@ sv_four <- function(U,
         pps <- mc_sims %>%
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
             irv_pivot_probs_four_cands(n = 1, reporting = 0)
 =======
+=======
+>>>>>>> 95425d540f4efbe579af50da3c43f21f50cc9383
 =======
 >>>>>>> 95425d540f4efbe579af50da3c43f21f50cc9383
             irv_pivot_probs_four_cands(n = 1000, reporting = 0)
@@ -73,6 +76,9 @@ sv_four <- function(U,
         })
         
 <<<<<<< HEAD
+<<<<<<< HEAD
+>>>>>>> 95425d540f4efbe579af50da3c43f21f50cc9383
+=======
 >>>>>>> 95425d540f4efbe579af50da3c43f21f50cc9383
 =======
 >>>>>>> 95425d540f4efbe579af50da3c43f21f50cc9383
@@ -154,7 +160,11 @@ sv_four <- function(U,
            v.vec.before = v.vec,
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
            p.mat <- P.mat
+=======
+           p.mat = P.mat
+>>>>>>> 95425d540f4efbe579af50da3c43f21f50cc9383
 =======
            p.mat = P.mat
 >>>>>>> 95425d540f4efbe579af50da3c43f21f50cc9383

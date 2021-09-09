@@ -66,6 +66,7 @@ summary_stats_wide <- sum_df %>%
 
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 # weight by case weight
 summary_agg <- summary_stats_wide %>% 
   group_by(iter, name, system) %>%
@@ -73,6 +74,8 @@ summary_agg <- summary_stats_wide %>%
   mutate(iter = as.numeric(iter))
 
 =======
+=======
+>>>>>>> 95425d540f4efbe579af50da3c43f21f50cc9383
 =======
 >>>>>>> 95425d540f4efbe579af50da3c43f21f50cc9383
 summary_agg <- summary_stats_wide %>%
@@ -88,6 +91,9 @@ summary_agg <- summary_stats_wide %>%
 #   mutate(iter = as.numeric(iter))
 
 <<<<<<< HEAD
+<<<<<<< HEAD
+>>>>>>> 95425d540f4efbe579af50da3c43f21f50cc9383
+=======
 >>>>>>> 95425d540f4efbe579af50da3c43f21f50cc9383
 =======
 >>>>>>> 95425d540f4efbe579af50da3c43f21f50cc9383
@@ -109,9 +115,12 @@ ggplot(summary_stats_wide, aes(iter, value)) +
   labs(x = "Degree of Strategicness (Iterations)")
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 ggsave(ppath(lambda, s, "summary"), width = 8, height = 3.5)
 
 =======
+=======
+>>>>>>> 95425d540f4efbe579af50da3c43f21f50cc9383
 =======
 >>>>>>> 95425d540f4efbe579af50da3c43f21f50cc9383
 
@@ -172,6 +181,9 @@ winners_df <- bind_rows(winners_df, .id = "case")
 save(winners_df, file = fpath(lambda, s, "winners_tbl"))
 
 <<<<<<< HEAD
+<<<<<<< HEAD
+>>>>>>> 95425d540f4efbe579af50da3c43f21f50cc9383
+=======
 >>>>>>> 95425d540f4efbe579af50da3c43f21f50cc9383
 =======
 >>>>>>> 95425d540f4efbe579af50da3c43f21f50cc9383

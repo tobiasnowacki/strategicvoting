@@ -4769,8 +4769,11 @@ Round 0: done.
 done.
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 Round 2: 
 =======
+=======
+>>>>>>> 95425d540f4efbe579af50da3c43f21f50cc9383
 =======
 >>>>>>> 95425d540f4efbe579af50da3c43f21f50cc9383
 Round 2: starting worker pid=233753 on localhost:11441 at 10:42:39.678
@@ -5608,6 +5611,9 @@ Error in unserialize(node$con) : error reading from connection
 Calls: <Anonymous> ... doTryCatch -> recvData -> recvData.SOCKnode -> unserialize
 Execution halted
 <<<<<<< HEAD
+<<<<<<< HEAD
+>>>>>>> 95425d540f4efbe579af50da3c43f21f50cc9383
+=======
 >>>>>>> 95425d540f4efbe579af50da3c43f21f50cc9383
 =======
 >>>>>>> 95425d540f4efbe579af50da3c43f21f50cc9383
