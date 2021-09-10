@@ -1,5 +1,5 @@
 #!/bin/sh
-#SBATCH --time=4:00:00
+#SBATCH --time=2:00:00
 #SBATCH --mem=64G
 #SBATCH --partition=andyhall
 #SBATCH --ntasks-per-node=24

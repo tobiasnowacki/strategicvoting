@@ -12,7 +12,6 @@ vap <- read.csv("data/case_vap.csv", sep = "") # voting age pop.
 cat("Data imported. \n")
 source("code/prep_cses.R")  # data prep
 
-# which(names(big_list_na_omit) == "SWE_2014")
 
 # SET PARAMETERS
 cmd_line_args <- commandArgs(trailingOnly = TRUE)
@@ -20,13 +19,6 @@ cat(cmd_line_args, sep = "n")
 
 s_list <- as.list(c(10, 25, 40, 55, 70, 85)) # precision (s)
 lambda_list <- as.list(c(0.05, 0.1, 0.01))   # responsiveness ()
-# epsilon_thresh <- 0.001            # threshold (epsilon)
-max_iter_val <- 15              # no of iterations
-which_cases <- 17          # which cases?
-max_iter_val <- 250            # no of iterations
-which_cases <- 1:160          # which cases?
-max_iter_val <- 250            # no of iterations
-which_cases <- 1:160          # which cases?
 max_iter_val <- 250            # no of iterations
 which_cases <- 1:160          # which cases?
 
@@ -42,11 +34,11 @@ lambda_val <- lambda_list[[l_choice]]
 s_val <- s_list[[s_choice]]
 
 # Override previous .txt file
-close(file("clusterlog.txt", open="w"))
+close(file("scripts/scriptlog/clusterlog.txt", open="w"))
 
 # MULTIPLE CORES
 clno <- detectCores()
-cl <- makeCluster(clno, outfile = "clusterlog.txt")
+cl <- makeCluster(clno, outfile = "scripts/scriptlog/clusterlog.txt")
 registerDoParallel(cl)
 result_list = list()
 # parallelise

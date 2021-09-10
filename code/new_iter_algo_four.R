@@ -15,23 +15,34 @@ source("code/prep_cses.R") # data prep
 # Get rid of cases that don't have any rows
 index <- map_dbl(big_list_na_omit, ~ nrow(.x$U)) == 0
 
-# NZL_2014 only has three parties!
-
-# which(names(big_list_na_omit) == "SWE_2014")
-
 # SET PARAMETERS
-s_val <- 85
-lambda_val <- 0.05
+cmd_line_args <- commandArgs(trailingOnly = TRUE)
+cat(cmd_line_args, sep = "n")
+
+s_list <- as.list(c(10, 25, 40, 55, 70, 85)) # precision (s)
+lambda_list <- as.list(c(0.05, 0.1, 0.01))   # responsiveness ()
+
+# If command line does not pick s, lambda:
+ifelse(length(cmd_line_args >= 1),
+       s_choice <- as.numeric(cmd_line_args[1]),
+       s_choice <- 6)
+ifelse(length(cmd_line_args >= 2),
+       l_choice <- as.numeric(cmd_line_args[2]),
+       l_choice <- 1)
+
+lambda_val <- lambda_list[[l_choice]]
+s_val <- s_list[[s_choice]]
+
 max_iter_val <- 75 # no of iterations
 which_cases <- 1:160 # which cases?
 which_cases <- which_cases[!index] #get rid of the ones with no obs
 
 # Override previous .txt file
-close(file("clusterlog_fourtxt", open = "w"))
+close(file("scripts/scriptlog/clusterlog_four.txt", open = "w"))
 
 # MULTIPLE CORES
 clno <- detectCores()
-cl <- makeCluster(clno, outfile = "clusterlog_four.txt")
+cl <- makeCluster(clno, outfile = "scripts/scriptlog/clusterlog_four.txt")
 registerDoParallel(cl)
 result_list <- list()
 # parallelise
