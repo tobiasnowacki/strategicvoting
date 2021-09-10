@@ -11,6 +11,7 @@ output/intermediate4.Rdata
 output/manyiterations.Rdata
 output/manyiterations2.Rdata
 
+**/.vscode
 *.stderr
 *.out
 *_iterout.Rdata
