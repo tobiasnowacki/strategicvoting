@@ -2,7 +2,7 @@
 **/presentation
 **/text
 
-data/cses/data/
+data/cses/
 output/iterations.Rdata
 output/intermediate.Rdata
 output/intermediate2.Rdata

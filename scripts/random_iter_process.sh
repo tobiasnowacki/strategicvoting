@@ -9,5 +9,6 @@
 #SBATCH --mail-user=toby.nowacki@gmail.com
 #SBATCH --mail-type=ALL
 
-Rscript ../code/new_random_process.R
+cd ..
+Rscript code/new_random_process.R
 # Rscript code/new_iter_algo.R $1 $2

@@ -36,14 +36,14 @@ ppath = function(lambda, s, ext){
 # LOAD SIMULATION DATA -----------------------------------------
 # Function to load all cases for param values
 return_obj = function(fname){
-  load(paste0("output/files/cases/", 1, "/", fname))
+  load(paste0("output/files/", 1, "/cases/", fname))
   inner_list$casename <- substr(fname, 4, 11)
   return(inner_list)
 }
 
 # Grab all 160 simulations
 
-filelist <- list.files(path = "output/files/1/")
+filelist <- list.files(path = "output/files/1/cases/")
 filelist <- filelist[grepl("fourparties", filelist)]
 caselist <- substr(filelist, 4, 11)
 

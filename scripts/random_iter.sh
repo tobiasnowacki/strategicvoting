@@ -9,9 +9,9 @@
 #SBATCH --mail-user=toby.nowacki@gmail.com
 #SBATCH --mail-type=ALL
 
-
+cd ..
 echo $1
 module load R/4.0
 module load cairo
-Rscript ../code/new_random_start.R $1
+Rscript code/new_random_start.R $1
 # Rscript code/new_iter_algo.R $1 $2
