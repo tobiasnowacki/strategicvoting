@@ -1,12 +1,11 @@
-# Script to plot the proportion of simulations in each iteration that return the same winner as sincere voting
+# Script to plot the proportion of simulations in each iteration that
+# return the same winner as sincere voting
 
 # Load dependencies
 library(tidyverse)
 library(rio)
 library(gtools)
 library(devtools)
-# devtools::install_git('https://github.com/cran/ggtern')
-
 
 
 # Load data

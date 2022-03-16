@@ -1,0 +1,83 @@
+```{r, message = FALSE, warning = FALSE}
+# Simulation to assess bias from 'fixes'
+
+library(tidyverse)
+library(pivotprobs)
+library(gtools)
+options(tibble.width = Inf)
+options(width = 1460)
+
+# Simulate v.vecs
+vvecdf <- rdirichlet(n = 100000, c(1, 1, 1, 1) )
+s <- 85
+
+vvec_test <- c(0.627, 0.365, 0.00467, 0.002287)
+```
+
+Calculate event probs
+
+```{r, cache = TRUE}
+# This will not work [throws error]
+# pps <- plurality_election(k = 4, n = 1000) %>%
+#     election_event_probs(
+#         method = "sc",
+#         alpha = (vvec_test * s),
+#         drop_dimension = TRUE,
+#         merge_adjacent_pivot_events = TRUE
+#     ) 
+
+# Add small element to vvec
+vvec_test_amended <- vvec_test + rep(0.001, 4)
+
+pps <- plurality_election(k = 4, n = 1000) %>%
+    election_event_probs(
+        method = "sc",
+        alpha = (vvec_test_amended * s),
+        drop_dimension = TRUE,
+        merge_adjacent_pivot_events = TRUE
+    ) 
+
+int_add_noise <- pps %>% map_dbl("integral")
+
+# Use EV-method
+pps_ev <- plurality_election(k = 4, n = 1000) %>%
+    election_event_probs(
+        method = "ev",
+        alpha = (vvec_test * s)
+    ) 
+
+int_ev <- pps_ev %>% map_dbl("integral")
+
+# Use MC sim method (witih 10.5 million sims)
+pps_sim <- plurality_election(k = 4, n = 1000) %>%
+    election_event_probs(
+        method = "mc",
+        num_sims = 10500000,
+        alpha = (vvec_test * s)
+    ) 
+
+int3 <- pps_sim %>% map_dbl("integral")
+
+# Use another MC calculation (to see if it's similar)
+pps_sim2 <- plurality_election(k = 4, n = 1000) %>%
+    election_event_probs(
+        method = "mc",
+        num_sims = 10500000,
+        alpha = (vvec_test * s)
+    ) 
+
+int4 <- pps_sim2 %>% map_dbl("integral")
+```
+
+Compare and contrast. The first row are the pivot probs for the increased v_vec, the second row are the EV-pivot probs, and the last two rows are the two MC runs.
+```{r}
+out <- rbind(int_add_noise, int_ev, int3, int4) 
+out %>% as_tibble() %>% print()
+```
+
+Calculate RMSE
+```{r}
+mc_avg <- apply(out[3:4, ], 2, mean)
+
+apply(out[1:2, ], 1, function(x) sqrt(mean((x - mc_avg)^2)))
+```

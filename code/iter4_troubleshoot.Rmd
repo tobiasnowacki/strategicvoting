@@ -1,0 +1,75 @@
+# Very simple Markdown Troubleshoot
+
+First, load the data:
+```{r}
+setwd("~/github/strategicvoting")
+# Load functions
+source("code/utils/sv_iter_four.R")
+# Load data
+load("output/big_list_4_parties.RData")
+vap <- read.csv("data/case_vap.csv", sep = "") # voting age pop.
+cat("Data imported. \n")
+source("code/prep_cses.R") # data prep
+# SET PARAMETERS
+s_val <- 85
+lambda_val <- 0.05
+max_iter_val <- 57 # no of iterations
+which_cases <- 29:29 # which cases (ZAF 2014)
+```
+
+Run the algorithm until the 57th iteration
+```{r}
+
+case <- big_list_na_omit$ZAF_2014
+out <- sv_iter(
+    U = case$U,
+    s = 85,
+    rule = "plurality",
+    weights = case$weights,
+    lambda = lambda_val,
+    max.iterations = max_iter_val,
+)
+```
+
+Let's look at the key output here:
+```{r}
+out[[57]]$v.vec.before
+out[[57]]$best.response.v.vec
+
+new_vvec <- 0.05 * out[[57]]$best.response.v.vec + 0.95 * out[[57]]$v.vec.before
+new_vvec
+```
+
+What happens when we try to run the next iteration?
+```{r, error = TRUE}
+plurality_election(k = 4, n = 1000) %>%
+        election_event_probs(
+            method = "sc",
+            alpha = (new_vvec * 85),
+            drop_dimension = TRUE,
+            merge_adjacent_pivot_events = TRUE
+        )
+```
+
+Error disappears if I add a tiny bit of noise to the last element, or increase s
+
+```{r, error = TRUE}
+new_vvec_increased <- new_vvec
+new_vvec_increased[4] <- new_vvec_increased[4] + 0.002
+
+runs <- plurality_election(k = 4, n = 1000) %>%
+    election_event_probs(
+        method = "sc",
+        alpha = (new_vvec_increased * 85),
+        drop_dimension = TRUE,
+        merge_adjacent_pivot_events = TRUE
+    )
+
+also_runs <- runs <- plurality_election(k = 4, n = 1000) %>%
+    election_event_probs(
+        method = "sc",
+        alpha = (new_vvec * 150),
+        drop_dimension = TRUE,
+        merge_adjacent_pivot_events = TRUE
+    )
+```

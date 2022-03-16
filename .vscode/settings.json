@@ -1,4 +1,5 @@
 {
     "editor.wordWrap": "bounded",
-    "editor.fontFamily": "Fira Code, Menlo, Monaco, 'Courier New', monospace"
+    "editor.fontFamily": "Fira Code, Menlo, Monaco, 'Courier New', monospace",
+    "jupyter.jupyterServerType": "local"
 }
