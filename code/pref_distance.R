@@ -10,6 +10,8 @@ library(gtools)
 library(fields)
 library(ggsci)
 library(ggtern)
+library(devtools)
+source_url('https://raw.githubusercontent.com/tobiasnowacki/RTemplates/master/plottheme.R')
 
 # Load functions
 source("code/utils/new_sv_iter.R")
@@ -137,4 +139,5 @@ out_map <- map_dfr(
 # The distance between average voter profiles isn't that different between FPTP and PR!
 ggplot(out_map, aes(x = val)) +
   geom_density(aes(colour = system_comp)) +
-  facet_wrap(~ type)
+  facet_wrap(~ type) +
+  theme_tn()
