@@ -120,7 +120,10 @@ all_utils$type <- fct_relevel(all_utils$type, c(
 # Compute the average profile by case and type
 summary_df <- all_utils |>
   group_by(case, type) |>
-  summarise(A = mean(A), B = mean(B), C = mean(C)) |>
+  summarise(
+    A = mean(A),
+    B = mean(B),
+    C = mean(C)) |>
   left_join(systems) |>
   filter(system == "fptp" | system == "rcv") |>
   arrange(case, type)
