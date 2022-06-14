@@ -17,7 +17,7 @@ ppath = function(lambda, s, ext){
 # Create table with case weights
 case_weight_tbl <- tibble(case = unique(sum_df$case),
 	cntry = substr(case, 1, 3)) %>%
-	inner_join(vap) %>% 
+	inner_join(vap) %>%
 	mutate(case_weight = VAP / Freq)
 
 # Merge case weights in
@@ -30,7 +30,7 @@ sum_mg <- sum_df %>%
     ) %>%
     left_join(case_weight_tbl) %>%
     pivot_longer(Prevalence:ExpBenefit) %>%
-    mutate(setting = "3 Parties") 
+    mutate(setting = "3 Parties")
 
 sum_four_mg <- sum_four_df %>%
     select(-case) %>%
@@ -43,7 +43,7 @@ sum_four_mg <- sum_four_df %>%
     ) %>%
     left_join(case_weight_tbl) %>%
     pivot_longer(Prevalence:ExpBenefit) %>%
-    mutate(setting = "4 Parties") 
+    mutate(setting = "4 Parties")
 
 all_df <- rbind(sum_mg, sum_four_mg)
 
@@ -52,27 +52,88 @@ sum_all <- all_df %>%
     group_by(iter, System, setting, name) %>%
     summarise(
         value = wtd.mean(value, case_weight)
-    ) %>% 
+    ) %>%
     mutate(iter = as.numeric(iter)) %>%
     filter(iter < 61)
+
+sum_tight_comparison <- all_df %>%
+    left_join(case_df) %>%
+    filter((system %in% c("fptp", "tworound") & System == "plur" & setting == "3 Parties") | (system %in% c("rcv", "stv") & System == "rcv" & setting == "4 Parties")) %>%
+    group_by(iter, System, setting, name) %>%
+    summarise(
+        value = wtd.mean(value, case_weight)
+    ) %>%
+    mutate(iter = as.numeric(iter)) %>%
+    filter(iter < 61)
+
+sum_tight_pr <- all_df %>%
+    left_join(case_df) %>%
+    filter((system %in% c("fptp", "tworound") & System == "plur" & setting == "3 Parties") | (system %in% c("pr", "mixed") & System == "rcv" & setting == "4 Parties")) %>%
+    group_by(iter, System, setting, name) %>%
+    summarise(
+        value = wtd.mean(value, case_weight)
+    ) %>%
+    mutate(iter = as.numeric(iter)) %>%
+    filter(iter < 61)
+
 
 # Plot (by system)
 out <- ggplot(sum_all, aes(x = iter, y = value)) +
     geom_line(aes(
-        group = interaction(System, setting), 
+        group = interaction(System, setting),
         colour = setting,
         alpha = setting,
         lty = System
         )
     ) +
     facet_wrap(. ~ name, scales = "free") +
-    scale_linetype_manual(values = c("solid", "dashed"), 
+    scale_linetype_manual(values = c("solid", "dashed"),
         labels = c("Plurality", "RCV")) +
     scale_colour_manual(values = c("#999999", "#0000FF")) +
     scale_alpha_manual(values = c(0.6, 1)) +
     labs(x = "Iteration", y = "Value", lty = "Simulated System", colour = "No of Parties", alpha = "No of Parties") +
     theme_tn()
 
+out_tight_comparison <- ggplot(sum_tight_comparison, aes(x = iter, y = value)) +
+    geom_line(aes(
+        group = interaction(System, setting),
+        colour = setting,
+        alpha = setting,
+        lty = setting
+        )
+    ) +
+    facet_wrap(. ~ name, scales = "free") +
+    scale_linetype_manual(values = c("solid", "dashed"),
+        labels = c("Plurality with 3 parties in plurality/runoff systems", "IRV with 4 parties in ranked systems")) +
+    scale_colour_manual(labels = c("Plurality with 3 parties in plurality/runoff systems", "IRV with 4 parties in ranked systems"), values = c("#999999", "#0000FF")) +
+    scale_alpha_manual(labels = c("Plurality with 3 parties in plurality/runoff systems", "IRV with 4 parties in ranked systems"), values = c(0.6, 1)) +
+    labs(x = "Iteration", y = "Value", lty = "Setting", colour = "Setting", alpha = "Setting") +
+    theme_tn()
+
+out_tight_comparison
+
+out_pr_comparison <- ggplot(sum_tight_pr, aes(x = iter, y = value)) +
+    geom_line(aes(
+        group = interaction(System, setting),
+        colour = setting,
+        alpha = setting,
+        lty = setting
+        )
+    ) +
+    facet_wrap(. ~ name, scales = "free") +
+    scale_linetype_manual(values = c("solid", "dashed"),
+        labels = c("Plurality with 3 parties in plurality/runoff systems", "IRV with 4 parties in PR systems")) +
+    scale_colour_manual(labels = c("Plurality with 3 parties in plurality/runoff systems", "IRV with 4 parties in PR systems"), values = c("#999999", "#0000FF")) +
+    scale_alpha_manual(labels = c("Plurality with 3 parties in plurality/runoff systems", "IRV with 4 parties in PR systems"), values = c(0.6, 1)) +
+    labs(x = "Iteration", y = "Value", lty = "Setting", colour = "Setting", alpha = "Setting") +
+    theme_tn()
+
+out_tight_comparison
+out_pr_comparison
+
 lambda <- 1; s <- 85
 ggsave(out, filename = ppath(lambda, s, "parties_baseline"), width = 8, height = 3.5)
 
+ggsave(out_tight_comparison, filename = ppath(lambda, s, "parties_tight"), width = 8, height = 3.5)
+
+ggsave(out_pr_comparison, filename = ppath(lambda, s, "parties_tight_pr"), width = 8, height = 3.5)

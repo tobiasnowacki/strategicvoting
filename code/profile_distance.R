@@ -59,7 +59,7 @@ easy_summary_mg$stat <- fct_relevel(
 )
 
 # Run KS between PR and FPTP
-measures <- c("Difference", "Unidimensionality")
+measures <- c("Top", "Bottom", "Difference", "Unidimensionality")
 
 for (m in measures) {
 
@@ -82,8 +82,8 @@ for (m in measures) {
 ggplot(easy_summary_mg, aes(x = value)) +
   geom_density(aes(fill = system), alpha = 0.5) +
   facet_wrap(~ stat, scales = "free") +
-  scale_fill_nejm() +
-  labs(x = "Value", y = "Density") +
+  scale_fill_nejm(labels = c("Plurality", "PR")) +
+  labs(x = "Value", y = "Density", fill = "System") +
   theme_tn()
 
 ggsave(

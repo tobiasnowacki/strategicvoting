@@ -24,7 +24,7 @@ for (s in c(10, 55, 85)){
     # Create table with case weights
     case_weight_tbl <- tibble(case = unique(sum_df$case),
         cntry = substr(case, 1, 3)) %>%
-        inner_join(vap) %>% 
+        inner_join(vap) %>%
         mutate(case_weight = VAP / Freq)
 
     # Merge case weights in
@@ -39,8 +39,8 @@ for (s in c(10, 55, 85)){
         left_join(case_weight_tbl) %>%
         mutate(system_group = case_when(
             system %in% c("pr", "mixed") ~ "pr",
-            system %in% c("fptp", "tworound", "parallel") ~ "plur",
-    system %in% c("rcv") ~ "rcv", 
+            system %in% c("fptp", "tworound") ~ "plur",
+    system %in% c("rcv", "stv") ~ "rcv",
             TRUE ~ "other"
         )) %>%
         pivot_longer(Prevalence:ExpBenefit)
@@ -75,24 +75,23 @@ for (s in c(10, 55, 85)){
     out <- ggplot(sum_agg_system, aes(x = iter, y = value)) +
         geom_line(
             data = sum_agg, aes(
-                group = System, 
+                group = System,
                 lty = System
-            ), 
-            colour = "#999999", 
+            ),
+            colour = "#999999",
             alpha = 0.6
-        ) + 
+        ) +
         geom_line(aes(
-            group = interaction(System, system_group), 
+            group = interaction(System, system_group),
             colour = system_group,
             lty = System
             )
         ) +
         facet_wrap(. ~ name, scales = "free") +
-        scale_linetype_manual(values = c("solid", "dashed"), labels = c("Plurality", "RCV")) +
-        scale_colour_brewer(palette = "Dark2", labels = c("Plurality", "PR", "Ranked")) +
+        scale_linetype_manual(values = c("solid", "dashed"), labels = c("Plurality", "IRV")) +
+        scale_colour_brewer(palette = "Dark2", labels = c("Plurality/Maj", "PR", "Ranked")) +
         labs(x = "Iteration", y = "Value", lty = "Simulated System", colour = "Case System") +
         theme_tn()
 
     ggsave(out, filename = ppath(lambda, s, "system_baseline"), width = 8, height = 3.5)
 }
-
